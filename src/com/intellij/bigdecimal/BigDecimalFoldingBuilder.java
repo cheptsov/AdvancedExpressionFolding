@@ -32,11 +32,14 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("divide");
             add("subtract");
             add("remainder");
+            add("scaleByPowerOfTen");
             add("pow");
             add("min");
             add("max");
             add("negate");
             add("plus");
+            add("abs");
+            add("valueOf");
         }
     };
 
@@ -121,6 +124,11 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                             case "remainder":
                                                 return new Reminder(
                                                         Arrays.asList(qualifierExpression, argumentExpression));
+                                            case "scaleByPowerOfTen":
+                                                return new Multiply(
+                                                        Arrays.asList(qualifierExpression, new Pow(Arrays
+                                                                .asList(new Literal(BigDecimal.TEN),
+                                                                        argumentExpression))));
                                             case "pow":
                                                 return new Pow(Arrays.asList(qualifierExpression, argumentExpression));
                                             case "min":
@@ -137,7 +145,16 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                         case "negate":
                                             return new Subtract(
                                                     Arrays.asList(new Literal(BigDecimal.ZERO), qualifierExpression));
+                                        case "abs":
+                                            return new Abs(
+                                                    Collections.singletonList(qualifierExpression));
                                     }
+                                }
+                            } else if ("valueOf".equals(method.getName()) && methodCallExpression.getArgumentList().getExpressions().length == 1) {
+                                PsiExpression argument = methodCallExpression.getArgumentList().getExpressions()[0];
+                                Expression argumentExpression = getExpression(argument);
+                                if (argumentExpression != null) {
+                                    return argumentExpression;
                                 }
                             }
                         }
@@ -196,8 +213,15 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                 }
                 return new Literal(new BigDecimal(value));
             }
-        } else if (element instanceof PsiLiteralExpression && "int"
-                .equals(((PsiLiteralExpression) element).getType().getCanonicalText())) {
+        } else if (element instanceof PsiLiteralExpression &&
+                ((PsiLiteralExpression) element).getType() != null
+                && (
+                "int".equals(((PsiLiteralExpression) element).getType().getCanonicalText())
+                        || "long"
+                        .equals(((PsiLiteralExpression) element).getType().getCanonicalText())
+                        || "double"
+                        .equals(((PsiLiteralExpression) element).getType().getCanonicalText())
+        )) {
             return new Literal(new BigDecimal(element.getText()));
         }
         return null;

@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class OperationTest {
     @Test
@@ -41,5 +42,8 @@ public class OperationTest {
         Assert.assertEquals("- (a + b)", e8.format());
         Expression e9 = new Add(Arrays.asList(new Reminder(Arrays.asList(new Variable("a"), new Variable("b"))), new Variable("c")));
         Assert.assertEquals("a % b + c", e9.format());
+        Expression e10 = new Abs(Collections.singletonList(new Variable("1")));
+        Assert.assertEquals("|a|", e1.format());
+
     }
 }
