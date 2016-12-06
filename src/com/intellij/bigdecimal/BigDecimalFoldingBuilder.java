@@ -31,6 +31,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("multiply");
             add("divide");
             add("subtract");
+            add("remainder");
             add("pow");
             add("min");
             add("max");
@@ -116,6 +117,9 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                                         Arrays.asList(qualifierExpression, argumentExpression));
                                             case "multiply":
                                                 return new Multiply(
+                                                        Arrays.asList(qualifierExpression, argumentExpression));
+                                            case "remainder":
+                                                return new Reminder(
                                                         Arrays.asList(qualifierExpression, argumentExpression));
                                             case "pow":
                                                 return new Pow(Arrays.asList(qualifierExpression, argumentExpression));

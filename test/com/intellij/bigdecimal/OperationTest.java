@@ -39,5 +39,7 @@ public class OperationTest {
         Assert.assertEquals("- a", e7.format());
         Expression e8 = new Subtract(Arrays.asList(new Literal(BigDecimal.ZERO), new Add(Arrays.asList(new Variable("a"), new Variable("b")))));
         Assert.assertEquals("- (a + b)", e8.format());
+        Expression e9 = new Add(Arrays.asList(new Reminder(Arrays.asList(new Variable("a"), new Variable("b"))), new Variable("c")));
+        Assert.assertEquals("a % b + c", e9.format());
     }
 }
