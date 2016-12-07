@@ -37,7 +37,7 @@ public class OperationTest {
         Operation e6 = new Multiply(Arrays.asList(new Pow(Arrays.asList(new Variable("a"), new Variable("b"))), e3));
         Assert.assertEquals("a ^ b * (a + b) * c", e6.format());
         Expression e7 = new Negate(Collections.singletonList(new Variable("a")));
-        Assert.assertEquals("- a", e7.format());
+        Assert.assertEquals("-a", e7.format());
         Expression e8 = new Subtract(Arrays.asList(new Literal(BigDecimal.ZERO), new Add(Arrays.asList(new Variable("a"), new Variable("b")))));
         Assert.assertEquals("0 - (a + b)", e8.format());
         Expression e9 = new Add(Arrays.asList(new Reminder(Arrays.asList(new Variable("a"), new Variable("b"))), new Variable("c")));
