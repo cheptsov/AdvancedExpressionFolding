@@ -11,4 +11,8 @@ public class Variable extends Expression {
     public String format() {
         return name;
     }
+
+    public String getName() {
+        return name;
+    }
 }
