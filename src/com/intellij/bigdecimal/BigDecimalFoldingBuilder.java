@@ -32,6 +32,18 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("plus");
             add("abs");
             add("valueOf");
+            add("and");
+            add("gcd");
+            add("not");
+            add("or");
+            add("shiftLeft");
+            add("shiftRight");
+            add("signum");
+            add("xor");
+            add("andNot");
+            add("mod");
+            add("modInverse");
+            add("modPow");
         }
     };
 
@@ -65,7 +77,11 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("divide");
             add("subtract");
             add("remainder");
-            add("pow");
+            add("shiftLeft");
+            add("shiftRight");
+            add("and");
+            add("or");
+            add("xor");
         }
     };
 
@@ -164,6 +180,16 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                                 return new DivideAssign(Arrays.asList(leftVariable, argumentExpression));
                                             case "remainder":
                                                 return new RemainderAssign(Arrays.asList(leftVariable, argumentExpression));
+                                            case "shiftLeft":
+                                                return new ShiftLeftAssign(Arrays.asList(leftVariable, argumentExpression));
+                                            case "shiftRight":
+                                                return new ShiftRightAssign(Arrays.asList(leftVariable, argumentExpression));
+                                            case "and":
+                                                return new AndAssign(Arrays.asList(leftVariable, argumentExpression));
+                                            case "or":
+                                                return new OrAssign(Arrays.asList(leftVariable, argumentExpression));
+                                            case "xor":
+                                                return new XorAssign(Arrays.asList(leftVariable, argumentExpression));
                                         }
                                     }
                                 }
@@ -282,17 +308,40 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                         case "remainder":
                                             return new Reminder(
                                                     Arrays.asList(qualifierExpression, argumentExpression));
+                                        case "mod":
+                                            return new Reminder(
+                                                    Arrays.asList(qualifierExpression, argumentExpression));
                                         case "scaleByPowerOfTen":
                                             return new Multiply(
                                                     Arrays.asList(qualifierExpression, new Pow(Arrays
                                                             .asList(new Literal(10),
                                                                     argumentExpression))));
+                                        case "andNot":
+                                            return new And(
+                                                    Arrays.asList(qualifierExpression, new Not(
+                                                            Collections.singletonList(argumentExpression))));
+                                        case "modInverse":
+                                            return new Reminder(
+                                                    Arrays.asList(new Pow(
+                                                            Arrays.asList(qualifierExpression, new Literal(-1))), argumentExpression));
                                         case "pow":
                                             return new Pow(Arrays.asList(qualifierExpression, argumentExpression));
                                         case "min":
                                             return new Min(Arrays.asList(qualifierExpression, argumentExpression));
                                         case "max":
                                             return new Max(Arrays.asList(qualifierExpression, argumentExpression));
+                                        case "gcd":
+                                            return new Gcd(Arrays.asList(qualifierExpression, argumentExpression));
+                                        case "and":
+                                            return new And(Arrays.asList(qualifierExpression, argumentExpression));
+                                        case "or":
+                                            return new Or(Arrays.asList(qualifierExpression, argumentExpression));
+                                        case "xor":
+                                            return new Xor(Arrays.asList(qualifierExpression, argumentExpression));
+                                        case "shiftLeft":
+                                            return new ShiftLeft(Arrays.asList(qualifierExpression, argumentExpression));
+                                        case "shiftRight":
+                                            return new ShiftRight(Arrays.asList(qualifierExpression, argumentExpression));
                                     }
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 0) {
@@ -302,8 +351,26 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                         return qualifierExpression;
                                     case "negate":
                                         return new Negate(Collections.singletonList(qualifierExpression));
+                                    case "not":
+                                        return new Not(Collections.singletonList(qualifierExpression));
                                     case "abs":
                                         return new Abs(Collections.singletonList(qualifierExpression));
+                                    case "signum":
+                                        return new Signum(Collections.singletonList(qualifierExpression));
+                                }
+                            } else if (element.getArgumentList().getExpressions().length == 2) {
+                                PsiExpression a1 = element.getArgumentList().getExpressions()[0];
+                                Expression a1Expression = getExpression(a1);
+                                PsiExpression a2 = element.getArgumentList().getExpressions()[1];
+                                Expression a2Expression = getExpression(a2);
+                                if (a1Expression != null && a2Expression != null) {
+                                    String methodName = identifier.get().getText();
+                                    switch (methodName) {
+                                        case "modPow":
+                                            return new Reminder(
+                                                    Arrays.asList(new Pow(
+                                                            Arrays.asList(qualifierExpression, a1Expression)), a2Expression));
+                                    }
                                 }
                             }
                         } else if ("valueOf".equals(method.getName()) && element.getArgumentList()
