@@ -4,23 +4,12 @@ import java.util.List;
 
 public class Divide extends Operation {
     public Divide(List<Expression> operands) {
-        super("/", operands);
+        super("/", 100, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
         return new Divide(newOperands);
-    }
-
-    @Override
-    protected int compareTo(Operation operation) {
-        return operation instanceof Pow
-                ? -1
-                : operation instanceof Multiply
-                ? 0
-                : operation instanceof Divide
-                ? 0
-                : 1;
     }
 
     @Override

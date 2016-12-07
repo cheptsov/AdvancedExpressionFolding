@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Reminder extends Operation {
     public Reminder(List<Expression> operands) {
-        super("%", operands);
+        super("%", 100, operands);
     }
 
     @Override
@@ -13,13 +13,7 @@ public class Reminder extends Operation {
     }
 
     @Override
-    protected int compareTo(Operation operation) {
-        return operation instanceof Reminder
-                ? 0 :
-                operation instanceof Add
-                ? 1
-                : operation instanceof Subtract
-                ? 1
-                : -1;
+    public boolean isAssociative() {
+        return false;
     }
 }

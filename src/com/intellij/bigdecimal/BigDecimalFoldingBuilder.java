@@ -121,13 +121,16 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                             case "multiply":
                                                 return new Multiply(
                                                         Arrays.asList(qualifierExpression, argumentExpression));
+                                            case "divide":
+                                                return new Divide(
+                                                        Arrays.asList(qualifierExpression, argumentExpression));
                                             case "remainder":
                                                 return new Reminder(
                                                         Arrays.asList(qualifierExpression, argumentExpression));
                                             case "scaleByPowerOfTen":
                                                 return new Multiply(
                                                         Arrays.asList(qualifierExpression, new Pow(Arrays
-                                                                .asList(new Literal(BigDecimal.TEN),
+                                                                .asList(new Literal(10),
                                                                         argumentExpression))));
                                             case "pow":
                                                 return new Pow(Arrays.asList(qualifierExpression, argumentExpression));
@@ -143,14 +146,13 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                         case "plus":
                                             return qualifierExpression;
                                         case "negate":
-                                            return new Subtract(
-                                                    Arrays.asList(new Literal(BigDecimal.ZERO), qualifierExpression));
+                                            return new Negate(Collections.singletonList(qualifierExpression));
                                         case "abs":
-                                            return new Abs(
-                                                    Collections.singletonList(qualifierExpression));
+                                            return new Abs(Collections.singletonList(qualifierExpression));
                                     }
                                 }
-                            } else if ("valueOf".equals(method.getName()) && methodCallExpression.getArgumentList().getExpressions().length == 1) {
+                            } else if ("valueOf".equals(method.getName()) && methodCallExpression.getArgumentList()
+                                    .getExpressions().length == 1) {
                                 PsiExpression argument = methodCallExpression.getArgumentList().getExpressions()[0];
                                 Expression argumentExpression = getExpression(argument);
                                 if (argumentExpression != null) {
@@ -174,11 +176,11 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                         if (psiClass != null) {
                             if ("java.math.BigDecimal".equals(psiClass.getQualifiedName())) {
                                 if (identifier.get().getText().equals("TEN")) {
-                                    return new Literal(BigDecimal.TEN);
+                                    return new Literal(10);
                                 } else if (identifier.get().getText().equals("ONE")) {
-                                    return new Literal(BigDecimal.ONE);
+                                    return new Literal(1);
                                 } else if (identifier.get().getText().equals("ZERO")) {
-                                    return new Literal(BigDecimal.ZERO);
+                                    return new Literal(0);
                                 }
                             }
                         }
@@ -213,16 +215,17 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                 }
                 return new Literal(new BigDecimal(value));
             }
-        } else if (element instanceof PsiLiteralExpression &&
-                ((PsiLiteralExpression) element).getType() != null
-                && (
-                "int".equals(((PsiLiteralExpression) element).getType().getCanonicalText())
-                        || "long"
-                        .equals(((PsiLiteralExpression) element).getType().getCanonicalText())
-                        || "double"
-                        .equals(((PsiLiteralExpression) element).getType().getCanonicalText())
-        )) {
-            return new Literal(new BigDecimal(element.getText()));
+        } else if (element instanceof PsiLiteralExpression) {
+            PsiType type = ((PsiLiteralExpression) element).getType();
+            if (type != null && (
+                    "int".equals(type.getCanonicalText())
+                            || "long"
+                            .equals(type.getCanonicalText())
+                            || "double"
+                            .equals(type.getCanonicalText())
+            )) {
+                return new Literal(new BigDecimal(element.getText()));
+            }
         }
         return null;
     }

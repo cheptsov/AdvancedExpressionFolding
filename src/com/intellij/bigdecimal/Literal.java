@@ -1,11 +1,9 @@
 package com.intellij.bigdecimal;
 
-import java.math.BigDecimal;
-
 public class Literal extends Expression {
-    private BigDecimal number;
+    private Number number;
 
-    public Literal(BigDecimal number) {
+    public Literal(Number number) {
         this.number = number;
     }
 
@@ -14,7 +12,7 @@ public class Literal extends Expression {
         return number.toString();
     }
 
-    public BigDecimal getNumber() {
+    public Number getNumber() {
         return number;
     }
 }

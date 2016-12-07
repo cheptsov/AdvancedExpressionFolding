@@ -1,17 +1,17 @@
 package com.intellij.bigdecimal;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public abstract class Operation extends Expression {
     protected String character;
+    private int priority;
     protected List<Expression> operands;
-    private boolean assosiative;
 
-    public Operation(String character, List<Expression> operands) {
+    public Operation(String character, int priority, List<Expression> operands) {
         this.character = character;
+        this.priority = priority;
         this.operands = operands;
     }
 
@@ -38,7 +38,7 @@ public abstract class Operation extends Expression {
                         }
                     }
                 }
-                if ((i == 0 || simplifiedOperand.isAssociative()) && simplifiedOperand.compareTo(this) >= 0) {
+                if (Objects.equals(this.getCharacter(), simplifiedOperand.getCharacter())) {
                     if (simplifiedOperands == null) {
                         simplifiedOperands = new ArrayList<>();
                         if (i > 0) {
@@ -61,7 +61,13 @@ public abstract class Operation extends Expression {
         return this;
     }
 
-    protected abstract int compareTo(Operation operation);
+    private int compareTo(Operation operation) {
+        return this.getPriority() == operation.getPriority()
+                ? 0
+                : this.getPriority() > operation.getPriority()
+                ? 1
+                : -1;
+    }
 
     @Override
     public String format() {
@@ -72,23 +78,18 @@ public abstract class Operation extends Expression {
             boolean toSimplify = false;
             if (operand instanceof Operation) {
                 Operation o = (Operation) operand;
-                toSimplify = true;
-                if (i > 0 && !o.isAssociative() || o.compareTo(this) < 0) {
-                    toSimplify = false;
-                }
+                toSimplify = (i == 0 || (o.isAssociative() && this.isAssociative())) && o.compareTo(this) >= 0
+                        || o.compareTo(this) > 0;
             }
-            if (!skilHeadingZero() && (i != 0 || !(operand instanceof Literal) || !Objects.equals(((Literal) operand)
-                    .getNumber(), BigDecimal.ZERO))) {
-                if (operand instanceof Operation && !toSimplify) {
-                    sb.append("(");
-                }
-                sb.append(f);
-                if (operand instanceof Operation && !toSimplify) {
-                    sb.append(")");
-                }
-                if (i < operands.size() - 1) {
-                    sb.append(" ");
-                }
+            if (operand instanceof Operation && !toSimplify) {
+                sb.append("(");
+            }
+            sb.append(f);
+            if (operand instanceof Operation && !toSimplify) {
+                sb.append(")");
+            }
+            if (i < operands.size() - 1) {
+                sb.append(" ");
             }
             if (i < operands.size() - 1) {
                 sb.append(character).append(" ");
@@ -101,11 +102,11 @@ public abstract class Operation extends Expression {
         return character;
     }
 
-    protected boolean skilHeadingZero() {
-        return false;
-    }
-
     public boolean isAssociative() {
         return true;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 }

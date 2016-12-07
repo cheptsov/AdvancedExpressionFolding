@@ -36,14 +36,18 @@ public class OperationTest {
         Assert.assertEquals("max(a, b) * c", e5.format());
         Operation e6 = new Multiply(Arrays.asList(new Pow(Arrays.asList(new Variable("a"), new Variable("b"))), e3));
         Assert.assertEquals("a ^ b * (a + b) * c", e6.format());
-        Expression e7 = new Subtract(Arrays.asList(new Literal(BigDecimal.ZERO), new Variable("a")));
+        Expression e7 = new Negate(Collections.singletonList(new Variable("a")));
         Assert.assertEquals("- a", e7.format());
         Expression e8 = new Subtract(Arrays.asList(new Literal(BigDecimal.ZERO), new Add(Arrays.asList(new Variable("a"), new Variable("b")))));
-        Assert.assertEquals("- (a + b)", e8.format());
+        Assert.assertEquals("0 - (a + b)", e8.format());
         Expression e9 = new Add(Arrays.asList(new Reminder(Arrays.asList(new Variable("a"), new Variable("b"))), new Variable("c")));
         Assert.assertEquals("a % b + c", e9.format());
-        Expression e10 = new Abs(Collections.singletonList(new Variable("1")));
-        Assert.assertEquals("|a|", e1.format());
-
+        Expression e9_1 = new Add(Arrays.asList(new Variable("a"), new Reminder(Arrays.asList(new Variable("b"), new Variable("c")))));
+        Assert.assertEquals("a + b % c", e9_1.format());
+        Expression e10 = new Abs(Collections.singletonList(new Variable("a")));
+        Assert.assertEquals("|a|", e10.format());
+        Expression e11 = new Reminder(
+                Arrays.asList(new Variable("a"), new Multiply(Arrays.asList(new Variable("b"), new Variable("c")))));
+        Assert.assertEquals("a % (b * c)", e11.format());
     }
 }
