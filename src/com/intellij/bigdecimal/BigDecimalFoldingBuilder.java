@@ -308,8 +308,20 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
     }
 
     private Expression getAssignmentExpression(PsiAssignmentExpression element) {
-        Variable leftVariable = getVariableExpression(element.getLExpression(), false);
+        Variable leftVariable = getVariableExpression(element.getLExpression());
         if (leftVariable != null) {
+            Expression leftExpression = getExpression(element.getRExpression());
+            if (leftExpression instanceof Operation) {
+                Operation operation = (Operation) leftExpression;
+                if (operation.getOperands().size() >= 2 && operation.getOperands().get(0).equals(leftVariable)) {
+                    if (operation instanceof Add) {
+                        return new AddAssign(Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                new Add(operation.getOperands().subList(1, operation.getOperands().size())) : operation
+                                .getOperands().get(1)));
+                    }
+                }
+            }
+/*
             if (element.getRExpression() instanceof PsiMethodCallExpression) {
                 PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) element.getRExpression();
                 PsiReferenceExpression referenceExpression = methodCallExpression.getMethodExpression();
@@ -363,6 +375,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                     }
                 }
             }
+*/
         }
         return null;
     }
@@ -397,7 +410,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                     return new Variable((String) constant);
                 }
             } else {
-                Expression variable = getVariableExpression(element, true);
+                Expression variable = getVariableExpression(element);
                 if (variable != null) return variable;
             }
         }
@@ -405,7 +418,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
     }
 
     @Nullable
-    private Variable getVariableExpression(PsiElement element, boolean includePrimitiveTypes) {
+    private Variable getVariableExpression(PsiElement element) {
         PsiReference reference = element.getReference();
         if (reference != null) {
             PsiElement e = reference.resolve();
@@ -414,7 +427,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                 if (supportedClasses.contains(variable.getType().getCanonicalText())) {
                     return new Variable(variable.getName());
                 } else if (supportedPrimitiveTypes
-                        .contains(variable.getType().getCanonicalText()) && includePrimitiveTypes) {
+                        .contains(variable.getType().getCanonicalText())) {
                     return new Variable(variable.getName());
                 }
             }
