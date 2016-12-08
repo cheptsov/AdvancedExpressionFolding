@@ -9,7 +9,6 @@ import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -79,6 +78,10 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("java.math.BigDecimal");
             add("java.math.BigInteger");
             add("java.lang.Math");
+            add("java.lang.Long");
+            add("java.lang.Integer");
+            add("java.lang.Float");
+            add("java.lang.Double");
         }
     };
 
@@ -185,11 +188,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
         } else if (element instanceof PsiNewExpression) {
             return getNewExpression((PsiNewExpression) element);
         } else if (element instanceof PsiLiteralExpression) {
-            if (isSupportedPrimitiveType((PsiLiteralExpression) element))
-                try {
-                    return new Literal(new BigDecimal(element.getText()));
-                } catch (NumberFormatException ignore) {
-                }
+            return getLiteralExpression((PsiLiteralExpression) element);
         } else if (element instanceof PsiAssignmentExpression) {
             return getAssignmentExpression((PsiAssignmentExpression) element);
         } else if (element instanceof PsiBinaryExpression) {
@@ -198,6 +197,18 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             return getPrefixExpression((PsiPrefixExpression) element);
         } else if (element instanceof PsiParenthesizedExpression) {
             return getExpression(((PsiParenthesizedExpression) element).getExpression());
+        }
+        return null;
+    }
+
+    private Expression getLiteralExpression(PsiLiteralExpression element) {
+        if (element.getType() != null) {
+            if (supportedPrimitiveTypes.contains(element.getType().getCanonicalText())) {
+                Object value = element.getValue();
+                if (value instanceof Number) {
+                    return new Literal((Number) value);
+                }
+            }
         }
         return null;
     }
@@ -356,26 +367,19 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private boolean isSupportedPrimitiveType(PsiLiteralExpression element) {
-        return element.getType() != null && supportedPrimitiveTypes.contains(element.getType().getCanonicalText());
-    }
-
     @Nullable
     private Expression getNewExpression(PsiNewExpression element) {
         if (element.getType() != null && supportedClasses
                 .contains(element.getType().getCanonicalText()) && element.getArgumentList() != null
                 && element.getArgumentList().getExpressions().length == 1
                 && element.getArgumentList().getExpressions()[0] instanceof PsiLiteralExpression) {
-            PsiLiteralExpression psiExpression = (PsiLiteralExpression) element.getArgumentList()
-                    .getExpressions()[0];
-            String value = psiExpression.getText();
-            if (value.startsWith("\"") && value.endsWith("\"")) {
-                value = value.substring(1, value.length() - 1);
-            }
-            try {
-                return new Literal(new BigDecimal(value));
-            } catch (NumberFormatException ignore) {
-            }
+            return getConstructorExpression(element.getArgumentList().getExpressions()[0],
+                    element.getType().getCanonicalText());
+        } else if (element.getType() != null && supportedClasses
+                .contains(element.getType().getCanonicalText()) && element.getArgumentList() != null
+                && element.getArgumentList().getExpressions().length == 1
+                && element.getArgumentList().getExpressions()[0] instanceof PsiReferenceExpression) {
+            return getReferenceExpression((PsiReferenceExpression) element.getArgumentList().getExpressions()[0]);
         }
         return null;
     }
@@ -543,61 +547,68 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                             }
                         } else if (element.getArgumentList().getExpressions().length == 1) {
                             PsiExpression argument = element.getArgumentList().getExpressions()[0];
-                            Expression argumentExpression = getExpression(argument);
-                            if (argumentExpression != null) {
-                                switch (method.getName()) {
-                                    case "valueOf":
-                                        return argumentExpression;
-                                    case "abs":
-                                        return new Abs(Collections.singletonList(argumentExpression));
-                                    case "acos":
-                                        return new Acos(Collections.singletonList(argumentExpression));
-                                    case "asin":
-                                        return new Asin(Collections.singletonList(argumentExpression));
-                                    case "atan":
-                                        return new Atan(Collections.singletonList(argumentExpression));
-                                    case "cbrt":
-                                        return new Cbrt(Collections.singletonList(argumentExpression));
-                                    case "ceil":
-                                        return new Ceil(Collections.singletonList(argumentExpression));
-                                    case "cos":
-                                        return new Cos(Collections.singletonList(argumentExpression));
-                                    case "cosh":
-                                        return new Cosh(Collections.singletonList(argumentExpression));
-                                    case "floor":
-                                        return new Floor(Collections.singletonList(argumentExpression));
-                                    case "log":
-                                        return new Log(Collections.singletonList(argumentExpression));
-                                    case "log1p":
-                                        return new Log(Collections.singletonList(new Add(Arrays.asList(argumentExpression, new Literal(1)))));
-                                    case "Log10":
-                                        return new Log10(Collections.singletonList(argumentExpression));
-                                    case "rint":
-                                        return new Rint(Collections.singletonList(argumentExpression));
-                                    case "round":
-                                        return new Round(Collections.singletonList(argumentExpression));
-                                    case "sin":
-                                        return new Sin(Collections.singletonList(argumentExpression));
-                                    case "sinh":
-                                        return new Sinh(Collections.singletonList(argumentExpression));
-                                    case "Sqrt":
-                                        return new Sqrt(Collections.singletonList(argumentExpression));
-                                    case "tan":
-                                        return new Tan(Collections.singletonList(argumentExpression));
-                                    case "tanh":
-                                        return new Tanh(Collections.singletonList(argumentExpression));
-                                    case "toDegrees":
-                                        return new ToDegrees(Collections.singletonList(argumentExpression));
-                                    case "toRadians":
-                                        return new ToRadians(Collections.singletonList(argumentExpression));
-                                    case "ulp":
-                                        return new Ulp(Collections.singletonList(argumentExpression));
-                                    case "exp":
-                                        return new Pow(Arrays.asList(new Variable((String) supportedConstants.get("E")), argumentExpression));
-                                    case "expm1":
-                                        return new Subtract(Arrays.asList(new Pow(Arrays
-                                                .asList(new Variable((String) supportedConstants.get("E")),
-                                                        argumentExpression)), new Literal(1)));
+                            if (method.getName().equals("valueOf") && argument instanceof PsiLiteralExpression) {
+                                return getConstructorExpression(argument, psiClass.getQualifiedName());
+                            } else if (method.getName().equals("valueOf") && argument instanceof PsiReferenceExpression) {
+                                return getReferenceExpression((PsiReferenceExpression) argument);
+                            } else {
+                                Expression argumentExpression = getExpression(argument);
+                                if (argumentExpression != null) {
+                                    switch (method.getName()) {
+                                        case "abs":
+                                            return new Abs(Collections.singletonList(argumentExpression));
+                                        case "acos":
+                                            return new Acos(Collections.singletonList(argumentExpression));
+                                        case "asin":
+                                            return new Asin(Collections.singletonList(argumentExpression));
+                                        case "atan":
+                                            return new Atan(Collections.singletonList(argumentExpression));
+                                        case "cbrt":
+                                            return new Cbrt(Collections.singletonList(argumentExpression));
+                                        case "ceil":
+                                            return new Ceil(Collections.singletonList(argumentExpression));
+                                        case "cos":
+                                            return new Cos(Collections.singletonList(argumentExpression));
+                                        case "cosh":
+                                            return new Cosh(Collections.singletonList(argumentExpression));
+                                        case "floor":
+                                            return new Floor(Collections.singletonList(argumentExpression));
+                                        case "log":
+                                            return new Log(Collections.singletonList(argumentExpression));
+                                        case "log1p":
+                                            return new Log(Collections.singletonList(
+                                                    new Add(Arrays.asList(argumentExpression, new Literal(1)))));
+                                        case "Log10":
+                                            return new Log10(Collections.singletonList(argumentExpression));
+                                        case "rint":
+                                            return new Rint(Collections.singletonList(argumentExpression));
+                                        case "round":
+                                            return new Round(Collections.singletonList(argumentExpression));
+                                        case "sin":
+                                            return new Sin(Collections.singletonList(argumentExpression));
+                                        case "sinh":
+                                            return new Sinh(Collections.singletonList(argumentExpression));
+                                        case "Sqrt":
+                                            return new Sqrt(Collections.singletonList(argumentExpression));
+                                        case "tan":
+                                            return new Tan(Collections.singletonList(argumentExpression));
+                                        case "tanh":
+                                            return new Tanh(Collections.singletonList(argumentExpression));
+                                        case "toDegrees":
+                                            return new ToDegrees(Collections.singletonList(argumentExpression));
+                                        case "toRadians":
+                                            return new ToRadians(Collections.singletonList(argumentExpression));
+                                        case "ulp":
+                                            return new Ulp(Collections.singletonList(argumentExpression));
+                                        case "exp":
+                                            return new Pow(
+                                                    Arrays.asList(new Variable((String) supportedConstants.get("E")),
+                                                            argumentExpression));
+                                        case "expm1":
+                                            return new Subtract(Arrays.asList(new Pow(Arrays
+                                                    .asList(new Variable((String) supportedConstants.get("E")),
+                                                            argumentExpression)), new Literal(1)));
+                                    }
                                 }
                             }
                         } else if (element.getArgumentList().getExpressions().length == 2) {
@@ -629,6 +640,32 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                         }
                     }
                 }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private Expression getConstructorExpression(PsiExpression argument, String classQualifiedName) {
+        Expression literalExpression = getLiteralExpression((PsiLiteralExpression) argument);
+        if (literalExpression != null) {
+            return literalExpression;
+        } else {
+            try {
+                String value = argument.getText();
+                if (value.startsWith("\"") && value.endsWith("\"")) {
+                    value = value.substring(1, value.length() - 1);
+                }
+                if ("java.lang.Long".equals(classQualifiedName)) {
+                    return new Literal(Long.valueOf(value));
+                } else if ("java.lang.Integer".equals(classQualifiedName)) {
+                    return new Literal(Integer.valueOf(value));
+                } else if ("java.lang.Float".equals(classQualifiedName)) {
+                    return new Literal(Float.valueOf(value));
+                } else if ("java.lang.Double".equals(classQualifiedName)) {
+                    return new Literal(Double.valueOf(value));
+                }
+            } catch (Exception ignore) {
             }
         }
         return null;
