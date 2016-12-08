@@ -37,7 +37,7 @@ public class Multiply extends Operation {
         }
         if (simplified[0]) {
             List<Expression> simplifiedOperands = map.entrySet().stream().map(e ->
-                    e.getValue() == 1 ? e.getKey() : new Pow(Arrays.asList(e.getKey(), new Literal(e.getValue())))
+                    e.getValue() == 1 ? e.getKey() : new Pow(Arrays.asList(e.getKey(), new NumberLiteral(e.getValue())))
             ).collect(Collectors.toList());
             return new Multiply(simplifiedOperands);
         } else {

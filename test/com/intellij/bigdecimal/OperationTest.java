@@ -15,7 +15,7 @@ public class OperationTest {
         Assert.assertNotEquals(s1, e1);
         Assert.assertEquals(3, s1.getOperands().size());
         Assert.assertEquals("-", s1.getCharacter());
-        Operation e2 = new Multiply(Arrays.asList(new Add(Arrays.asList(new Add(Arrays.asList(new Variable("a"), new Variable("b"))), new Variable("c"))), new Literal(new BigDecimal(10))));
+        Operation e2 = new Multiply(Arrays.asList(new Add(Arrays.asList(new Add(Arrays.asList(new Variable("a"), new Variable("b"))), new Variable("c"))), new NumberLiteral(new BigDecimal(10))));
         Operation s2 = e2.simplify();
         Assert.assertEquals("(a + b + c) * 10", s2.format());
     }
@@ -38,15 +38,15 @@ public class OperationTest {
         Assert.assertEquals("aᵇ * (a + b) * c", e6.format());
         Expression e7 = new Negate(Collections.singletonList(new Variable("a")));
         Assert.assertEquals("-a", e7.format());
-        Expression e8 = new Subtract(Arrays.asList(new Literal(BigDecimal.ZERO), new Add(Arrays.asList(new Variable("a"), new Variable("b")))));
+        Expression e8 = new Subtract(Arrays.asList(new NumberLiteral(BigDecimal.ZERO), new Add(Arrays.asList(new Variable("a"), new Variable("b")))));
         Assert.assertEquals("0 - (a + b)", e8.format());
-        Expression e9 = new Add(Arrays.asList(new Reminder(Arrays.asList(new Variable("a"), new Variable("b"))), new Variable("c")));
+        Expression e9 = new Add(Arrays.asList(new Remainder(Arrays.asList(new Variable("a"), new Variable("b"))), new Variable("c")));
         Assert.assertEquals("a % b + c", e9.format());
-        Expression e9_1 = new Add(Arrays.asList(new Variable("a"), new Reminder(Arrays.asList(new Variable("b"), new Variable("c")))));
+        Expression e9_1 = new Add(Arrays.asList(new Variable("a"), new Remainder(Arrays.asList(new Variable("b"), new Variable("c")))));
         Assert.assertEquals("a + b % c", e9_1.format());
         Expression e10 = new Abs(Collections.singletonList(new Variable("a")));
         Assert.assertEquals("|a|", e10.format());
-        Expression e11 = new Reminder(
+        Expression e11 = new Remainder(
                 Arrays.asList(new Variable("a"), new Multiply(Arrays.asList(new Variable("b"), new Variable("c")))));
         Assert.assertEquals("a % (b * c)", e11.format());
     }

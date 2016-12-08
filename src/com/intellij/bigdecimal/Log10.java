@@ -14,7 +14,7 @@ public class Log10 extends Function {
 
     @Override
     public String format() {
-        if (operands.get(0) instanceof Literal ||
+        if (operands.get(0) instanceof NumberLiteral ||
                 operands.get(0) instanceof Variable) {
             return "log" + subscript("10") + operands.get(0).format();
         } else {

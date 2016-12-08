@@ -2,14 +2,14 @@ package com.intellij.bigdecimal;
 
 import java.util.List;
 
-public class Reminder extends Operation {
-    public Reminder(List<Expression> operands) {
+public class Remainder extends Operation {
+    public Remainder(List<Expression> operands) {
         super("%", 100, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
-        return new Reminder(operands);
+        return new Remainder(operands);
     }
 
     @Override

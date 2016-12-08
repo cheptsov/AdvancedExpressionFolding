@@ -70,6 +70,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("hypot");
             add("exp");
             add("expm1");
+            add("append");
         }
     };
 
@@ -82,6 +83,8 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("java.lang.Integer");
             add("java.lang.Float");
             add("java.lang.Double");
+            add("java.lang.String");
+            add("java.lang.StringBuilder");
         }
     };
 
@@ -91,6 +94,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("long");
             add("float");
             add("double");
+            add("java.lang.String");
         }
     };
 
@@ -112,22 +116,6 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             put("E", "\uD835\uDC52");
         }
     };
-
-    private static Set<String> supportedAssignmentMethods = new HashSet<String>() {
-        {
-            add("add");
-            add("multiply");
-            add("divide");
-            add("subtract");
-            add("remainder");
-            add("shiftLeft");
-            add("shiftRight");
-            add("and");
-            add("or");
-            add("xor");
-        }
-    };
-
 
     @NotNull
     @Override
@@ -206,7 +194,9 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             if (supportedPrimitiveTypes.contains(element.getType().getCanonicalText())) {
                 Object value = element.getValue();
                 if (value instanceof Number) {
-                    return new Literal((Number) value);
+                    return new NumberLiteral((Number) value);
+                } else if (value instanceof String) {
+                    return new StringLiteral((String) value);
                 }
             }
         }
@@ -318,65 +308,39 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                         return new AddAssign(Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
                                 new Add(operation.getOperands().subList(1, operation.getOperands().size())) : operation
                                 .getOperands().get(1)));
+                    } else if (operation instanceof Subtract) {
+                        return new SubtractAssign(Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                new Add(operation.getOperands().subList(1, operation.getOperands().size())) : operation
+                                .getOperands().get(1)));
+                    } else if (operation instanceof And) {
+                        return new AndAssign(Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                new And(operation.getOperands().subList(1, operation.getOperands().size())) : operation
+                                .getOperands().get(1)));
+                    } else if (operation instanceof Or) {
+                        return new AndAssign(Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                new Or(operation.getOperands().subList(1, operation.getOperands().size())) : operation
+                                .getOperands().get(1)));
+                    } else if (operation instanceof Xor) {
+                        return new AndAssign(Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                new Xor(operation.getOperands().subList(1, operation.getOperands().size())) : operation
+                                .getOperands().get(1)));
+                    } else if (operation instanceof Multiply) {
+                        return new MultiplyAssign(Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                new Multiply(operation.getOperands().subList(1, operation.getOperands().size())) : operation
+                                .getOperands().get(1)));}
+                    } else if (operation instanceof Divide) {
+                        return new DivideAssign(Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                new Multiply(operation.getOperands().subList(1, operation.getOperands().size())) : operation
+                                .getOperands().get(1)));
+                    } else if (operation instanceof ShiftRight && operation.getOperands().size() == 2) {
+                        return new ShiftRightAssign(Arrays.asList(leftVariable, operation.getOperands().get(1)));
+                    } else if (operation instanceof ShiftLeft && operation.getOperands().size() == 2) {
+                        return new ShiftLeftAssign(Arrays.asList(leftVariable, operation.getOperands().get(1)));
+                    } else if (operation instanceof Remainder && operation.getOperands().size() == 2) {
+                        return new RemainderAssign(Arrays.asList(leftVariable, operation.getOperands().get(1)));
                     }
                 }
             }
-/*
-            if (element.getRExpression() instanceof PsiMethodCallExpression) {
-                PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) element.getRExpression();
-                PsiReferenceExpression referenceExpression = methodCallExpression.getMethodExpression();
-                Optional<PsiElement> identifier = Stream.of(referenceExpression.getChildren())
-                        .filter(c -> c instanceof PsiIdentifier).findAny();
-                if (identifier.isPresent() && supportedMethods.contains(identifier.get().getText())) {
-                    PsiMethod method = (PsiMethod) referenceExpression.resolve();
-                    if (method != null && supportedAssignmentMethods.contains(method.getName())
-                            && methodCallExpression.getArgumentList().getExpressions().length == 1) {
-                        PsiClass psiClass = method.getContainingClass();
-                        if (psiClass != null) {
-                            if (supportedClasses.contains(psiClass.getQualifiedName())) {
-                                Variable rightVariable = getVariableExpression(
-                                        methodCallExpression.getMethodExpression().getQualifierExpression(), false);
-                                if (rightVariable != null && leftVariable.getName().equals(rightVariable.getName())) {
-                                    Expression argumentExpression = getExpression(
-                                            methodCallExpression.getArgumentList().getExpressions()[0]);
-                                    if (argumentExpression != null) {
-                                        switch (method.getName()) {
-                                            case "add":
-                                                return new AddAssign(Arrays.asList(leftVariable, argumentExpression));
-                                            case "subtract":
-                                                return new SubtractAssign(
-                                                        Arrays.asList(leftVariable, argumentExpression));
-                                            case "multiply":
-                                                return new MultiplyAssign(
-                                                        Arrays.asList(leftVariable, argumentExpression));
-                                            case "divide":
-                                                return new DivideAssign(
-                                                        Arrays.asList(leftVariable, argumentExpression));
-                                            case "remainder":
-                                                return new RemainderAssign(
-                                                        Arrays.asList(leftVariable, argumentExpression));
-                                            case "shiftLeft":
-                                                return new ShiftLeftAssign(
-                                                        Arrays.asList(leftVariable, argumentExpression));
-                                            case "shiftRight":
-                                                return new ShiftRightAssign(
-                                                        Arrays.asList(leftVariable, argumentExpression));
-                                            case "and":
-                                                return new AndAssign(Arrays.asList(leftVariable, argumentExpression));
-                                            case "or":
-                                                return new OrAssign(Arrays.asList(leftVariable, argumentExpression));
-                                            case "xor":
-                                                return new XorAssign(Arrays.asList(leftVariable, argumentExpression));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-*/
-        }
         return null;
     }
 
@@ -405,7 +369,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             Object constant = supportedConstants.get(identifier.get().getText());
             if (constant != null) {
                 if (isSupportedClass(element) && constant instanceof Number) {
-                    return new Literal((Number) constant);
+                    return new NumberLiteral((Number) constant);
                 } else if (isSupportedClass(element) && constant instanceof String) {
                     return new Variable((String) constant);
                 }
@@ -485,24 +449,24 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                             return new Divide(
                                                     Arrays.asList(qualifierExpression, argumentExpression));
                                         case "remainder":
-                                            return new Reminder(
+                                            return new Remainder(
                                                     Arrays.asList(qualifierExpression, argumentExpression));
                                         case "mod":
-                                            return new Reminder(
+                                            return new Remainder(
                                                     Arrays.asList(qualifierExpression, argumentExpression));
                                         case "scaleByPowerOfTen":
                                             return new Multiply(
                                                     Arrays.asList(qualifierExpression, new Pow(Arrays
-                                                            .asList(new Literal(10),
+                                                            .asList(new NumberLiteral(10),
                                                                     argumentExpression))));
                                         case "andNot":
                                             return new And(
                                                     Arrays.asList(qualifierExpression, new Not(
                                                             Collections.singletonList(argumentExpression))));
                                         case "modInverse":
-                                            return new Reminder(
+                                            return new Remainder(
                                                     Arrays.asList(new Pow(
-                                                                    Arrays.asList(qualifierExpression, new Literal(-1))),
+                                                                    Arrays.asList(qualifierExpression, new NumberLiteral(-1))),
                                                             argumentExpression));
                                         case "pow":
                                             return new Pow(Arrays.asList(qualifierExpression, argumentExpression));
@@ -526,6 +490,8 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                                     Arrays.asList(qualifierExpression, argumentExpression));
                                         case "equals":
                                             return new Equal(Arrays.asList(qualifierExpression, argumentExpression));
+                                        case "append":
+                                            return new Append(Arrays.asList(qualifierExpression, argumentExpression));
                                     }
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 0) {
@@ -551,7 +517,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                     String methodName = identifier.get().getText();
                                     switch (methodName) {
                                         case "modPow":
-                                            return new Reminder(
+                                            return new Remainder(
                                                     Arrays.asList(new Pow(
                                                                     Arrays.asList(qualifierExpression, a1Expression)),
                                                             a2Expression));
@@ -590,7 +556,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                             return new Log(Collections.singletonList(argumentExpression));
                                         case "log1p":
                                             return new Log(Collections.singletonList(
-                                                    new Add(Arrays.asList(argumentExpression, new Literal(1)))));
+                                                    new Add(Arrays.asList(argumentExpression, new NumberLiteral(1)))));
                                         case "Log10":
                                             return new Log10(Collections.singletonList(argumentExpression));
                                         case "rint":
@@ -620,7 +586,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                         case "expm1":
                                             return new Subtract(Arrays.asList(new Pow(Arrays
                                                     .asList(new Variable((String) supportedConstants.get("E")),
-                                                            argumentExpression)), new Literal(1)));
+                                                            argumentExpression)), new NumberLiteral(1)));
                                     }
                                 }
                             }
@@ -641,8 +607,8 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                     case "hypot":
                                         return new Add(Collections.singletonList(new Sqrt(Collections.singletonList(
                                                 new Add(Arrays
-                                                        .asList(new Pow(Arrays.asList(a1Expression, new Literal(2))),
-                                                                new Pow(Arrays.asList(a2Expression, new Literal(2)))))))));
+                                                        .asList(new Pow(Arrays.asList(a1Expression, new NumberLiteral(2))),
+                                                                new Pow(Arrays.asList(a2Expression, new NumberLiteral(2)))))))));
                                 }
                             }
                         } else if (element.getArgumentList().getExpressions().length == 0) {
@@ -661,7 +627,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
     @Nullable
     private Expression getConstructorExpression(PsiExpression argument, String classQualifiedName) {
         Expression literalExpression = getLiteralExpression((PsiLiteralExpression) argument);
-        if (literalExpression != null) {
+        if (literalExpression instanceof NumberLiteral) {
             return literalExpression;
         } else {
             try {
@@ -670,13 +636,17 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                     value = value.substring(1, value.length() - 1);
                 }
                 if ("java.lang.Long".equals(classQualifiedName)) {
-                    return new Literal(Long.valueOf(value));
+                    return new NumberLiteral(Long.valueOf(value));
                 } else if ("java.lang.Integer".equals(classQualifiedName)) {
-                    return new Literal(Integer.valueOf(value));
+                    return new NumberLiteral(Integer.valueOf(value));
                 } else if ("java.lang.Float".equals(classQualifiedName)) {
-                    return new Literal(Float.valueOf(value));
+                    return new NumberLiteral(Float.valueOf(value));
                 } else if ("java.lang.Double".equals(classQualifiedName)) {
-                    return new Literal(Double.valueOf(value));
+                    return new NumberLiteral(Double.valueOf(value));
+                } else if ("java.lang.StringBuilder".equals(classQualifiedName)) {
+                    return new StringLiteral(value);
+                } else if ("java.lang.String".equals(classQualifiedName)) {
+                    return new StringLiteral(value);
                 }
             } catch (Exception ignore) {
             }

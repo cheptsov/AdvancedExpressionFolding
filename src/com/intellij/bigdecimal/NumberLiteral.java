@@ -1,9 +1,9 @@
 package com.intellij.bigdecimal;
 
-public class Literal extends Expression {
+public class NumberLiteral extends Expression {
     private Number number;
 
-    public Literal(Number number) {
+    public NumberLiteral(Number number) {
         this.number = number;
     }
 
@@ -22,9 +22,9 @@ public class Literal extends Expression {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Literal literal = (Literal) o;
+        NumberLiteral numberLiteral = (NumberLiteral) o;
 
-        return number.toString().equals(literal.number.toString());
+        return number.toString().equals(numberLiteral.number.toString());
     }
 
     @Override

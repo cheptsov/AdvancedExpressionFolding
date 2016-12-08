@@ -6,7 +6,7 @@
 
   <description><![CDATA[
       This plugin folds arithmetic expressions for better readability. This covers BigDecimal, BigInteger,
-      Long, Integer, Double, Float, Math, and primitive types.
+      Long, Integer, Double, Float, Math, String, StringBuilder, and primitive types.
     ]]></description>
 
   <change-notes></change-notes>
