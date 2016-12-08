@@ -109,4 +109,24 @@ public abstract class Operation extends Expression {
     public int getPriority() {
         return priority;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Operation operation = (Operation) o;
+
+        if (priority != operation.priority) return false;
+        if (!character.equals(operation.character)) return false;
+        return operands.equals(operation.operands);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = character.hashCode();
+        result = 31 * result + priority;
+        result = 31 * result + operands.hashCode();
+        return result;
+    }
 }

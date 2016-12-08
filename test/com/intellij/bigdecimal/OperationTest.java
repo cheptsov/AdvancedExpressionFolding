@@ -35,7 +35,7 @@ public class OperationTest {
         Operation e5 = new Multiply(Arrays.asList(new Max(Arrays.asList(new Variable("a"), new Variable("b"))), new Variable("c")));
         Assert.assertEquals("max(a, b) * c", e5.format());
         Operation e6 = new Multiply(Arrays.asList(new Pow(Arrays.asList(new Variable("a"), new Variable("b"))), e3));
-        Assert.assertEquals("a ^ b * (a + b) * c", e6.format());
+        Assert.assertEquals("aᵇ * (a + b) * c", e6.format());
         Expression e7 = new Negate(Collections.singletonList(new Variable("a")));
         Assert.assertEquals("-a", e7.format());
         Expression e8 = new Subtract(Arrays.asList(new Literal(BigDecimal.ZERO), new Add(Arrays.asList(new Variable("a"), new Variable("b")))));

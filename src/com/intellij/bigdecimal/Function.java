@@ -40,4 +40,22 @@ public abstract class Function extends Expression {
         }
         return simplifiedOperands != null ? (Function) copy(simplifiedOperands) : this;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Function function = (Function) o;
+
+        if (!name.equals(function.name)) return false;
+        return operands.equals(function.operands);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + operands.hashCode();
+        return result;
+    }
 }
