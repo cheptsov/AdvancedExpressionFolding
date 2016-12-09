@@ -11,4 +11,8 @@ public class StringLiteral extends Expression {
     public String format() {
         return "\"" + string + "\"";
     }
+
+    public String getString() {
+        return string;
+    }
 }

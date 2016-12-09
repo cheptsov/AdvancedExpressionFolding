@@ -347,16 +347,22 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
     @Nullable
     private Expression getNewExpression(PsiNewExpression element) {
         if (element.getType() != null && supportedClasses
-                .contains(element.getType().getCanonicalText()) && element.getArgumentList() != null
-                && element.getArgumentList().getExpressions().length == 1
-                && element.getArgumentList().getExpressions()[0] instanceof PsiLiteralExpression) {
-            return getConstructorExpression(element.getArgumentList().getExpressions()[0],
-                    element.getType().getCanonicalText());
-        } else if (element.getType() != null && supportedClasses
-                .contains(element.getType().getCanonicalText()) && element.getArgumentList() != null
-                && element.getArgumentList().getExpressions().length == 1
-                && element.getArgumentList().getExpressions()[0] instanceof PsiReferenceExpression) {
-            return getReferenceExpression((PsiReferenceExpression) element.getArgumentList().getExpressions()[0]);
+                .contains(element.getType().getCanonicalText())) {
+            if (element.getArgumentList() != null && element.getArgumentList().getExpressions().length == 1) {
+                if (element.getArgumentList().getExpressions()[0] instanceof PsiLiteralExpression){
+                    return getConstructorExpression(element.getArgumentList().getExpressions()[0],
+                            element.getType().getCanonicalText());
+                } else if (element.getArgumentList().getExpressions()[0] instanceof PsiReferenceExpression) {
+                    return getReferenceExpression(
+                            (PsiReferenceExpression) element.getArgumentList().getExpressions()[0]);
+                }
+            } else if (element.getArgumentList() != null && element.getArgumentList().getExpressions().length == 0) {
+                switch (element.getType().getCanonicalText()) {
+                    case "java.lang.String":
+                    case "java.lang.StringBuilder":
+                        return new StringLiteral("");
+                }
+            }
         }
         return null;
     }

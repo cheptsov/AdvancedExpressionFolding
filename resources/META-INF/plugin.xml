@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.intellij.bigdecimal-folding</id>
   <name>Arithmetic Expressions Folding</name>
-  <version>0.1.6</version>
+  <version>0.1.8</version>
   <vendor email="andrey.cheptsov@jetbrains.com" url="http://www.jetbrains.com">JetBrains</vendor>
 
   <description><![CDATA[

@@ -23,6 +23,8 @@ public class Append extends Operation {
         String format = super.format();
         if (operands.get(0) instanceof Variable) {
             format = format.replaceFirst("\\+", "+=");
+        } else if (operands.get(0) instanceof StringLiteral && ((StringLiteral) operands.get(0)).getString().equals("")) {
+            format = format.replaceFirst("\"\" \\+ ", "");
         }
         return format;
     }
