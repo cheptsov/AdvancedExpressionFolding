@@ -1,5 +1,5 @@
 <idea-plugin>
-  <id>com.intellij.advancedExpressionFolding</id>
+  <id>com.intellij.bigdecimal-folding</id>
   <name>Advanced Expressions Folding</name>
   <version>0.1.8</version>
   <vendor email="andrey.cheptsov@jetbrains.com" url="http://www.jetbrains.com">JetBrains</vendor>
