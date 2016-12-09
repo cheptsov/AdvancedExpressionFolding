@@ -71,6 +71,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("exp");
             add("expm1");
             add("append");
+            add("substring");
         }
     };
 
@@ -85,6 +86,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("java.lang.Double");
             add("java.lang.String");
             add("java.lang.StringBuilder");
+            add("java.lang.AbstractStringBuilder");
         }
     };
 
@@ -498,6 +500,8 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                             return new Equal(Arrays.asList(qualifierExpression, argumentExpression));
                                         case "append":
                                             return new Append(Arrays.asList(qualifierExpression, argumentExpression));
+                                        case "substring":
+                                            return new Slice(Arrays.asList(qualifierExpression, argumentExpression, new NumberLiteral(-1)));
                                     }
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 0) {
@@ -515,18 +519,36 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                         return new Signum(Collections.singletonList(qualifierExpression));
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 2) {
+                                String methodName = identifier.get().getText();
                                 PsiExpression a1 = element.getArgumentList().getExpressions()[0];
                                 Expression a1Expression = getExpression(a1);
-                                PsiExpression a2 = element.getArgumentList().getExpressions()[1];
-                                Expression a2Expression = getExpression(a2);
-                                if (a1Expression != null && a2Expression != null) {
-                                    String methodName = identifier.get().getText();
-                                    switch (methodName) {
-                                        case "modPow":
-                                            return new Remainder(
-                                                    Arrays.asList(new Pow(
-                                                                    Arrays.asList(qualifierExpression, a1Expression)),
-                                                            a2Expression));
+                                if (a1Expression != null) {
+                                    PsiExpression a2 = element.getArgumentList().getExpressions()[1];
+                                    Expression a2Expression = getExpression(a2);
+                                    if (a2Expression != null) {
+                                        switch (methodName) {
+                                            case "atan2":
+                                                return new Atan2(Arrays.asList(qualifierExpression, a1Expression,
+                                                        a2Expression));
+                                            case "modPow":
+                                                return new Remainder(
+                                                        Arrays.asList(new Pow(
+                                                                        Arrays.asList(qualifierExpression, a1Expression)),
+                                                                a2Expression));
+                                            case "substring":
+                                                return new Slice(Arrays.asList(qualifierExpression, a1Expression, a2Expression));
+                                        }
+                                    } else if (methodName.equals("substring") && a2 instanceof PsiMethodCallExpression) {
+                                        PsiMethodCallExpression a2m = (PsiMethodCallExpression) a2;
+                                        PsiReferenceExpression a2me = a2m.getMethodExpression();
+                                        Optional<PsiElement> a2i = Stream.of(a2me.getChildren())
+                                                .filter(c -> c instanceof PsiIdentifier).findAny();
+                                        if (a2i.isPresent() && a2i.get().getText().equals("length")) {
+                                            Expression a2qe = getVariableExpression(a2me.getQualifierExpression());
+                                            if (a2qe != null && a2qe.equals(qualifierExpression)) {
+                                                return new Slice(Arrays.asList(qualifierExpression, a1Expression, new NumberLiteral(-1)));
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -563,7 +585,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                         case "log1p":
                                             return new Log(Collections.singletonList(
                                                     new Add(Arrays.asList(argumentExpression, new NumberLiteral(1)))));
-                                        case "Log10":
+                                        case "log10":
                                             return new Log10(Collections.singletonList(argumentExpression));
                                         case "rint":
                                             return new Rint(Collections.singletonList(argumentExpression));

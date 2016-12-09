@@ -4,6 +4,6 @@ public class BigDecimalFoldingOptionsProvider extends com.intellij.openapi.optio
     protected BigDecimalFoldingOptionsProvider() {
         super(BigDecimalFoldingSettings.getInstance().getState());
         BigDecimalFoldingSettings settings = BigDecimalFoldingSettings.getInstance();
-        checkBox("Arithmetic expressions", settings::isCollapseOperations, value -> settings.getState().COLLAPSE_OPERATIONS = value);
+        checkBox("Arithmetic, concatenation, slice and comparing expressions", settings::isCollapseOperations, value -> settings.getState().COLLAPSE_OPERATIONS = value);
     }
 }
