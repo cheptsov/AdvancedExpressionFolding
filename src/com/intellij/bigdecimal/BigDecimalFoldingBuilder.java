@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
@@ -72,6 +74,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("expm1");
             add("append");
             add("substring");
+            add("subList");
         }
     };
 
@@ -87,6 +90,8 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             add("java.lang.String");
             add("java.lang.StringBuilder");
             add("java.lang.AbstractStringBuilder");
+            add("java.util.List");
+            add("java.util.ArrayList");
         }
     };
 
@@ -239,7 +244,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                     PsiMethod method = (PsiMethod) methodCallExpression.getMethodExpression().resolve();
                     if (method != null) {
                         PsiClass psiClass = method.getContainingClass();
-                        if (psiClass != null && supportedClasses.contains(psiClass.getQualifiedName())) {
+                        if (psiClass != null && supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))) {
                             Expression qualifier = getExpression(methodCallExpression.getMethodExpression()
                                     .getQualifierExpression());
                             if (qualifier != null) {
@@ -349,17 +354,17 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
     @Nullable
     private Expression getNewExpression(PsiNewExpression element) {
         if (element.getType() != null && supportedClasses
-                .contains(element.getType().getCanonicalText())) {
+                .contains(eraseGenerics(element.getType().getCanonicalText()))) {
             if (element.getArgumentList() != null && element.getArgumentList().getExpressions().length == 1) {
                 if (element.getArgumentList().getExpressions()[0] instanceof PsiLiteralExpression){
                     return getConstructorExpression(element.getArgumentList().getExpressions()[0],
-                            element.getType().getCanonicalText());
+                            eraseGenerics(element.getType().getCanonicalText()));
                 } else if (element.getArgumentList().getExpressions()[0] instanceof PsiReferenceExpression) {
                     return getReferenceExpression(
                             (PsiReferenceExpression) element.getArgumentList().getExpressions()[0]);
                 }
             } else if (element.getArgumentList() != null && element.getArgumentList().getExpressions().length == 0) {
-                switch (element.getType().getCanonicalText()) {
+                switch (eraseGenerics(element.getType().getCanonicalText())) {
                     case "java.lang.String":
                     case "java.lang.StringBuilder":
                         return new StringLiteral("");
@@ -396,15 +401,26 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             PsiElement e = reference.resolve();
             if (e instanceof PsiVariable) {
                 PsiVariable variable = (PsiVariable) e;
-                if (supportedClasses.contains(variable.getType().getCanonicalText())) {
+                if (supportedClasses.contains(eraseGenerics(variable.getType().getCanonicalText()))) {
                     return new Variable(variable.getName());
                 } else if (supportedPrimitiveTypes
-                        .contains(variable.getType().getCanonicalText())) {
+                        .contains(eraseGenerics(variable.getType().getCanonicalText()))) {
                     return new Variable(variable.getName());
                 }
             }
         }
         return null;
+    }
+
+    private static String eraseGenerics(String signature) {
+        String re = "<[^<>]*>";
+        Pattern p = Pattern.compile(re);
+        Matcher m = p.matcher(signature);
+        while (m.find()) {
+            signature = m.replaceAll("");
+            m = p.matcher(signature);
+        }
+        return signature;
     }
 
     private boolean isSupportedClass(PsiElement element) {
@@ -415,7 +431,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                 PsiField field = (PsiField) e;
                 PsiClass psiClass = field.getContainingClass();
                 if (psiClass != null) {
-                    if (supportedClasses.contains(psiClass.getQualifiedName())) {
+                    if (supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))) {
                         return true;
                     }
                 }
@@ -434,7 +450,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
             if (method != null) {
                 PsiClass psiClass = method.getContainingClass();
                 if (psiClass != null) {
-                    if (supportedClasses.contains(psiClass.getQualifiedName())) {
+                    if (supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))) {
                         PsiExpression qualifier = element
                                 .getMethodExpression().getQualifierExpression();
                         Expression qualifierExpression = getExpression(qualifier);
@@ -501,7 +517,15 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                         case "append":
                                             return new Append(Arrays.asList(qualifierExpression, argumentExpression));
                                         case "substring":
-                                            return new Slice(Arrays.asList(qualifierExpression, argumentExpression, new NumberLiteral(-1)));
+                                            return new Slice(Arrays.asList(qualifierExpression, argumentExpression));
+                                    }
+                                } else if ((method.getName().equals("substring") || method.getName().equals("subList"))
+                                        && argument instanceof PsiBinaryExpression) {
+                                    Integer position = getSlicePosition(qualifierExpression,
+                                            (PsiBinaryExpression) argument);
+                                    if (position != null) {
+                                        return new Slice(
+                                                Arrays.asList(qualifierExpression, new NumberLiteral(position)));
                                     }
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 0) {
@@ -521,9 +545,9 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                             } else if (element.getArgumentList().getExpressions().length == 2) {
                                 String methodName = identifier.get().getText();
                                 PsiExpression a1 = element.getArgumentList().getExpressions()[0];
+                                PsiExpression a2 = element.getArgumentList().getExpressions()[1];
                                 Expression a1Expression = getExpression(a1);
                                 if (a1Expression != null) {
-                                    PsiExpression a2 = element.getArgumentList().getExpressions()[1];
                                     Expression a2Expression = getExpression(a2);
                                     if (a2Expression != null) {
                                         switch (methodName) {
@@ -536,17 +560,42 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                                                                         Arrays.asList(qualifierExpression, a1Expression)),
                                                                 a2Expression));
                                             case "substring":
+                                            case "subList":
                                                 return new Slice(Arrays.asList(qualifierExpression, a1Expression, a2Expression));
                                         }
-                                    } else if (methodName.equals("substring") && a2 instanceof PsiMethodCallExpression) {
-                                        PsiMethodCallExpression a2m = (PsiMethodCallExpression) a2;
-                                        PsiReferenceExpression a2me = a2m.getMethodExpression();
-                                        Optional<PsiElement> a2i = Stream.of(a2me.getChildren())
-                                                .filter(c -> c instanceof PsiIdentifier).findAny();
-                                        if (a2i.isPresent() && a2i.get().getText().equals("length")) {
-                                            Expression a2qe = getVariableExpression(a2me.getQualifierExpression());
-                                            if (a2qe != null && a2qe.equals(qualifierExpression)) {
-                                                return new Slice(Arrays.asList(qualifierExpression, a1Expression, new NumberLiteral(-1)));
+                                    } else if ((methodName.equals("substring") || methodName.equals("subList"))) {
+                                        if (a2 instanceof PsiMethodCallExpression) {
+                                            PsiMethodCallExpression a2m = (PsiMethodCallExpression) a2;
+                                            PsiReferenceExpression a2me = a2m.getMethodExpression();
+                                            Optional<PsiElement> a2i = Stream.of(a2me.getChildren())
+                                                    .filter(c -> c instanceof PsiIdentifier).findAny();
+                                            if (a2i.isPresent() && (a2i.get().getText().equals("length") || a2i.get()
+                                                    .getText().equals("size"))) {
+                                                Expression a2qe = getVariableExpression(a2me.getQualifierExpression());
+                                                if (a2qe != null && a2qe.equals(qualifierExpression)) {
+                                                    return new Slice(Arrays.asList(qualifierExpression, a1Expression));
+                                                }
+                                            }
+                                        } else if (a2 instanceof PsiBinaryExpression)  {
+                                            PsiBinaryExpression a2b = (PsiBinaryExpression) a2;
+                                            Integer position = getSlicePosition(qualifierExpression, a2b);
+                                            if (position != null) {
+                                                return new Slice(Arrays.asList(qualifierExpression, a1Expression,
+                                                                new NumberLiteral(position)));
+                                            }
+                                        }
+                                    }
+                                } else if ((methodName.equals("substring") || methodName.equals("subList"))
+                                        && a1 instanceof PsiBinaryExpression) {
+                                    Integer p1 = getSlicePosition(qualifierExpression, (PsiBinaryExpression) a1);
+                                    if (p1 != null) {
+                                        Expression a2Expression = getExpression(a2);
+                                        if (a2Expression instanceof NumberLiteral) {
+                                            return new Slice(Arrays.asList(qualifierExpression, new NumberLiteral(p1), a2Expression));
+                                        } else if (a2 instanceof PsiBinaryExpression) {
+                                            Integer p2 = getSlicePosition(qualifierExpression, (PsiBinaryExpression) a2);
+                                            if (p2 != null) {
+                                                return new Slice(Arrays.asList(qualifierExpression, new NumberLiteral(p1), new NumberLiteral(p2)));
                                             }
                                         }
                                     }
@@ -555,7 +604,7 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                         } else if (element.getArgumentList().getExpressions().length == 1) {
                             PsiExpression argument = element.getArgumentList().getExpressions()[0];
                             if (method.getName().equals("valueOf") && argument instanceof PsiLiteralExpression) {
-                                return getConstructorExpression(argument, psiClass.getQualifiedName());
+                                return getConstructorExpression(argument, eraseGenerics(psiClass.getQualifiedName()));
                             } else if (method.getName().equals("valueOf") && argument instanceof PsiReferenceExpression) {
                                 return getReferenceExpression((PsiReferenceExpression) argument);
                             } else {
@@ -653,7 +702,32 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
     }
 
     @Nullable
-    private Expression getConstructorExpression(PsiExpression argument, String classQualifiedName) {
+    private Integer getSlicePosition(Expression qualifierExpression, PsiBinaryExpression a2b) {
+        Integer position = null;
+        if (a2b.getOperationSign().getText().equals("-")
+                && a2b.getLOperand() instanceof PsiMethodCallExpression) {
+            Expression s = getExpression(a2b.getROperand());
+            if (s instanceof NumberLiteral) {
+                PsiMethodCallExpression a2m = (PsiMethodCallExpression) a2b
+                        .getLOperand();
+                PsiReferenceExpression a2me = a2m.getMethodExpression();
+                Optional<PsiElement> a2i = Stream.of(a2me.getChildren())
+                        .filter(c -> c instanceof PsiIdentifier).findAny();
+                if (a2i.isPresent() && (a2i.get().getText().equals("length")
+                        || a2i.get().getText().equals("size"))) {
+                    Expression a2qe = getVariableExpression(
+                            a2me.getQualifierExpression());
+                    if (a2qe != null && a2qe.equals(qualifierExpression)) {
+                        position = -((NumberLiteral) s).getNumber().intValue();
+                    }
+                }
+            }
+        }
+        return position;
+    }
+
+    @Nullable
+    private Expression getConstructorExpression(PsiExpression argument, String classQualifiedNameNoGenerics) {
         Expression literalExpression = getLiteralExpression((PsiLiteralExpression) argument);
         if (literalExpression instanceof NumberLiteral) {
             return literalExpression;
@@ -663,17 +737,17 @@ public class BigDecimalFoldingBuilder extends FoldingBuilderEx {
                 if (value.startsWith("\"") && value.endsWith("\"")) {
                     value = value.substring(1, value.length() - 1);
                 }
-                if ("java.lang.Long".equals(classQualifiedName)) {
+                if ("java.lang.Long".equals(classQualifiedNameNoGenerics)) {
                     return new NumberLiteral(Long.valueOf(value));
-                } else if ("java.lang.Integer".equals(classQualifiedName)) {
+                } else if ("java.lang.Integer".equals(classQualifiedNameNoGenerics)) {
                     return new NumberLiteral(Integer.valueOf(value));
-                } else if ("java.lang.Float".equals(classQualifiedName)) {
+                } else if ("java.lang.Float".equals(classQualifiedNameNoGenerics)) {
                     return new NumberLiteral(Float.valueOf(value));
-                } else if ("java.lang.Double".equals(classQualifiedName)) {
+                } else if ("java.lang.Double".equals(classQualifiedNameNoGenerics)) {
                     return new NumberLiteral(Double.valueOf(value));
-                } else if ("java.lang.StringBuilder".equals(classQualifiedName)) {
+                } else if ("java.lang.StringBuilder".equals(classQualifiedNameNoGenerics)) {
                     return new StringLiteral(value);
-                } else if ("java.lang.String".equals(classQualifiedName)) {
+                } else if ("java.lang.String".equals(classQualifiedNameNoGenerics)) {
                     return new StringLiteral(value);
                 }
             } catch (Exception ignore) {

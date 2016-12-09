@@ -16,11 +16,9 @@ public class Slice extends Function {
     public String format() {
         String q = operands.get(0).format();
         String r1 = operands.get(1) instanceof NumberLiteral &&
-                ((NumberLiteral) operands.get(1)).getNumber().intValue() < 1 ?
+                ((NumberLiteral) operands.get(1)).getNumber().intValue() == 0 ?
                 "" : operands.get(1).format();
-        String r2 = operands.get(2) instanceof NumberLiteral &&
-                ((NumberLiteral) operands.get(2)).getNumber().equals(-1) ?
-                "" : operands.get(2).format();
+        String r2 = operands.size() == 2 ? "" : operands.get(2).format();
         return q + "[" + r1 + ":" + r2 + "]";
     }
 
