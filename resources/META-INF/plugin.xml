@@ -1,12 +1,12 @@
 <idea-plugin>
-  <id>com.intellij.bigdecimal-folding</id>
-  <name>Expressions Folding</name>
+  <id>com.intellij.advancedExpressionFolding</id>
+  <name>Advanced Expressions Folding</name>
   <version>0.1.8</version>
   <vendor email="andrey.cheptsov@jetbrains.com" url="http://www.jetbrains.com">JetBrains</vendor>
 
   <description><![CDATA[
-      This plugin folds arithmetic, concatenation, slicing, comparing and some other expressions for better readability. This covers BigDecimal, BigInteger,
-      Long, Integer, Double, Float, Math, String, StringBuilder, and primitive types.
+      This plugin folds arithmetic, concatenation, slicing and comparing expressions for better readability. This covers BigDecimal, BigInteger,
+      Long, Integer, Double, Float, Math, String, StringBuilder, List, ArrayList, and primitive types.
     ]]></description>
 
   <change-notes></change-notes>
@@ -22,9 +22,9 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
-    <lang.foldingBuilder language="JAVA" implementationClass="com.intellij.bigdecimal.BigDecimalFoldingBuilder"/>
-    <codeFoldingOptionsProvider instance="com.intellij.bigdecimal.BigDecimalFoldingOptionsProvider"/>
-    <applicationService serviceImplementation="com.intellij.bigdecimal.BigDecimalFoldingSettings"/>
+    <lang.foldingBuilder language="JAVA" implementationClass="com.intellij.advancedExpressionFolding.AdvancedExpressionFoldingBuilder"/>
+    <codeFoldingOptionsProvider instance="com.intellij.advancedExpressionFolding.AdvancedExpressionFoldingOptionsProvider"/>
+    <applicationService serviceImplementation="com.intellij.advancedExpressionFolding.AdvancedExpressionFoldingSettings"/>
   </extensions>
 
   <actions>
