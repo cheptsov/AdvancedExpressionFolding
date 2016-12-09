@@ -270,6 +270,15 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                                 case "1":
                                                     return new Greater(Arrays.asList(qualifier, argument));
                                             }
+                                        case "!=":
+                                            switch (literalExpression.getText()) {
+                                                case "1":
+                                                    return new LessEqual(Arrays.asList(qualifier, argument));
+                                                case "0":
+                                                    return new NotEqual(Arrays.asList(qualifier, argument));
+                                                case "-1":
+                                                    return new GreaterEqual(Arrays.asList(qualifier, argument));
+                                            }
                                         case "<":
                                             switch (literalExpression.getText()) {
                                                 case "1":
