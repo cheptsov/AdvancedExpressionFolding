@@ -106,6 +106,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("long");
             add("float");
             add("double");
+            add("char");
             add("java.lang.String");
         }
     };
@@ -213,6 +214,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     return new NumberLiteral((Number) value);
                 } else if (value instanceof String) {
                     return new StringLiteral((String) value);
+                } else if (value instanceof Character) {
+                    return new CharacterLiteral((Character) value);
                 }
             }
         }
@@ -782,6 +785,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     return new StringLiteral(value);
                 } else if ("java.lang.String".equals(classQualifiedNameNoGenerics)) {
                     return new StringLiteral(value);
+                } else if ("java.lang.Character".equals(classQualifiedNameNoGenerics)) {
+                    return new CharacterLiteral(value.charAt(0));
                 }
             } catch (Exception ignore) {
             }
