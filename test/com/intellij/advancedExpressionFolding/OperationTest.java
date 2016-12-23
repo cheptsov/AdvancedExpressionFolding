@@ -11,13 +11,17 @@ public class OperationTest {
     @Test
     public void simplify() throws Exception {
         Operation e1 = new Subtract(Arrays.asList(new Subtract(Arrays.asList(new Variable("a"), new Variable("b"))), new Variable("c")));
-        Operation s1 = e1.simplify();
+        Operation s1 = (Operation) e1.simplify(false);
         Assert.assertNotEquals(s1, e1);
         Assert.assertEquals(3, s1.getOperands().size());
         Assert.assertEquals("-", s1.getCharacter());
         Operation e2 = new Multiply(Arrays.asList(new Add(Arrays.asList(new Add(Arrays.asList(new Variable("a"), new Variable("b"))), new Variable("c"))), new NumberLiteral(new BigDecimal(10))));
-        Operation s2 = e2.simplify();
+        Operation s2 = (Operation) e2.simplify(false);
         Assert.assertEquals("(a + b + c) * 10", s2.format());
+        Operation e3 = new Subtract(
+                Arrays.asList(new Subtract(Arrays.asList(new NumberLiteral(10), new NumberLiteral(4))), new NumberLiteral(1)));
+        Expression s3 = e3.simplify(true);
+        Assert.assertEquals("5", s3.format());
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.intellij.advancedExpressionFolding;
 
 public class Variable extends Expression {
-    private String name;
+    protected String name;
 
     public Variable(String name) {
         this.name = name;

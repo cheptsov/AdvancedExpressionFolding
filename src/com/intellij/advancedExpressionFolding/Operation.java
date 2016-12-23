@@ -20,22 +20,26 @@ public abstract class Operation extends Expression {
     }
 
     @Override
-    public Operation simplify() {
+    public Expression simplify(boolean compute) {
         List<Expression> simplifiedOperands = null;
         for (int i = 0; i < operands.size(); i++) {
-            boolean toSimplify = false;
             Expression operand = operands.get(i);
+            boolean toSimplify = false;
             if (operand instanceof Operation) {
                 Operation simplifiedOperand = (Operation) operand;
-                Operation s = simplifiedOperand.simplify();
+                Expression s = simplifiedOperand.simplify(compute);
                 if (s != simplifiedOperand) {
-                    simplifiedOperand = s;
                     toSimplify = true;
-                    if (simplifiedOperands == null) {
-                        simplifiedOperands = new ArrayList<>();
-                        if (i > 0) {
-                            simplifiedOperands.addAll(operands.subList(0, i));
+                    if (s instanceof Operation) {
+                        simplifiedOperand = (Operation) s;
+                        if (simplifiedOperands == null) {
+                            simplifiedOperands = new ArrayList<>();
+                            if (i > 0) {
+                                simplifiedOperands.addAll(operands.subList(0, i));
+                            }
                         }
+                    } else {
+                        operand = s;
                     }
                 }
                 if (Objects.equals(this.getCharacter(), simplifiedOperand.getCharacter())) {
@@ -56,10 +60,12 @@ public abstract class Operation extends Expression {
             }
         }
         if (simplifiedOperands != null) {
-            return (Operation) copy(simplifiedOperands);
+            return copy(simplifiedOperands);
         }
         return this;
     }
+
+    abstract Expression copy(List<Expression> newOperands);
 
     private int compareTo(Operation operation) {
         return this.getPriority() == operation.getPriority()

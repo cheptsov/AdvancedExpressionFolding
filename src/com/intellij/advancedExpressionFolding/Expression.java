@@ -151,17 +151,17 @@ public abstract class Expression {
         return a == b || Math.abs(a - b) < EPSILON;
     }
 
-    public Expression simplify() {
+    public Expression simplify(boolean compute) {
         return this;
     }
 
-    protected Expression copy(List<Expression> newOperands) {
-        throw new UnsupportedOperationException();
+    public final Expression simplify() {
+        return simplify(false);
     }
 
     public abstract String format();
 
-    protected String format(double value) {
+    protected static String format(double value) {
         if (equals(_1_4, value)) {
             return "¼";
         } else if (equals(_1_2, value)) {

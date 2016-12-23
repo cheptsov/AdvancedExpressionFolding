@@ -19,11 +19,11 @@ public abstract class Function extends Expression {
     }
 
     @Override
-    public Function simplify() {
+    public Function simplify(boolean compute) {
         List<Expression> simplifiedOperands = null;
         for (int i = 0; i < operands.size(); i++) {
             Expression operand = operands.get(i);
-            Expression simplifiedOperand = operand.simplify();
+            Expression simplifiedOperand = operand.simplify(compute);
             if (simplifiedOperand != operand) {
                 if (simplifiedOperands == null) {
                     simplifiedOperands = new ArrayList<>();
@@ -40,6 +40,8 @@ public abstract class Function extends Expression {
         }
         return simplifiedOperands != null ? (Function) copy(simplifiedOperands) : this;
     }
+
+    abstract Expression copy(List<Expression> newOperands);
 
     @Override
     public boolean equals(Object o) {

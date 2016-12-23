@@ -14,9 +14,9 @@ public class Multiply extends Operation implements ArithmeticExpression {
     }
 
     @Override
-    public Operation simplify() {
+    public Operation simplify(boolean compute) {
         final boolean[] simplified = {false};
-        List<Expression> operands = super.simplify().operands;
+        List<Expression> operands = ((Operation) super.simplify(compute)).operands;
         if (!operands.equals(this.operands)) {
             simplified[0] = true;
         }
