@@ -508,7 +508,6 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 Operation operation = (Operation) leftExpression;
                 if (operation.getOperands().size() >= 2 && operation.getOperands().get(0).equals(leftVariable)) {
                     if (operation instanceof Add) {
-                        /* TODO: Avoid null textRange*/
                         return new AddAssign(element.getTextRange(),
                                 Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
                                         new Add(null, operation.getOperands()
@@ -822,7 +821,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                                             .filter(c -> c instanceof PsiIdentifier).findAny();
                                                     if (a2i.isPresent() && (a2i.get().getText().equals("length") || a2i.get()
                                                             .getText().equals("size"))) {
-                                                        Expression a2qe = getVariableExpression(a2me.getQualifierExpression());
+                                                        Expression a2qe = getExpression(a2me.getQualifierExpression(), document, true);
                                                         if (a2qe != null && a2qe.equals(qualifierExpression)) {
                                                             return new Slice(element.getTextRange(), Arrays.asList(qualifierExpression, a1Expression));
                                                         }
