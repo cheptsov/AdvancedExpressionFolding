@@ -1,14 +1,17 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+
 import java.util.List;
 
 public class Or extends Operation implements ArithmeticExpression {
-    public Or(List<Expression> operands) {
-        super("|", 49, operands);
+    public Or(TextRange textRange, List<Expression> operands) {
+        super(textRange, "|", 49, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
-        return new Or(operands);
+        return new Or(textRange, operands);
     }
 }

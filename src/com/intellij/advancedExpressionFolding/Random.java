@@ -1,15 +1,18 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+
 import java.util.List;
 
 public class Random extends Function implements ArithmeticExpression {
-    public Random(List<Expression> operands) {
-        super("random", operands);
+    public Random(TextRange textRange, List<Expression> operands) {
+        super(textRange, "random", operands);
     }
 
     @Override
     protected Random copy(List<Expression> newOperands) {
-        return new Random(newOperands);
+        return new Random(textRange, newOperands);
     }
 
     @Override

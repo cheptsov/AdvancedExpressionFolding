@@ -1,5 +1,7 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,7 +10,8 @@ public abstract class Function extends Expression {
     private final String name;
     protected final List<Expression> operands;
 
-    public Function(String name, List<Expression> operands) {
+    public Function(TextRange textRange, String name, List<Expression> operands) {
+        super(textRange);
         this.name = name;
         this.operands = operands;
     }

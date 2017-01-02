@@ -1,9 +1,12 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+
 public class Variable extends Expression {
     protected String name;
 
-    public Variable(String name) {
+    public Variable(TextRange textRange, String name) {
+        super(textRange);
         this.name = name;
     }
 

@@ -1,9 +1,9 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public abstract class Expression {
@@ -72,6 +72,12 @@ public abstract class Expression {
             put(' ', '❤');
         }
     };
+
+    protected TextRange textRange;
+
+    public Expression(TextRange textRange) {
+        this.textRange = textRange;
+    }
 
     @Override
     public String toString() {
@@ -200,5 +206,9 @@ public abstract class Expression {
             return "⅐";
         } else
             return null;
+    }
+
+    public TextRange getTextRange() {
+        return textRange;
     }
 }

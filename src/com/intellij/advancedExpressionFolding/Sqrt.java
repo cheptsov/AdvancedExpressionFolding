@@ -1,15 +1,18 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+
 import java.util.List;
 
 public class Sqrt extends Function implements ArithmeticExpression {
-    public Sqrt(List<Expression> operands) {
-        super("sqrt", operands);
+    public Sqrt(TextRange textRange, List<Expression> operands) {
+        super(textRange, "sqrt", operands);
     }
 
     @Override
     protected Sqrt copy(List<Expression> newOperands) {
-        return new Sqrt(newOperands);
+        return new Sqrt(textRange, newOperands);
     }
 
     @Override

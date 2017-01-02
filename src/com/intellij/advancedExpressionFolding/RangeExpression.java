@@ -1,5 +1,7 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+
 public class RangeExpression extends Expression implements ComparingExpression {
     public static final String RANGE_COMMA_DELIMITER = ", ";
     public static final String RANGE_IN_SEPARATOR = "in";
@@ -11,8 +13,9 @@ public class RangeExpression extends Expression implements ComparingExpression {
     private boolean startInclusive;
     private boolean endInclusive;
 
-    public RangeExpression(Expression operand, Expression startRange, boolean startInclusive, Expression endRange,
+    public RangeExpression(TextRange textRange, Expression operand, Expression startRange, boolean startInclusive, Expression endRange,
                            boolean endInclusive, String separator) {
+        super(textRange);
         this.operand = operand;
         this.startRange = startRange;
         this.startInclusive = startInclusive;
@@ -65,7 +68,7 @@ public class RangeExpression extends Expression implements ComparingExpression {
         Expression sStartRange = startRange.simplify(compute);
         Expression sEndRange = endRange.simplify(compute);
         if (sOperator != operand || sStartRange != startRange || sEndRange != endRange) {
-            return new RangeExpression(sOperator, sStartRange, startInclusive, sEndRange, endInclusive, separator);
+            return new RangeExpression(textRange, sOperator, sStartRange, startInclusive, sEndRange, endInclusive, separator);
         } else {
             return this;
         }

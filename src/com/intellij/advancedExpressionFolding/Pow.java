@@ -1,15 +1,18 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+
 import java.util.List;
 
 public class Pow extends Operation implements ArithmeticExpression {
-    public Pow(List<Expression> operands) {
-        super("**", 200, operands);
+    public Pow(TextRange textRange, List<Expression> operands) {
+        super(textRange, "**", 200, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
-        return new Pow(newOperands);
+        return new Pow(textRange, newOperands);
     }
 
     @Override

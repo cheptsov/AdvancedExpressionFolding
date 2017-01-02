@@ -1,16 +1,21 @@
 package com.intellij.advancedExpressionFolding;
 
-import java.util.*;
+import com.intellij.openapi.util.TextRange;
+
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Multiply extends Operation implements ArithmeticExpression {
-    public Multiply(List<Expression> operands) {
-        super("*", 100, operands);
+    public Multiply(TextRange textRange, List<Expression> operands) {
+        super(textRange, "*", 100, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
-        return new Multiply(newOperands);
+        return new Multiply(textRange, newOperands);
     }
 
     @Override
@@ -37,9 +42,9 @@ public class Multiply extends Operation implements ArithmeticExpression {
         }
         if (simplified[0]) {
             List<Expression> simplifiedOperands = map.entrySet().stream().map(e ->
-                    e.getValue() == 1 ? e.getKey() : new Pow(Arrays.asList(e.getKey(), new NumberLiteral(e.getValue())))
-            ).collect(Collectors.toList());
-            return new Multiply(simplifiedOperands);
+                    e.getValue() == 1 ? e.getKey() :
+                            new Pow(null, Arrays.asList(e.getKey(), new NumberLiteral(null, e.getValue())))).collect(Collectors.toList());
+            return new Multiply(textRange, simplifiedOperands);
         } else {
             return this;
         }

@@ -1,9 +1,12 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+
 public class StringLiteral extends Expression {
     private String string;
 
-    public StringLiteral(String string) {
+    public StringLiteral(TextRange textRange, String string) {
+        super(textRange);
         this.string = string;
     }
 

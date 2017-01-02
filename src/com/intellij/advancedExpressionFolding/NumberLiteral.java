@@ -1,9 +1,12 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+
 public class NumberLiteral extends Expression {
     private Number number;
 
-    public NumberLiteral(Number number) {
+    public NumberLiteral(TextRange textRange, Number number) {
+        super(textRange);
         this.number = number;
     }
 

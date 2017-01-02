@@ -1,5 +1,7 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -9,7 +11,8 @@ public abstract class Operation extends Expression {
     private int priority;
     protected List<Expression> operands;
 
-    public Operation(String character, int priority, List<Expression> operands) {
+    public Operation(TextRange textRange, String character, int priority, List<Expression> operands) {
+        super(textRange);
         this.character = character;
         this.priority = priority;
         this.operands = operands;

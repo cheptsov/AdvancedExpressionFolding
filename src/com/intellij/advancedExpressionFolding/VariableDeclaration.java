@@ -1,10 +1,13 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+
 public class VariableDeclaration extends Variable {
     private final String type;
 
-    public VariableDeclaration(String type, String name) {
-        super(name);
+    public VariableDeclaration(TextRange textRange, String type, String name) {
+        super(textRange, name);
         this.type = type;
     }
 

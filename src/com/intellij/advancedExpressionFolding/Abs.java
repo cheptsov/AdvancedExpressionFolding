@@ -1,15 +1,17 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+
 import java.util.List;
 
 public class Abs extends Function implements ArithmeticExpression {
-    public Abs(List<Expression> operands) {
-        super("abs", operands);
+    public Abs(TextRange textRange, List<Expression> operands) {
+        super(textRange, "abs", operands);
     }
 
     @Override
     protected Abs copy(List<Expression> newOperands) {
-        return new Abs(newOperands);
+        return new Abs(textRange, newOperands);
     }
 
     @Override

@@ -1,15 +1,18 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+
 import java.util.List;
 
 public class Divide extends Operation implements ArithmeticExpression {
-    public Divide(List<Expression> operands) {
-        super("/", 100, operands);
+    public Divide(TextRange textRange, List<Expression> operands) {
+        super(textRange, "/", 100, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
-        return new Divide(newOperands);
+        return new Divide(textRange, newOperands);
     }
 
     @Override

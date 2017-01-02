@@ -1,15 +1,17 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.util.TextRange;
+
 import java.util.List;
 
 public class Slice extends Function implements SlicingExpression {
-    public Slice(List<Expression> operands) {
-        super("slice", operands);
+    public Slice(TextRange textRange, List<Expression> operands) {
+        super(textRange, "slice", operands);
     }
 
     @Override
     protected Slice copy(List<Expression> newOperands) {
-        return new Slice(newOperands);
+        return new Slice(textRange, newOperands);
     }
 
     @Override
