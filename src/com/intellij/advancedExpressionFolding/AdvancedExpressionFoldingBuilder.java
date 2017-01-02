@@ -91,6 +91,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("java.lang.Integer");
             add("java.lang.Float");
             add("java.lang.Double");
+            add("java.lang.Character");
             add("java.lang.String");
             add("java.lang.StringBuilder");
             add("java.lang.AbstractStringBuilder");
@@ -108,6 +109,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("long");
             add("float");
             add("double");
+            add("char");
             add("java.lang.String");
         }
     };
@@ -185,9 +187,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             Expression expression = getExpression(element, PsiDocumentManager.getInstance(astNode.getPsi().getProject()).getDocument(astNode.getPsi().getContainingFile()), true);
             AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
             return expression != null && (settings.isArithmeticExpressionsCollapse() && expression instanceof ArithmeticExpression
-                    || settings.isComparingExpressionsCollapse() && expression instanceof ComparingExpression
-                    || settings.isSlicingExpressionsCollapse() && expression instanceof SlicingExpression
-                    || settings.isConcatenationExpressionsCollapse() && expression instanceof ConcatenationExpression);
+                        || settings.isComparingExpressionsCollapse() && expression instanceof ComparingExpression
+                        || settings.isSlicingExpressionsCollapse() && expression instanceof SlicingExpression
+                        || settings.isConcatenationExpressionsCollapse() && expression instanceof ConcatenationExpression)
+                    && expression.isCollapsedByDefault();
         } catch (IndexNotReadyException e) {
             return false;
         }
@@ -324,6 +327,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     return new NumberLiteral(element.getTextRange(), (Number) value);
                 } else if (value instanceof String) {
                     return new StringLiteral(element.getTextRange(), (String) value);
+                } else if (value instanceof Character) {
+                    return new CharacterLiteral(element.getTextRange(), (Character) value);
                 }
             }
         }
@@ -497,49 +502,67 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     private static Expression getAssignmentExpression(PsiAssignmentExpression element, @Nullable Document document) {
         Variable leftVariable = getVariableExpression(element.getLExpression());
-        if (leftVariable != null) {
+        if (leftVariable != null && element.getRExpression() != null) {
             Expression leftExpression = getExpression(element.getRExpression(), document, true);
             if (leftExpression instanceof Operation) {
                 Operation operation = (Operation) leftExpression;
                 if (operation.getOperands().size() >= 2 && operation.getOperands().get(0).equals(leftVariable)) {
                     if (operation instanceof Add) {
                         /* TODO: Avoid null textRange*/
-                        return new AddAssign(element.getTextRange(), Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
-                                new Add(null, operation.getOperands().subList(1, operation.getOperands().size())) : operation
-                                .getOperands().get(1)));
+                        return new AddAssign(element.getTextRange(),
+                                Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                        new Add(null, operation.getOperands()
+                                                .subList(1, operation.getOperands().size())) : operation
+                                        .getOperands().get(1)));
                     } else if (operation instanceof Subtract) {
-                        return new SubtractAssign(element.getTextRange(), Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
-                                new Add(null, operation.getOperands().subList(1, operation.getOperands().size())) : operation
-                                .getOperands().get(1)));
+                        return new SubtractAssign(element.getTextRange(),
+                                Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                        new Add(null, operation.getOperands()
+                                                .subList(1, operation.getOperands().size())) : operation
+                                        .getOperands().get(1)));
                     } else if (operation instanceof And) {
-                        return new AndAssign(element.getTextRange(), Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
-                                new And(null, operation.getOperands().subList(1, operation.getOperands().size())) : operation
-                                .getOperands().get(1)));
+                        return new AndAssign(element.getTextRange(),
+                                Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                        new And(null, operation.getOperands()
+                                                .subList(1, operation.getOperands().size())) : operation
+                                        .getOperands().get(1)));
                     } else if (operation instanceof Or) {
-                        return new AndAssign(element.getTextRange(), Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
-                                new Or(null, operation.getOperands().subList(1, operation.getOperands().size())) : operation
-                                .getOperands().get(1)));
+                        return new AndAssign(element.getTextRange(),
+                                Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                        new Or(null, operation.getOperands()
+                                                .subList(1, operation.getOperands().size())) : operation
+                                        .getOperands().get(1)));
                     } else if (operation instanceof Xor) {
-                        return new AndAssign(element.getTextRange(), Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
-                                new Xor(null, operation.getOperands().subList(1, operation.getOperands().size())) : operation
-                                .getOperands().get(1)));
+                        return new AndAssign(element.getTextRange(),
+                                Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                        new Xor(null, operation.getOperands()
+                                                .subList(1, operation.getOperands().size())) : operation
+                                        .getOperands().get(1)));
                     } else if (operation instanceof Multiply) {
-                        return new MultiplyAssign(element.getTextRange(), Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
-                                new Multiply(null, operation.getOperands().subList(1, operation.getOperands().size())) : operation
-                                .getOperands().get(1)));}
+                        return new MultiplyAssign(element.getTextRange(),
+                                Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                        new Multiply(null, operation.getOperands()
+                                                .subList(1, operation.getOperands().size())) : operation
+                                        .getOperands().get(1)));
                     } else if (operation instanceof Divide) {
-                        return new DivideAssign(element.getTextRange(), Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
-                                new Multiply(null, operation.getOperands().subList(1, operation.getOperands().size())) : operation
-                                .getOperands().get(1)));
+                        return new DivideAssign(element.getTextRange(),
+                                Arrays.asList(leftVariable, operation.getOperands().size() > 2 ?
+                                        new Multiply(null, operation.getOperands()
+                                                .subList(1, operation.getOperands().size())) : operation
+                                        .getOperands().get(1)), operation.isCollapsedByDefault());
                     } else if (operation instanceof ShiftRight && operation.getOperands().size() == 2) {
-                        return new ShiftRightAssign(element.getTextRange(), Arrays.asList(leftVariable, operation.getOperands().get(1)));
+                        return new ShiftRightAssign(element.getTextRange(),
+                                Arrays.asList(leftVariable, operation.getOperands().get(1)));
                     } else if (operation instanceof ShiftLeft && operation.getOperands().size() == 2) {
-                        return new ShiftLeftAssign(element.getTextRange(), Arrays.asList(leftVariable, operation.getOperands().get(1)));
+                        return new ShiftLeftAssign(element.getTextRange(),
+                                Arrays.asList(leftVariable, operation.getOperands().get(1)));
                     } else if (operation instanceof Remainder && operation.getOperands().size() == 2) {
-                        return new RemainderAssign(element.getTextRange(), Arrays.asList(leftVariable, operation.getOperands().get(1)));
+                        return new RemainderAssign(element.getTextRange(),
+                                Arrays.asList(leftVariable, operation.getOperands().get(1)));
                     }
                 }
             }
+        }
         return null;
     }
 
@@ -680,7 +703,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                                     Arrays.asList(qualifierExpression, argumentExpression));
                                         case "divide":
                                             return new Divide(element.getTextRange(),
-                                                    Arrays.asList(qualifierExpression, argumentExpression));
+                                                    Arrays.asList(qualifierExpression, argumentExpression), false);
                                         case "remainder":
                                             return new Remainder(element.getTextRange(),
                                                     Arrays.asList(qualifierExpression, argumentExpression));
@@ -724,7 +747,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         case "equals":
                                             return new Equal(element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
                                         case "append":
-                                            return new Append(element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                            return new Append(element.getTextRange(),
+                                                    Arrays.asList(qualifierExpression, argumentExpression));
                                         case "subList":
                                         case "substring":
                                             if (argument instanceof PsiBinaryExpression) {
@@ -931,8 +955,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                         .filter(c -> c instanceof PsiIdentifier).findAny();
                 if (a2i.isPresent() && (a2i.get().getText().equals("length")
                         || a2i.get().getText().equals("size"))) {
-                    Expression a2qe = getVariableExpression(
-                            a2me.getQualifierExpression());
+                    Expression a2qe = getExpression(
+                            a2me.getQualifierExpression(), document, true);
                     if (a2qe != null && a2qe.equals(qualifierExpression)) {
                         position = -((NumberLiteral) s).getNumber().intValue();
                     }

@@ -17,6 +17,16 @@ public abstract class Function extends Expression {
     }
 
     @Override
+    public boolean isCollapsedByDefault() {
+        for (Expression operand : operands) {
+            if (!operand.isCollapsedByDefault()) {
+                return false;
+            }
+        }
+        return super.isCollapsedByDefault();
+    }
+
+    @Override
     public String format() {
         return name + "(" + operands.stream().map(Expression::format).collect(Collectors.joining(", ")) + ")";
     }

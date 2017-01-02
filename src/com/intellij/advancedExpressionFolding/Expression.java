@@ -208,6 +208,10 @@ public abstract class Expression {
             return null;
     }
 
+    public boolean isCollapsedByDefault() {
+        return true;
+    }
+
     public TextRange getTextRange() {
         return textRange;
     }

@@ -1,13 +1,19 @@
 package com.intellij.advancedExpressionFolding;
 
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
 
 import java.util.List;
 
 public class Divide extends Operation implements ArithmeticExpression {
+    private final boolean isCollapsedByDefault;
+
     public Divide(TextRange textRange, List<Expression> operands) {
+        this(textRange, operands, true);
+    }
+
+    public Divide(TextRange textRange, List<Expression> operands, boolean isCollapsedByDefault) {
         super(textRange, "/", 100, operands);
+        this.isCollapsedByDefault = isCollapsedByDefault;
     }
 
     @Override
@@ -18,6 +24,11 @@ public class Divide extends Operation implements ArithmeticExpression {
     @Override
     public boolean isAssociative() {
         return false;
+    }
+
+    @Override
+    public boolean isCollapsedByDefault() {
+        return isCollapsedByDefault;
     }
 
     @Override

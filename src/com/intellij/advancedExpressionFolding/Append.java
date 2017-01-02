@@ -30,4 +30,18 @@ public class Append extends Operation implements ConcatenationExpression {
         }
         return format;
     }
+
+    @Override
+    public boolean isCollapsedByDefault() {
+        if (!super.isCollapsedByDefault()) {
+            return false;
+        }
+        for (Expression operand : operands) {
+            if (operand instanceof Add && ((Add) operand).getOperands().stream()
+                    .anyMatch(o -> !(o instanceof StringLiteral))) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

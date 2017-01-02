@@ -76,8 +76,7 @@ public class RangeExpression extends Expression implements ComparingExpression {
 
     @Override
     public String format() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(operand.format()).append(" ").append(separator).append(" ");
+        StringBuilder sb = new StringBuilder().append(operand.format()).append(" ").append(separator).append(" ");
         if (startInclusive) {
             sb.append("[");
         } else {

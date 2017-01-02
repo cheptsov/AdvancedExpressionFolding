@@ -8,14 +8,24 @@ import java.util.Objects;
 
 public abstract class Operation extends Expression {
     protected String character;
-    private int priority;
     protected List<Expression> operands;
+    private int priority;
 
     public Operation(TextRange textRange, String character, int priority, List<Expression> operands) {
         super(textRange);
         this.character = character;
         this.priority = priority;
         this.operands = operands;
+    }
+
+    @Override
+    public boolean isCollapsedByDefault() {
+        for (Expression operand : operands) {
+            if (!operand.isCollapsedByDefault()) {
+                return false;
+            }
+        }
+        return super.isCollapsedByDefault();
     }
 
     public List<Expression> getOperands() {
