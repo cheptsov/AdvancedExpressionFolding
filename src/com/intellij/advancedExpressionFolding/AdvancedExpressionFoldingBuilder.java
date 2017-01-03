@@ -135,7 +135,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @NotNull
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, boolean b) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, boolean quick) {
         List<FoldingDescriptor> allDescriptors = null;
         try {
             FoldingGroup group = FoldingGroup.newGroup(AdvancedExpressionFoldingBuilder.class.getName());
@@ -143,23 +143,29 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             Expression expression = getExpression(element, document,false);
             if (expression != null) {
                 expression = expression.simplify();
-                final String text = expression.format();
-                if (!text.replaceAll("\\s+", "").equals(document.getText(expression.getTextRange()).replaceAll("\\s+", ""))) {
+                if (expression.supportsFoldRegions()) {
                     allDescriptors = new ArrayList<>();
-                    allDescriptors.add(new FoldingDescriptor(element.getNode(),
-                            expression.getTextRange(),
-                            group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return text;
-                        }
-                    });
+                    Collections.addAll(allDescriptors, expression.buildFoldRegions(element, document));
+                } else {
+                    final String text = expression.format();
+                    if (!text.replaceAll("\\s+", "")
+                            .equals(document.getText(expression.getTextRange()).replaceAll("\\s+", ""))) {
+                        allDescriptors = new ArrayList<>();
+                        allDescriptors.add(new FoldingDescriptor(element.getNode(),
+                                expression.getTextRange(),
+                                group) {
+                            @Nullable
+                            @Override
+                            public String getPlaceholderText() {
+                                return text;
+                            }
+                        });
+                    }
                 }
             }
             if (expression == null || !expression.getTextRange().equals(element.getTextRange())) {
                 for (PsiElement child : element.getChildren()) {
-                    FoldingDescriptor[] descriptors = buildFoldRegions(child, document, b);
+                    FoldingDescriptor[] descriptors = buildFoldRegions(child, document, quick);
                     if (descriptors.length > 0) {
                         if (allDescriptors == null) {
                             allDescriptors = new ArrayList<>();

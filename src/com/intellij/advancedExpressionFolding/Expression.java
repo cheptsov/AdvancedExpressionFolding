@@ -1,6 +1,10 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.lang.folding.FoldingDescriptor;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -163,6 +167,14 @@ public abstract class Expression {
 
     public final Expression simplify() {
         return simplify(false);
+    }
+
+    public boolean supportsFoldRegions() {
+        return false;
+    }
+
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+        throw new UnsupportedOperationException();
     }
 
     public abstract String format();

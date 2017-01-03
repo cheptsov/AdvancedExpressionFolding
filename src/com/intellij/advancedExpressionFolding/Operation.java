@@ -1,6 +1,12 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.lang.folding.FoldingDescriptor;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,6 +133,56 @@ public abstract class Operation extends Expression {
 
     public int getPriority() {
         return priority;
+    }
+
+
+    @Override
+    public boolean supportsFoldRegions() {
+        return operands.size() >= 2
+                && operands.stream().allMatch(operand ->
+                operand.getTextRange() != null
+                        && !(operand instanceof Operation)
+                        && !(operand instanceof Function));
+    }
+
+    @Override
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+        FoldingGroup group = FoldingGroup.newGroup(Operation.class.getName());
+        List<FoldingDescriptor> descriptors = new ArrayList<>();
+        int offset = getTextRange().getStartOffset();
+        if (operands.get(0).getTextRange().getStartOffset() > offset) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(offset, operands.get(0).getTextRange().getStartOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return "";
+                }
+            });
+        }
+        offset = operands.get(0).getTextRange().getEndOffset();
+        for (int i = 1; i < operands.size(); i++) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(offset, operands.get(i).getTextRange().getStartOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return " " + character + " ";
+                }
+            });
+            offset = operands.get(i).getTextRange().getEndOffset();
+        }
+        if (offset < getTextRange().getEndOffset()) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(offset, getTextRange().getEndOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return "";
+                }
+            });
+        }
+        return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 
     @Override
