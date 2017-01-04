@@ -169,7 +169,7 @@ public abstract class Expression {
         return simplify(false);
     }
 
-    public boolean supportsFoldRegions() {
+    public boolean supportsFoldRegions(Document document) {
         return false;
     }
 
