@@ -1,11 +1,6 @@
 package com.intellij.advancedExpressionFolding;
 
-import com.intellij.lang.folding.FoldingDescriptor;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
-import org.jetbrains.annotations.Nullable;
 
 public class NotNullExpression extends Expression implements CheckExpression {
     private final Expression object;
@@ -20,7 +15,7 @@ public class NotNullExpression extends Expression implements CheckExpression {
         return object.format();
     }
 
-    @Override
+    /*@Override
     public boolean supportsFoldRegions(Document document) {
         return getTextRange() != null && object.getTextRange() != null;
     }
@@ -39,5 +34,5 @@ public class NotNullExpression extends Expression implements CheckExpression {
                     }
                 }
         };
-    }
+    }*/
 }

@@ -686,7 +686,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             if (method != null) {
                 PsiClass psiClass = method.getContainingClass();
                 if (psiClass != null) {
-                    if (supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))) {
+                    if (supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))
+                            && element.getMethodExpression().getQualifierExpression() != null) {
                         PsiExpression qualifier = element
                                 .getMethodExpression().getQualifierExpression();
                         Expression qualifierExpression = getExpression(qualifier, document, true);
