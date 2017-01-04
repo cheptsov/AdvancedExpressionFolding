@@ -337,9 +337,22 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             }
         }
         if (createSynthetic && document != null) {
-            return new SyntheticExpressionImpl(element.getTextRange(), document.getText(element.getTextRange()));
+            ArrayList<Expression> children = new ArrayList<>();
+            findChildExpressions(element, children, document);
+            return new SyntheticExpressionImpl(element.getTextRange(), document.getText(element.getTextRange()), children);
         }
         return null;
+    }
+
+    private static void findChildExpressions(PsiElement element, List<Expression> expressions, @Nullable Document document) {
+        for (PsiElement child : element.getChildren()) {
+            Expression expression = getExpression(child, document, false);
+            if (expression != null) {
+                expressions.add(expression);
+            } else {
+                findChildExpressions(child, expressions, document);
+            }
+        }
     }
 
     private static TypeCast getTypeCastExpression(PsiTypeCastExpression expression, @Nullable Document document) {
