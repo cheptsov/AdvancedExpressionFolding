@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -181,6 +182,11 @@ public abstract class Operation extends Expression {
                     return "";
                 }
             });
+        }
+        for (Expression operand : operands) {
+            if (operand.supportsFoldRegions(document)) {
+                Collections.addAll(descriptors, operand.buildFoldRegions(element, document));
+            }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
