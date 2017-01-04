@@ -77,6 +77,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("append");
             add("substring");
             add("subList");
+            add("contains");
+            add("containsKey");
+            add("get");
             /*add("addAll");
             add("removeAll");*/
         }
@@ -97,9 +100,13 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("java.lang.AbstractStringBuilder");
             add("java.util.List");
             add("java.util.ArrayList");
-            /*add("java.util.Collection");
+            add("java.util.Map");
+            add("java.util.HashMap");
+            add("java.util.Map");
+            add("java.util.HashMap");
             add("java.util.Set");
-            add("java.util.HashSet");*/
+            add("java.util.HashSet");
+            /*add("java.util.Collection");*/
         }
     };
 
@@ -194,7 +201,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             return expression != null && (settings.isArithmeticExpressionsCollapse() && expression instanceof ArithmeticExpression
                         || settings.isComparingExpressionsCollapse() && expression instanceof ComparingExpression
                         || settings.isSlicingExpressionsCollapse() && expression instanceof SlicingExpression
-                        || settings.isConcatenationExpressionsCollapse() && expression instanceof ConcatenationExpression)
+                        || settings.isConcatenationExpressionsCollapse() && expression instanceof ConcatenationExpression
+                        || settings.isRangeExpressionsCollapse() && expression instanceof RangeExpression
+                        || settings.isGetExpressionsCollapse() && expression instanceof GetExpression
+                        || settings.isCheckExpressionsCollapse() && expression instanceof CheckExpression
+            )
                     && expression.isCollapsedByDefault();
         } catch (IndexNotReadyException e) {
             return false;
@@ -239,7 +250,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 if (variable != null && start != null && end != null && ("<".equals(sign) || "<=".equals(sign))) {
                     int startOffset = lParenth.getTextRange().getStartOffset() + 1;
                     int endOffset = rParenth.getTextRange().getEndOffset() - 1;
-                    ForStatementExpression expression = new ForStatementExpression(TextRange.create(startOffset, endOffset), variable,
+                    ForStatement expression = new ForStatement(TextRange.create(startOffset, endOffset), variable,
                             start, true, end, "<=".equals(sign));
                     return expression.simplify(true);
                 }
@@ -382,7 +393,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             if (e1 instanceof Variable && e3 instanceof Variable
                     && e1.equals(e3)
                     && e2 != null && e4 != null) {
-                return new RangeExpression(TextRange.create(a.getTextRange().getStartOffset(),
+                return new Range(TextRange.create(a.getTextRange().getStartOffset(),
                         b.getTextRange().getEndOffset()), e1,
                         e4, b.getOperationSign().getText().equals(">="), e2, a.getOperationSign().getText().equals("<="));
             }
@@ -396,7 +407,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             if (e1 instanceof Variable && e3 instanceof Variable
                     && e1.equals(e3)
                     && e2 != null && e4 != null) {
-                return new RangeExpression(TextRange.create(a.getTextRange().getStartOffset(),
+                return new Range(TextRange.create(a.getTextRange().getStartOffset(),
                         b.getTextRange().getEndOffset()), e1,
                         e2, a.getOperationSign().getText().equals(">="), e4, b.getOperationSign().getText().equals("<="));
             }
@@ -494,6 +505,13 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 && element.getROperand() instanceof PsiBinaryExpression) {
             return getAndTwoBinaryExpressions(((PsiBinaryExpression) element.getLOperand()),
                     ((PsiBinaryExpression) element.getROperand()), document);
+        }
+        if ("!=".equals(element.getOperationSign().getText()) &&
+                (element.getLOperand().getType() == PsiType.NULL
+                        || element.getROperand().getType() == PsiType.NULL)) {
+            return new NotNullExpression(element.getTextRange(),
+                    getExpression(element.getLOperand().getType() == PsiType.NULL
+                            ? element.getROperand() : element.getLOperand(), document, true));
         }
         return null;
     }
@@ -746,6 +764,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         case "append":
                                             return new Append(element.getTextRange(),
                                                     Arrays.asList(qualifierExpression, argumentExpression));
+                                        case "contains":
+                                        case "containsKey":
+                                            return new Contains(element.getTextRange(), qualifierExpression, argumentExpression);
+                                        case "get":
+                                            return new Get(element.getTextRange(), qualifierExpression, argumentExpression);
                                         case "subList":
                                         case "substring":
                                             if (argument instanceof PsiBinaryExpression) {

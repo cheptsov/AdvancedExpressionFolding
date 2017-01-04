@@ -1,4 +1,4 @@
 package com.intellij.advancedExpressionFolding;
 
-public interface RangeExpression {
+public interface CheckExpression {
 }

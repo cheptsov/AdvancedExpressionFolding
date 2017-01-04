@@ -4,9 +4,12 @@ public class AdvancedExpressionFoldingOptionsProvider extends com.intellij.opena
     protected AdvancedExpressionFoldingOptionsProvider() {
         super(AdvancedExpressionFoldingSettings.getInstance().getState());
         AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
-        checkBox("Arithmetic expressions", settings::isArithmeticExpressionsCollapse, value -> settings.getState().ARITHMETIC_EXPRESSIONS = value);
-        checkBox("Concatenation expressions", settings::isConcatenationExpressionsCollapse, value -> settings.getState().CONCATENATION_EXPRESSIONS = value);
-        checkBox("Slicing expressions", settings::isSlicingExpressionsCollapse, value -> settings.getState().SLICING_EXPRESSIONS = value);
-        checkBox("Comparing expressions", settings::isComparingExpressionsCollapse, value -> settings.getState().COMPARING_EXPRESSIONS = value);
+        checkBox("Math, BigDecimal and BigInteger expressions", settings::isArithmeticExpressionsCollapse, value -> settings.getState().ARITHMETIC_EXPRESSIONS = value);
+        checkBox("StringBuilder.append expressions", settings::isConcatenationExpressionsCollapse, value -> settings.getState().CONCATENATION_EXPRESSIONS = value);
+        checkBox("List.subList and String.substring expressions", settings::isSlicingExpressionsCollapse, value -> settings.getState().SLICING_EXPRESSIONS = value);
+        checkBox("Object.equals and Comparable.compareTo expressions", settings::isComparingExpressionsCollapse, value -> settings.getState().COMPARING_EXPRESSIONS = value);
+        checkBox("List.get and Map.get expressions", settings::isGetExpressionsCollapse, value -> settings.getState().GET_EXPRESSIONS = value);
+        checkBox("Range expressions", settings::isRangeExpressionsCollapse, value -> settings.getState().RANGE_EXPRESSIONS = value);
+        checkBox("Not-null checks, Set.contains and Map.containsKey expressions", settings::isCheckExpressionsCollapse, value -> settings.getState().CHECK_EXPRESSIONS = value);
     }
 }
