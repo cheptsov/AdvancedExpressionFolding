@@ -44,6 +44,10 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         return myState.CHECK_EXPRESSIONS;
     }
 
+    public boolean isCastExpressionsCollapse() {
+        return myState.CHECK_EXPRESSIONS;
+    }
+
     @NotNull
     public static AdvancedExpressionFoldingSettings getInstance() {
         return ServiceManager.getService(AdvancedExpressionFoldingSettings.class);
@@ -58,6 +62,7 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         myState.GET_EXPRESSIONS = state.COMPARING_EXPRESSIONS;
         myState.CHECK_EXPRESSIONS = state.CHECK_EXPRESSIONS;
         myState.RANGE_EXPRESSIONS = state.RANGE_EXPRESSIONS;
+        myState.CAST_EXPRESSIONS = state.CAST_EXPRESSIONS;
     }
 
     public static final class State {
@@ -68,6 +73,7 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         public boolean GET_EXPRESSIONS = true;
         public boolean RANGE_EXPRESSIONS = true;
         public boolean CHECK_EXPRESSIONS = true;
+        public boolean CAST_EXPRESSIONS = true;
 
         public State() { /* compiled code */ }
     }

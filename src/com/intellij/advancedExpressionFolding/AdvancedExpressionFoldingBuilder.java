@@ -205,6 +205,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                         || settings.isRangeExpressionsCollapse() && expression instanceof RangeExpression
                         || settings.isGetExpressionsCollapse() && expression instanceof GetExpression
                         || settings.isCheckExpressionsCollapse() && expression instanceof CheckExpression
+                        || settings.isCastExpressionsCollapse() && expression instanceof CastExpression
             )
                     && expression.isCollapsedByDefault();
         } catch (IndexNotReadyException e) {
@@ -316,8 +317,21 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             }
         }
         if (element instanceof PsiParenthesizedExpression) {
+            if (((PsiParenthesizedExpression) element).getExpression() instanceof PsiTypeCastExpression) {
+                TypeCast typeCast = getTypeCastExpression(
+                        (PsiTypeCastExpression) ((PsiParenthesizedExpression) element).getExpression(), document);
+                if (typeCast != null) {
+                    return new TypeCast(element.getTextRange(), typeCast.getObject());
+                }
+            }
             Expression expression = getExpression(((PsiParenthesizedExpression) element).getExpression(), document,
                     createSynthetic);
+            if (expression != null) {
+                return expression;
+            }
+        }
+        if (element instanceof PsiTypeCastExpression) {
+            TypeCast expression = getTypeCastExpression((PsiTypeCastExpression) element, document);
             if (expression != null) {
                 return expression;
             }
@@ -326,6 +340,13 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             return new SyntheticExpressionImpl(element.getTextRange(), document.getText(element.getTextRange()));
         }
         return null;
+    }
+
+    private static TypeCast getTypeCastExpression(PsiTypeCastExpression expression, @Nullable Document document) {
+        return expression.getOperand() != null
+                ? new TypeCast(expression.getOperand().getTextRange(),
+                getExpression(expression.getOperand(), document, true))
+                : null;
     }
 
     private static Expression getLiteralExpression(PsiLiteralExpression element) {

@@ -1,11 +1,11 @@
 <idea-plugin>
   <id>com.intellij.bigdecimal-folding</id>
   <name>Advanced Expressions Folding</name>
-  <version>0.2.8</version>
+  <version>0.2.9</version>
   <vendor email="andrey.cheptsov@jetbrains.com" url="http://www.jetbrains.com">JetBrains</vendor>
 
   <description><![CDATA[
-      This plugin folds arithmetic, concatenation, slicing and comparing expressions for better readability. This covers BigDecimal, BigInteger,
+      This plugin folds arithmetic, concatenation, slicing and comparing and cast expressions for better readability. This covers BigDecimal, BigInteger,
       Long, Integer, Double, Float, Math, String, StringBuilder, List, ArrayList, Map, primitive types and more.
     ]]></description>
 

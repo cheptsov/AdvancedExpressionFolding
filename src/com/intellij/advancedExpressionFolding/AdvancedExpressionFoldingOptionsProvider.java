@@ -11,5 +11,6 @@ public class AdvancedExpressionFoldingOptionsProvider extends com.intellij.opena
         checkBox("List.get and Map.get expressions", settings::isGetExpressionsCollapse, value -> settings.getState().GET_EXPRESSIONS = value);
         checkBox("Range expressions", settings::isRangeExpressionsCollapse, value -> settings.getState().RANGE_EXPRESSIONS = value);
         checkBox("Not-null checks, Set.contains and Map.containsKey expressions", settings::isCheckExpressionsCollapse, value -> settings.getState().CHECK_EXPRESSIONS = value);
+        checkBox("Type cast expressions", settings::isCastExpressionsCollapse, value -> settings.getState().CAST_EXPRESSIONS = value);
     }
 }

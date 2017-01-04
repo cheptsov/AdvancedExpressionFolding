@@ -20,7 +20,7 @@ public class Contains extends Expression implements CheckExpression {
 
     @Override
     public String format() {
-        return object.format() + "[" + key + "]";
+        return object.format() + "[" + key + "]?";
     }
 
     @Override
@@ -47,7 +47,7 @@ public class Contains extends Expression implements CheckExpression {
                     @Nullable
                     @Override
                     public String getPlaceholderText() {
-                        return "]";
+                        return "]?";
                     }
                 }
         };
