@@ -344,7 +344,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     private static TypeCast getTypeCastExpression(PsiTypeCastExpression expression, @Nullable Document document) {
         return expression.getOperand() != null
-                ? new TypeCast(expression.getOperand().getTextRange(),
+                ? new TypeCast(expression.getTextRange(),
                 getExpression(expression.getOperand(), document, true))
                 : null;
     }

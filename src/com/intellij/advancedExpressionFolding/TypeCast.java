@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class TypeCast extends Expression implements CastExpression {
     private final Expression object;
 
@@ -35,46 +38,63 @@ public class TypeCast extends Expression implements CastExpression {
         FoldingGroup group = FoldingGroup.newGroup(Contains.class.getName());
         boolean dotAccess = document.getText(TextRange.create(getTextRange().getEndOffset(),
                 getTextRange().getEndOffset() + 1)).equals(".");
-        return new FoldingDescriptor[]{
-                dotAccess ?
-                        new FoldingDescriptor(element.getNode(),
-                                TextRange.create(getTextRange().getStartOffset(),
-                                        object.getTextRange().getStartOffset()), group) {
-                            @Nullable
-                            @Override
-                            public String getPlaceholderText() {
-                                return "";
-                            }
-                        }
-                        : new FoldingDescriptor(element.getNode(),
-                                TextRange.create(getTextRange().getStartOffset(),
-                                        object.getTextRange().getStartOffset()), group) {
-                            @Nullable
-                            @Override
-                            public String getPlaceholderText() {
-                                return "~";
-                            }
-                        }
-                        ,
-                dotAccess ?
-                        new FoldingDescriptor(element.getNode(),
-                                TextRange.create(object.getTextRange().getEndOffset(),
-                                        getTextRange().getEndOffset() + 1), group) {
-                            @Nullable
-                            @Override
-                            public String getPlaceholderText() {
-                                return ".";
-                            }
-                        }
-                        : new FoldingDescriptor(element.getNode(),
-                                TextRange.create(object.getTextRange().getEndOffset(),
-                                        getTextRange().getEndOffset()), group) {
-                            @Nullable
-                            @Override
-                            public String getPlaceholderText() {
-                                return "";
-                            }
-                        }
-        };
+        ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
+        if (object.getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
+            if (dotAccess) {
+                descriptors.add(new FoldingDescriptor(element.getNode(),
+                        TextRange.create(getTextRange().getStartOffset(),
+                                object.getTextRange().getStartOffset()), group) {
+                    @Nullable
+                    @Override
+                    public String getPlaceholderText() {
+                        return "";
+                    }
+                });
+                descriptors.add(new FoldingDescriptor(element.getNode(),
+                                        TextRange.create(object.getTextRange().getEndOffset(),
+                                                getTextRange().getEndOffset() + 1), group) {
+                                    @Nullable
+                                    @Override
+                                    public String getPlaceholderText() {
+                                        return ".";
+                                    }
+                                }
+                );
+            } else {
+                descriptors.add(new FoldingDescriptor(element.getNode(),
+                                        TextRange.create(getTextRange().getStartOffset(),
+                                                object.getTextRange().getStartOffset()), group) {
+                                    @Nullable
+                                    @Override
+                                    public String getPlaceholderText() {
+                                        return "~";
+                                    }
+                                }
+                );
+                descriptors.add(new FoldingDescriptor(element.getNode(),
+                        TextRange.create(object.getTextRange().getEndOffset(),
+                                getTextRange().getEndOffset()), group) {
+                    @Nullable
+                    @Override
+                    public String getPlaceholderText() {
+                        return "";
+                    }
+                });
+            }
+        } else {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                                    TextRange.create(getTextRange().getStartOffset(),
+                                            object.getTextRange().getStartOffset()), group) {
+                                @Nullable
+                                @Override
+                                public String getPlaceholderText() {
+                                    return "~";
+                                }
+                            });
+        }
+        if (object.supportsFoldRegions(document)) {
+            Collections.addAll(descriptors, object.buildFoldRegions(element, document));
+        }
+        return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 }
