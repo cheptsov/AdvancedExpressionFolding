@@ -80,6 +80,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("contains");
             add("containsKey");
             add("get");
+            add("charAt");
             add("put");
             add("set");
             /*add("addAll");
@@ -813,6 +814,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         case "containsKey":
                                             return new Contains(element.getTextRange(), qualifierExpression, argumentExpression);
                                         case "get":
+                                        case "charAt":
                                             return new Get(element.getTextRange(), qualifierExpression, argumentExpression);
                                         case "subList":
                                         case "substring":
