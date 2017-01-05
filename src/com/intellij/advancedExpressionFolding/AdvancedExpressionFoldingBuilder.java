@@ -381,15 +381,17 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     }
 
     private static Expression getPrefixExpression(PsiPrefixExpression element, @Nullable Document document) {
-        if (element.getOperationSign().getText().equals("!")) {
-            Expression operand = getExpression(element.getOperand(), document, true);
-            if (operand instanceof Equal) {
-                return new NotEqual(element.getTextRange(), ((Equal) operand).getOperands());
-            }
-        } else if (element.getOperationSign().getText().equals("-")) {
-            Expression operand = getExpression(element.getOperand(), document, true);
-            if (operand != null) {
-                return new Negate(element.getTextRange(), Collections.singletonList(operand));
+        if (element.getOperand() != null) {
+            if (element.getOperationSign().getText().equals("!")) {
+                Expression operand = getExpression(element.getOperand(), document, true);
+                if (operand instanceof Equal) {
+                    return new NotEqual(element.getTextRange(), ((Equal) operand).getOperands());
+                }
+            } else if (element.getOperationSign().getText().equals("-")) {
+                Expression operand = getExpression(element.getOperand(), document, true);
+                if (operand != null) {
+                    return new Negate(element.getTextRange(), Collections.singletonList(operand));
+                }
             }
         }
         return null;

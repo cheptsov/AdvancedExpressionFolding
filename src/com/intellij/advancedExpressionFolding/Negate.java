@@ -1,7 +1,7 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
 
 import java.util.List;
 
@@ -23,5 +23,10 @@ public class Negate extends Function implements ArithmeticExpression {
         } else {
             return "-" + expression.format();
         }
+    }
+
+    @Override
+    public boolean supportsFoldRegions(Document document, boolean quick) {
+        return false;
     }
 }
