@@ -7,6 +7,9 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class NotNullExpression extends Expression implements CheckExpression {
     private final Expression object;
 
@@ -26,18 +29,22 @@ public class NotNullExpression extends Expression implements CheckExpression {
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@org.jetbrains.annotations.NotNull PsiElement element, @org.jetbrains.annotations.NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@org.jetbrains.annotations.NotNull PsiElement element,
+                                                @org.jetbrains.annotations.NotNull Document document) {
         FoldingGroup group = FoldingGroup.newGroup(NotNullExpression.class.getName());
-        return new FoldingDescriptor[] {
-                new FoldingDescriptor(element.getNode(),
-                        TextRange.create(object.getTextRange().getEndOffset(),
-                                getTextRange().getEndOffset()), group) {
-                    @Nullable
-                    @Override
-                    public String getPlaceholderText() {
-                        return "?";
-                    }
-                }
-        };
+        ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
+        descriptors.add(new FoldingDescriptor(element.getNode(),
+                TextRange.create(object.getTextRange().getEndOffset(),
+                        getTextRange().getEndOffset()), group) {
+            @Nullable
+            @Override
+            public String getPlaceholderText() {
+                return "?";
+            }
+        });
+        if (object.supportsFoldRegions(document, false)) {
+            Collections.addAll(descriptors, object.buildFoldRegions(element, document));
+        }
+        return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 }

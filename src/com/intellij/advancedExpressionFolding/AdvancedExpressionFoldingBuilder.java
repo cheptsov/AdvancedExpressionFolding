@@ -80,6 +80,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("contains");
             add("containsKey");
             add("get");
+            add("put");
+            add("set");
             /*add("addAll");
             add("removeAll");*/
         }
@@ -669,7 +671,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         PsiReference reference = element.getReference();
         if (reference != null) {
             PsiElement e = reference.resolve();
-            if (e instanceof PsiVariable) {
+            if (e instanceof PsiVariable && ((PsiVariable)e).getName().equals(element.getText())) {
                 PsiVariable variable = (PsiVariable) e;
                 if (supportedClasses.contains(eraseGenerics(variable.getType().getCanonicalText()))) {
                     return new Variable(element.getTextRange(), variable.getName());
@@ -849,6 +851,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                     Expression a2Expression = getExpression(a2, document, true);
                                     if (a2Expression != null) {
                                         switch (methodName) {
+                                            case "put":
+                                            case "set":
+                                                return new Put(element.getTextRange(), qualifierExpression, a1Expression, a2Expression);
                                             case "atan2":
                                                 return new Atan2(element.getTextRange(), Arrays.asList(qualifierExpression, a1Expression,
                                                         a2Expression));
