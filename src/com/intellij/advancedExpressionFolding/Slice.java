@@ -32,7 +32,7 @@ public class Slice extends Function implements SlicingExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document) {
+    public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null && operands.stream().allMatch(e -> e.getTextRange() != null);
     }
 

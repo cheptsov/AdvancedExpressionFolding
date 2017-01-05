@@ -122,7 +122,7 @@ public class Range extends Expression implements RangeExpression {
     };
 
     @Override
-    public boolean supportsFoldRegions(Document document) {
+    public boolean supportsFoldRegions(Document document, boolean quick) {
         return getOperand().getTextRange() != null
                 && getStart().getTextRange() != null
                 && getEnd().getTextRange() != null

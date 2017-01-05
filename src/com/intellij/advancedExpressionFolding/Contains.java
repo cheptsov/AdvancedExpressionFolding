@@ -24,7 +24,7 @@ public class Contains extends Expression implements CheckExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document) {
+    public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null && object.getTextRange() != null && key.getTextRange() != null;
     }
 

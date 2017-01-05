@@ -29,7 +29,7 @@ public class TypeCast extends Expression implements CastExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document) {
+    public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null && object.getTextRange() != null;
     }
 
@@ -92,7 +92,7 @@ public class TypeCast extends Expression implements CastExpression {
                                 }
                             });
         }
-        if (object.supportsFoldRegions(document)) {
+        if (object.supportsFoldRegions(document, false)) {
             Collections.addAll(descriptors, object.buildFoldRegions(element, document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

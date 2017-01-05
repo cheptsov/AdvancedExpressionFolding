@@ -138,12 +138,13 @@ public abstract class Operation extends Expression {
 
 
     @Override
-    public boolean supportsFoldRegions(Document document) {
+    public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null
                 && operands.size() >= 2
                 && operands.stream().allMatch(operand -> operand.getTextRange() != null
                     && !(operand instanceof Operation)
-                    && !(operand instanceof Function));
+                    && !(operand instanceof Function))
+                && (quick || !format().equals(document.getText(getTextRange())));
     }
 
     @Override
@@ -184,7 +185,7 @@ public abstract class Operation extends Expression {
             });
         }
         for (Expression operand : operands) {
-            if (operand.supportsFoldRegions(document)) {
+            if (operand.supportsFoldRegions(document, false)) {
                 Collections.addAll(descriptors, operand.buildFoldRegions(element, document));
             }
         }

@@ -41,15 +41,15 @@ public class SyntheticExpressionImpl extends Expression implements SyntheticExpr
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document) {
-        return children.size() > 0 && children.stream().anyMatch(e -> e.supportsFoldRegions(document));
+    public boolean supportsFoldRegions(Document document, boolean quick) {
+        return children.size() > 0 && children.stream().anyMatch(e -> e.supportsFoldRegions(document, false));
     }
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         for (Expression child : children) {
-            if (child.supportsFoldRegions(document)) {
+            if (child.supportsFoldRegions(document, false)) {
                 Collections.addAll(descriptors, child.buildFoldRegions(element, document));
             }
         }

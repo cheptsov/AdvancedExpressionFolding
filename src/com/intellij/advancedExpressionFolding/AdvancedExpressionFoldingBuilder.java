@@ -154,7 +154,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 if (!text.replaceAll("\\s+", "")
                         .equals(document.getText(expression.getTextRange()).replaceAll("\\s+", ""))) {
                     allDescriptors = new ArrayList<>();
-                    if (expression.supportsFoldRegions(document)) {
+                    if (expression.supportsFoldRegions(document, true)) {
                         Collections.addAll(allDescriptors, expression.buildFoldRegions(element, document));
                     } else {
                         allDescriptors.add(new FoldingDescriptor(element.getNode(),
@@ -736,6 +736,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             switch (eraseGenerics(psiClass.getQualifiedName())) {
                                                 case "java.util.List":
                                                 case "java.util.ArrayList":
+                                                case "java.util.Set":
+                                                case "java.util.HashSet":
+                                                case "java.util.Map":
+                                                case "java.util.HashMap":
                                                 /*case "java.util.Collection":
                                                 case "java.util.Set":
                                                 case "java.util.HashSet":*/
