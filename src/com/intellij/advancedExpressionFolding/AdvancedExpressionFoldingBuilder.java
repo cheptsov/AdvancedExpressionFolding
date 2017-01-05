@@ -518,7 +518,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 }
             }
         }
-        if (supportedBinaryOperators.contains(element.getOperationSign().getText())) {
+        if (supportedBinaryOperators.contains(element.getOperationSign().getText())
+                && element.getLOperand() != null && element.getROperand() != null) {
             Expression leftExpression = getExpression(element.getLOperand(), document, true);
             if (leftExpression != null) {
                 Expression rightExpression = getExpression(element.getROperand(), document, true);
@@ -542,8 +543,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             return getAndTwoBinaryExpressions(((PsiBinaryExpression) element.getLOperand()),
                     ((PsiBinaryExpression) element.getROperand()), document);
         }
-        if ("!=".equals(element.getOperationSign().getText()) &&
-                (element.getLOperand().getType() == PsiType.NULL
+        if ("!=".equals(element.getOperationSign().getText())
+                && element.getROperand() != null && element.getLOperand() != null
+                && (element.getLOperand().getType() == PsiType.NULL
                         || element.getROperand().getType() == PsiType.NULL)) {
             return new NotNullExpression(element.getTextRange(),
                     getExpression(element.getLOperand().getType() == PsiType.NULL

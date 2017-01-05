@@ -140,10 +140,10 @@ public abstract class Operation extends Expression {
     @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null
-                && operands.size() >= 2
+                /*&& operands.size() >= 2*/
                 && operands.stream().allMatch(operand -> operand.getTextRange() != null
                     && !(operand instanceof Operation)
-                    && !(operand instanceof Function))
+                    /*&& !(operand instanceof Function)*/)
                 && (quick || !format().equals(document.getText(getTextRange())));
     }
 

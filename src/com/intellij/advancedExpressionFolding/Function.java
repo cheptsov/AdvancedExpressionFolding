@@ -1,8 +1,15 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.lang.folding.FoldingDescriptor;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,5 +79,55 @@ public abstract class Function extends Expression {
         int result = name.hashCode();
         result = 31 * result + operands.hashCode();
         return result;
+    }
+
+    @Override
+    public boolean supportsFoldRegions(Document document, boolean quick) {
+        return getTextRange() != null && (operands.size() == 1
+                || operands.size() == 2
+                    && operands.get(0).getTextRange().getStartOffset() < operands.get(1).getTextRange().getStartOffset())
+                && getTextRange().getStartOffset() < operands.get(0).getTextRange().getStartOffset();
+    }
+
+    @Override
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+        ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
+        FoldingGroup group = FoldingGroup.newGroup(Abs.class.getName());
+        descriptors.add(new FoldingDescriptor(element.getNode(),
+                TextRange.create(getTextRange().getStartOffset(),
+                        operands.get(0).getTextRange().getStartOffset()), group) {
+            @Nullable
+            @Override
+            public String getPlaceholderText() {
+                return name + "(";
+            }
+        });
+        if (operands.get(0).supportsFoldRegions(document, false)) {
+            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(element, document));
+        }
+        if (operands.size() == 2) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(operands.get(0).getTextRange().getEndOffset(),
+                            operands.get(1).getTextRange().getStartOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return ", ";
+                }
+            });
+            if (operands.get(1).supportsFoldRegions(document, false)) {
+                Collections.addAll(descriptors, operands.get(1).buildFoldRegions(element, document));
+            }
+        }
+        descriptors.add(new FoldingDescriptor(element.getNode(),
+                TextRange.create(operands.get(operands.size() - 1).getTextRange().getEndOffset(),
+                        getTextRange().getEndOffset()), group) {
+            @Nullable
+            @Override
+            public String getPlaceholderText() {
+                return ")";
+            }
+        });
+        return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 }

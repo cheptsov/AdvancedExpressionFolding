@@ -2,10 +2,7 @@ package com.intellij.advancedExpressionFolding;
 
 import com.intellij.openapi.util.TextRange;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Multiply extends Operation implements ArithmeticExpression {
@@ -19,7 +16,7 @@ public class Multiply extends Operation implements ArithmeticExpression {
     }
 
     @Override
-    public Operation simplify(boolean compute) {
+    public Expression simplify(boolean compute) {
         final boolean[] simplified = {false};
         List<Expression> operands = ((Operation) super.simplify(compute)).operands;
         if (!operands.equals(this.operands)) {
@@ -44,7 +41,11 @@ public class Multiply extends Operation implements ArithmeticExpression {
             List<Expression> simplifiedOperands = map.entrySet().stream().map(e ->
                     e.getValue() == 1 ? e.getKey() :
                             new Pow(null, Arrays.asList(e.getKey(), new NumberLiteral(null, e.getValue())))).collect(Collectors.toList());
-            return new Multiply(textRange, simplifiedOperands);
+            if (simplified.length == 1 && simplifiedOperands.get(0) instanceof Pow && simplifiedOperands.get(0).getTextRange() == null) {
+                return new Pow(getTextRange(), ((Pow) simplifiedOperands.get(0)).operands);
+            } else {
+                return new Multiply(textRange, simplifiedOperands);
+            }
         } else {
             return this;
         }
