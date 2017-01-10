@@ -266,6 +266,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     // 💩💩💩 Define the AdvancedExpressionFoldingProvider extension point
     private static Expression getExpression(PsiElement element, @Nullable Document document, boolean createSynthetic) {
+        if (element == null) {
+            return null;
+        }
         if (element instanceof PsiForStatement) {
             Expression expression = getForStatementExpression((PsiForStatement) element, document);
             if (expression != null) {
