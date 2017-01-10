@@ -109,6 +109,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("java.util.HashMap");
             add("java.util.Set");
             add("java.util.HashSet");
+            add("java.lang.Object");
             /*add("java.util.Collection");*/
         }
     };
@@ -209,6 +210,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                         || settings.isGetExpressionsCollapse() && expression instanceof GetExpression
                         || settings.isCheckExpressionsCollapse() && expression instanceof CheckExpression
                         || settings.isCastExpressionsCollapse() && expression instanceof CastExpression
+                        || settings.isVarExpressionsCollapse() && expression instanceof VariableDeclaration
+                        || settings.isGetSetExpressionsCollapse() && expression instanceof GettersSetters
             )
                     && expression.isCollapsedByDefault();
         } catch (IndexNotReadyException e) {
@@ -233,7 +236,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 && ((PsiPostfixExpression)update.getChildren()[0]).getOperand().getReference() != null
                 && condition instanceof PsiBinaryExpression
                 && ((PsiBinaryExpression) condition).getLOperand() instanceof PsiReferenceExpression
-                && ((PsiBinaryExpression) condition).getLOperand().getReference() != null) {
+                && ((PsiBinaryExpression) condition).getLOperand().getReference() != null
+                && ((PsiBinaryExpression) condition).getROperand() != null) {
             @SuppressWarnings("ConstantConditions")
             PsiLocalVariable updateVariable = (PsiLocalVariable) ((PsiPostfixExpression) update.getChildren()[0]).getOperand().getReference().resolve();
             @SuppressWarnings("ConstantConditions")
@@ -339,10 +343,30 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 return expression;
             }
         }
+        if (element instanceof PsiVariable &&
+                (element.getParent() instanceof PsiDeclarationStatement
+                        || element.getParent() instanceof PsiForeachStatement)) {
+            Expression expression = getVariableDeclaration((PsiVariable) element, document);
+            if (expression != null) {
+                return expression;
+            }
+        }
         if (createSynthetic && document != null) {
             ArrayList<Expression> children = new ArrayList<>();
             findChildExpressions(element, children, document);
             return new SyntheticExpressionImpl(element.getTextRange(), document.getText(element.getTextRange()), children);
+        }
+        return null;
+    }
+
+    private static VariableDeclarationImpl getVariableDeclaration(PsiVariable element, Document document) {
+        if (element.getName() != null && element.getTypeElement() != null
+                && (element.getInitializer() != null || element.getParent() instanceof PsiForeachStatement)
+                && element.getTextRange().getStartOffset() < element.getTypeElement().getTextRange().getEndOffset()) {
+            return new VariableDeclarationImpl(TextRange.create(
+                    element.getTextRange().getStartOffset(),
+                    element.getTypeElement().getTextRange().getEndOffset()),
+                    element.getModifierList() != null && element.getModifierList().hasExplicitModifier(PsiModifier.FINAL));
         }
         return null;
     }
@@ -352,7 +376,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             Expression expression = getExpression(child, document, false);
             if (expression != null) {
                 expressions.add(expression);
-            } else {
+            }
+            if (expression == null || !expression.getTextRange().equals(child.getTextRange())) {
                 findChildExpressions(child, expressions, document);
             }
         }
@@ -1019,8 +1044,58 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     }
                 }
             }
+
+        }
+        if (identifier.isPresent() && ((identifier.get().getText().startsWith("get") && identifier.get().getText().length() > 3)
+                || (identifier.get().getText().startsWith("is") && identifier.get().getText().length() > 2))
+                && element.getArgumentList().getExpressions().length == 0) {
+            return new Getter(TextRange.create(
+                    identifier.get().getTextRange().getStartOffset(),
+                    element.getTextRange().getEndOffset()),
+                    element.getMethodExpression().getQualifierExpression() != null
+                            ? getExpression(element.getMethodExpression().getQualifierExpression(), document, true)
+                            : null,
+                    guessPropertyName(identifier.get().getText()));
+        } else if (identifier.isPresent() && identifier.get().getText().startsWith("set")
+                && identifier.get().getText().length() > 3
+                && element.getArgumentList().getExpressions().length == 1
+                && element.getMethodExpression().getQualifierExpression() != null
+                &&
+                (!(element.getMethodExpression().getQualifierExpression() instanceof PsiMethodCallExpression)
+                    || ((PsiMethodCallExpression) element.getMethodExpression().getQualifierExpression()).getMethodExpression().getReferenceName() != null
+                            && !((PsiMethodCallExpression) element.getMethodExpression().getQualifierExpression()).getMethodExpression().getReferenceName().startsWith("set"))
+                && (!(element.getParent().getParent() instanceof PsiMethodCallExpression)
+                    || ((PsiMethodCallExpression) element.getParent().getParent()).getMethodExpression().getReferenceName() != null
+                            && !((PsiMethodCallExpression) element.getParent().getParent()).getMethodExpression().getReferenceName().startsWith("set"))
+                ) {
+            return new Setter(element.getTextRange(),
+                    getExpression(element.getMethodExpression().getQualifierExpression(), document, true),
+                    guessPropertyName(identifier.get().getText()),
+                    getExpression(element.getArgumentList().getExpressions()[0], document, true));
         }
         return null;
+    }
+
+    private static String guessPropertyName(String text) {
+        StringBuilder sb = new StringBuilder();
+        if (text.startsWith("get")) {
+            sb.append(text.substring(3));
+        } else if (text.startsWith("set")) {
+            sb.append(text.substring(3));
+        } else if (text.startsWith("is")) {
+            sb.append(text.substring(2));
+        } else {
+            sb.append(text);
+        }
+        for (int i = 0; i < sb.length(); i++) {
+            if (Character.isUpperCase(sb.charAt(i)) &&
+                    (i == sb.length() - 1 || Character.isUpperCase(sb.charAt(i + 1)) || i == 0)) {
+                sb.setCharAt(i, Character.toLowerCase(sb.charAt(i)));
+            } else if (Character.isLowerCase(sb.charAt(i))) {
+                break;
+            }
+        }
+        return sb.toString();
     }
 
     @Nullable

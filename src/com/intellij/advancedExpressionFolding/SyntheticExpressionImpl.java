@@ -22,7 +22,8 @@ public class SyntheticExpressionImpl extends Expression implements SyntheticExpr
 
     @Override
     public String format() {
-        return text;
+        // TODO: Workaround to prevent formatting instead of building fold regions
+        return children.size() > 0 ? "" : text;
     }
 
     @Override

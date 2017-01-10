@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Slice extends Function implements SlicingExpression {
@@ -103,6 +104,11 @@ public class Slice extends Function implements SlicingExpression {
                 return operands.size() == 2 ? ":]" : "]";
             }
         });
+        for (Expression operand : operands) {
+            if (operand.supportsFoldRegions(document, false)) {
+                Collections.addAll(descriptors, operand.buildFoldRegions(element, document));
+            }
+        }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 }
