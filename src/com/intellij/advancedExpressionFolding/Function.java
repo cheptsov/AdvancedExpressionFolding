@@ -105,19 +105,21 @@ public abstract class Function extends Expression {
         if (operands.get(0).supportsFoldRegions(document, false)) {
             Collections.addAll(descriptors, operands.get(0).buildFoldRegions(element, document));
         }
-        TextRange commaOffset = TextRange.create(operands.get(0).getTextRange().getEndOffset(),
-                operands.get(1).getTextRange().getStartOffset());
-        if (operands.size() == 2 && ", ".equals(document.getText(commaOffset))) {
-            descriptors.add(new FoldingDescriptor(element.getNode(),
-                    commaOffset, group) {
-                @Nullable
-                @Override
-                public String getPlaceholderText() {
-                    return ", ";
+        if (operands.size() == 2) {
+            TextRange commaOffset = TextRange.create(operands.get(0).getTextRange().getEndOffset(),
+                    operands.get(1).getTextRange().getStartOffset());
+            if (", ".equals(document.getText(commaOffset))) {
+                descriptors.add(new FoldingDescriptor(element.getNode(),
+                        commaOffset, group) {
+                    @Nullable
+                    @Override
+                    public String getPlaceholderText() {
+                        return ", ";
+                    }
+                });
+                if (operands.get(1).supportsFoldRegions(document, false)) {
+                    Collections.addAll(descriptors, operands.get(1).buildFoldRegions(element, document));
                 }
-            });
-            if (operands.get(1).supportsFoldRegions(document, false)) {
-                Collections.addAll(descriptors, operands.get(1).buildFoldRegions(element, document));
             }
         }
         descriptors.add(new FoldingDescriptor(element.getNode(),
