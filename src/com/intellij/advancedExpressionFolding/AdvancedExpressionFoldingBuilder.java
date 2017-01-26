@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
@@ -83,6 +84,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("charAt");
             add("put");
             add("set");
+            add("asList");
             /*add("addAll");
             add("removeAll");*/
         }
@@ -110,6 +112,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("java.util.Set");
             add("java.util.HashSet");
             add("java.lang.Object");
+            add("java.util.Arrays");
             /*add("java.util.Collection");*/
         }
     };
@@ -289,7 +292,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             }
         }
         if (element instanceof PsiNewExpression) {
-            Expression expression = getNewExpression((PsiNewExpression) element);
+            Expression expression = getNewExpression((PsiNewExpression) element, document);
             if (expression != null) {
                 return expression;
             }
@@ -331,10 +334,12 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     return new TypeCast(element.getTextRange(), typeCast.getObject());
                 }
             }
-            Expression expression = getExpression(((PsiParenthesizedExpression) element).getExpression(), document,
-                    createSynthetic);
-            if (expression != null) {
-                return expression;
+            if (((PsiParenthesizedExpression) element).getExpression() != null) {
+                Expression expression = getExpression(((PsiParenthesizedExpression) element).getExpression(), document,
+                        createSynthetic);
+                if (expression != null) {
+                    return expression;
+                }
             }
         }
         if (element instanceof PsiTypeCastExpression) {
@@ -648,7 +653,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     }
 
     @Nullable
-    private static Expression getNewExpression(PsiNewExpression element) {
+    private static Expression getNewExpression(PsiNewExpression element, @Nullable Document document) {
         if (element.getType() != null && supportedClasses
                 .contains(eraseGenerics(element.getType().getCanonicalText()))) {
             if (element.getArgumentList() != null && element.getArgumentList().getExpressions().length == 1) {
@@ -664,8 +669,16 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     case "java.lang.String":
                     case "java.lang.StringBuilder":
                         return new StringLiteral(element.getTextRange(), "");
+                    case "java.util.ArrayList":
+                        return new ListLiteral(element.getTextRange(), Collections.emptyList());
                 }
             }
+        }
+        if (element.getType() != null && element.getArrayInitializer() != null) {
+            return new ArrayLiteral(element.getTextRange(),
+                    Arrays.stream(element.getArrayInitializer().getInitializers())
+                            .map(i -> getExpression(i, document, true)).collect(
+                            Collectors.toList()));
         }
         return null;
     }
@@ -758,11 +771,16 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                 .getMethodExpression().getQualifierExpression();
                         Expression qualifierExpression = getExpression(qualifier, document, true);
                         if (qualifierExpression != null) {
-                            if (element.getArgumentList().getExpressions().length == 1) {
+                            String methodName = identifier.get().getText();
+                            if (methodName.equals("asList")) {
+                                return new ListLiteral(element.getTextRange(),
+                                        Stream.of(element.getArgumentList().getExpressions())
+                                                .map(e -> getExpression(e, document, true)).collect(
+                                                Collectors.toList()));
+                            } else if (element.getArgumentList().getExpressions().length == 1) {
                                 PsiExpression argument = element.getArgumentList().getExpressions()[0];
                                 Expression argumentExpression = getExpression(argument, document, true);
                                 if (argumentExpression != null) {
-                                    String methodName = identifier.get().getText();
                                     switch (methodName) {
                                         case "add":
                                             switch (eraseGenerics(psiClass.getQualifiedName())) {
@@ -860,7 +878,6 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                     }
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 0) {
-                                String methodName = identifier.get().getText();
                                 switch (methodName) {
                                     case "plus":
                                         return qualifierExpression;
@@ -874,7 +891,6 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         return new Signum(element.getTextRange(), Collections.singletonList(qualifierExpression));
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 2) {
-                                String methodName = identifier.get().getText();
                                 PsiExpression a1 = element.getArgumentList().getExpressions()[0];
                                 PsiExpression a2 = element.getArgumentList().getExpressions()[1];
                                 Expression a1Expression = getExpression(a1, document, true);

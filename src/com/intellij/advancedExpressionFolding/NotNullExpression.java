@@ -34,8 +34,9 @@ public class NotNullExpression extends Expression implements CheckExpression {
         FoldingGroup group = FoldingGroup.newGroup(NotNullExpression.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(object.getTextRange().getEndOffset(),
-                        getTextRange().getEndOffset()), group) {
+                object.getTextRange().getEndOffset() < getTextRange().getEndOffset()
+                        ? TextRange.create(object.getTextRange().getEndOffset(), getTextRange().getEndOffset())
+                        : TextRange.create(getTextRange().getStartOffset(), object.getTextRange().getStartOffset()), group) {
             @Nullable
             @Override
             public String getPlaceholderText() {
