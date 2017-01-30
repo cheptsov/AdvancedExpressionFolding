@@ -454,7 +454,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     private static Expression getAndTwoBinaryExpressions(PsiBinaryExpression a, PsiBinaryExpression b, @Nullable Document document) {
         if ((a.getOperationSign().getText().equals("<") || a.getOperationSign().getText().equals("<="))
-                && (b.getOperationSign().getText().equals(">") || b.getOperationSign().getText().equals(">="))) {
+                && (b.getOperationSign().getText().equals(">") || b.getOperationSign().getText().equals(">="))
+                && a.getLOperand() != null
+                && a.getROperand() != null
+                && b.getLOperand() != null
+                && b.getROperand() != null) {
             Expression e1 = getExpression(a.getLOperand(), document, true);
             Expression e2 = getExpression(a.getROperand(), document, true);
             Expression e3 = getExpression(b.getLOperand(), document, true);
@@ -468,7 +472,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             }
         }
         if ((a.getOperationSign().getText().equals(">") || a.getOperationSign().getText().equals(">="))
-                && (b.getOperationSign().getText().equals("<") || b.getOperationSign().getText().equals("<="))) {
+                && (b.getOperationSign().getText().equals("<") || b.getOperationSign().getText().equals("<="))
+                && a.getLOperand() != null
+                && a.getROperand() != null
+                && b.getLOperand() != null) {
             Expression e1 = getExpression(a.getLOperand(), document, true);
             Expression e2 = getExpression(a.getROperand(), document, true);
             Expression e3 = getExpression(b.getLOperand(), document, true);
@@ -1065,9 +1072,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         if (identifier.isPresent() && ((identifier.get().getText().startsWith("get") && identifier.get().getText().length() > 3)
                 || (identifier.get().getText().startsWith("is") && identifier.get().getText().length() > 2))
                 && element.getArgumentList().getExpressions().length == 0) {
-            return new Getter(TextRange.create(
-                    identifier.get().getTextRange().getStartOffset(),
-                    element.getTextRange().getEndOffset()),
+            return new Getter(element.getTextRange(),
                     element.getMethodExpression().getQualifierExpression() != null
                             ? getExpression(element.getMethodExpression().getQualifierExpression(), document, true)
                             : null,

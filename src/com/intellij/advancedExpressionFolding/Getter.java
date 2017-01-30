@@ -35,7 +35,10 @@ public class Getter extends Expression implements GettersSetters {
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(
-                new FoldingDescriptor(element.getNode(), getTextRange(),
+                new FoldingDescriptor(element.getNode(), object != null
+                        ? TextRange.create(object.getTextRange().getEndOffset() + 1,
+                            getTextRange().getEndOffset())
+                        : getTextRange(),
                         FoldingGroup.newGroup(Getter.class.getName())) {
                     @Nullable
                     @Override
