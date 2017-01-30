@@ -81,6 +81,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("contains");
             add("containsKey");
             add("get");
+            add("isPresent");
             add("charAt");
             add("put");
             add("set");
@@ -113,6 +114,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("java.util.HashSet");
             add("java.lang.Object");
             add("java.util.Arrays");
+            add("java.util.Optional");
             /*add("java.util.Collection");*/
         }
     };
@@ -772,7 +774,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             if (method != null) {
                 PsiClass psiClass = method.getContainingClass();
                 if (psiClass != null) {
-                    if (supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))
+                    String className = eraseGenerics(psiClass.getQualifiedName());
+                    if (supportedClasses.contains(className)
                             && element.getMethodExpression().getQualifierExpression() != null) {
                         PsiExpression qualifier = element
                                 .getMethodExpression().getQualifierExpression();
@@ -790,7 +793,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                 if (argumentExpression != null) {
                                     switch (methodName) {
                                         case "add":
-                                            switch (eraseGenerics(psiClass.getQualifiedName())) {
+                                            switch (className) {
                                                 case "java.util.List":
                                                 case "java.util.ArrayList":
                                                 case "java.util.Set":
@@ -896,6 +899,12 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         return new Abs(element.getTextRange(), Collections.singletonList(qualifierExpression));
                                     case "signum":
                                         return new Signum(element.getTextRange(), Collections.singletonList(qualifierExpression));
+                                    case "get":
+                                        return new AssertNotNullExpression(element.getTextRange(),
+                                                qualifierExpression);
+                                    case "isPresent":
+                                        return new NotNullExpression(element.getTextRange(),
+                                                qualifierExpression);
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 2) {
                                 PsiExpression a1 = element.getArgumentList().getExpressions()[0];
@@ -974,7 +983,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                         if (element.getArgumentList().getExpressions().length == 1) {
                             PsiExpression argument = element.getArgumentList().getExpressions()[0];
                             if (method.getName().equals("valueOf") && argument instanceof PsiLiteralExpression) {
-                                return getConstructorExpression(element, argument, eraseGenerics(psiClass.getQualifiedName()));
+                                return getConstructorExpression(element, argument,
+                                        className);
                             } else if (method.getName().equals("valueOf") && argument instanceof PsiReferenceExpression) {
                                 return getReferenceExpression((PsiReferenceExpression) argument);
                             } else {
