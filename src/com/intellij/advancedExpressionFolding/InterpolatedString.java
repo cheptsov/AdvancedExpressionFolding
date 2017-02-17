@@ -25,7 +25,13 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
         for (Expression operand : operands) {
             if (!(operand instanceof StringLiteral)) {
                 sb.append("$");
+                if (!(operand instanceof Variable)) {
+                    sb.append("{");
+                }
                 sb.append(operand.format());
+                if (!(operand instanceof Variable)) {
+                    sb.append("}");
+                }
             } else {
                 String formatted = operand.format();
                 sb.append(formatted.substring(1, formatted.length() - 1));
@@ -38,7 +44,7 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
     @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null
-                && operands.stream().allMatch(o -> o.supportsFoldRegions(document, quick));
+                && operands.stream().allMatch(o -> o.getTextRange() != null);
     }
 
     @Override
