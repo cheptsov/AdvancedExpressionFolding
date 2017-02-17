@@ -431,19 +431,46 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     }
 
     private static Expression getPolyadicExpression(PsiPolyadicExpression element, @Nullable Document document) {
+        boolean add = true;
+        boolean string = false;
+        Expression[] operands = null;
         for (int i = 0; i < element.getOperands().length - 1; i++) {
             PsiExpression a = element.getOperands()[i];
             PsiExpression b = element.getOperands()[i + 1];
             PsiJavaToken token = element.getTokenBeforeOperand(b);
-            if ("&&".equals(token.getText())
-                    && a instanceof PsiBinaryExpression
-                    && b instanceof PsiBinaryExpression) {
-                Expression twoBinaryExpression = getAndTwoBinaryExpressions(((PsiBinaryExpression) a),
-                        ((PsiBinaryExpression) b), document);
-                if (twoBinaryExpression != null) {
-                    return twoBinaryExpression;
+            if (token != null) {
+                if ("&&".equals(token.getText())
+                        && a instanceof PsiBinaryExpression
+                        && b instanceof PsiBinaryExpression) {
+                    Expression twoBinaryExpression = getAndTwoBinaryExpressions(((PsiBinaryExpression) a),
+                            ((PsiBinaryExpression) b), document);
+                    if (twoBinaryExpression != null) {
+                        return twoBinaryExpression;
+                    }
+                }
+                if (add && "+".equals(token.getText())) {
+                    if (operands == null) {
+                        operands = new Expression[element.getOperands().length];
+                    }
+                    operands[i] = getExpression(element.getOperands()[i], document, true);
+                    if (operands[i] instanceof StringLiteral) {
+                        string = true;
+                    }
+                } else {
+                    add = false;
                 }
             }
+        }
+        if (add) {
+            assert operands != null;
+            operands[element.getOperands().length - 1] = getExpression(
+                    element.getOperands()[element.getOperands().length - 1], document, true);
+            if (operands[element.getOperands().length - 1] instanceof StringLiteral) {
+                string = true;
+            }
+        }
+        if (add && string) {
+            return new InterpolatedString(element.getTextRange(), Arrays.asList(operands));
         }
         if (element instanceof PsiBinaryExpression) {
             Expression binaryExpression = getBinaryExpression((PsiBinaryExpression) element, document);
