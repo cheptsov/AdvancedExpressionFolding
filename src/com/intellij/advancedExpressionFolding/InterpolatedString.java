@@ -51,113 +51,59 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
         FoldingGroup group = FoldingGroup.newGroup(InterpolatedString.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
-        for (int i = 0; i < operands.size(); i++) {
-            int fI = i;
-            if (i == 0) {
-                if ((operands.get(i) instanceof StringLiteral)) {
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(operands.get(i).getTextRange().getEndOffset() - 1,
-                                    operands.get(fI).getTextRange().getEndOffset()),
-                            group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return "";
-                        }
-                    });
-                } else {
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(getTextRange().getStartOffset(),
-                                    operands.get(fI).getTextRange().getEndOffset()),
-                            group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            if (operands.get(fI) instanceof Variable) {
-                                return "\"$" + operands.get(fI).format();
-                            } else {
-                                return "\"${" + operands.get(fI).format() + "}";
-                            }
-                        }
-                    });
-                }
-            } else if (i == operands.size() - 1) {
-                if (operands.get(i) instanceof StringLiteral) {
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(operands.get(i - 1).getTextRange().getEndOffset(),
-                                    operands.get(fI).getTextRange().getStartOffset() + 1),
-                            group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return "";
-                        }
-                    });
-                } else {
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(operands.get(i - 1).getTextRange().getEndOffset(),
-                                    operands.get(fI).getTextRange().getEndOffset()),
-                            group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            if (operands.get(fI) instanceof Variable) {
-                                return "$" + operands.get(fI).format() + "\"";
-                            } else {
-                                return "${" + operands.get(fI).format() + "}\"";
-                            }
-                        }
-                    });
-                }
-            } else {
-                if (operands.get(i) instanceof StringLiteral) {
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(operands.get(i - 1).getTextRange().getEndOffset(),
-                                    operands.get(fI).getTextRange().getStartOffset() + 1),
-                            group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return "";
-                        }
-                    });
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(operands.get(i).getTextRange().getEndOffset() - 1,
-                                    operands.get(i).getTextRange().getEndOffset()),
-                            group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return "";
-                        }
-                    });
-                } else {
-                    if (operands.get(i) instanceof Variable) {
-                        descriptors.add(new FoldingDescriptor(element.getNode(),
-                                TextRange.create(operands.get(i - 1).getTextRange().getEndOffset(),
-                                        operands.get(fI).getTextRange().getStartOffset()),
-                                group) {
-                            @Nullable
-                            @Override
-                            public String getPlaceholderText() {
-                                return "$";
-                            }
-                        });
+        final String[] buf = {""};
+        if (!(operands.get(0) instanceof StringLiteral)) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(operands.get(0).getTextRange().getStartOffset(),
+                            operands.get(0).getTextRange().getEndOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    if (operands.get(0) instanceof Variable) {
+                        return "\"$" + operands.get(0).format();
                     } else {
-                        descriptors.add(new FoldingDescriptor(element.getNode(),
-                                TextRange.create(operands.get(i - 1).getTextRange().getEndOffset(),
-                                        operands.get(fI).getTextRange().getEndOffset()),
-                                group) {
-                            @Nullable
-                            @Override
-                            public String getPlaceholderText() {
-                                return "${" + operands.get(fI).format() + "}";
-                            }
-                        });
+                        return "\"${" + operands.get(0).format() + "}";
                     }
                 }
-
-            }
+            });
+        }
+        for (int i = 0; i < operands.size() - 1; i++) {
+            int s = operands.get(i) instanceof StringLiteral
+                    ? operands.get(i).getTextRange().getEndOffset() - 1
+                    : operands.get(i).getTextRange().getEndOffset();
+            int e = operands.get(i + 1) instanceof StringLiteral
+                    ? operands.get(i + 1).getTextRange().getStartOffset() + 1
+                    : operands.get(i + 1).getTextRange().getStartOffset();
+            int fI = i;
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(s, e), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    StringBuilder sb = new StringBuilder().append(buf[0]);
+                    if (!(operands.get(fI + 1) instanceof StringLiteral)) {
+                        sb.append("$");
+                    }
+                    if (!(operands.get(fI + 1) instanceof Variable) && !(operands.get(fI + 1) instanceof StringLiteral)) {
+                        sb.append("{");
+                        buf[0] = "}";
+                    } else {
+                        buf[0] = "";
+                    }
+                    return sb.toString();
+                }
+            });
+        }
+        if (!(operands.get(operands.size() - 1) instanceof StringLiteral)) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(operands.get(operands.size() - 1).getTextRange().getStartOffset(),
+                            operands.get(operands.size() - 1).getTextRange().getEndOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                     return operands.get(operands.size() - 1).format() + buf[0] + "\"";
+                }
+            });
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

@@ -310,14 +310,14 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 return expression;
             }
         }
-        if (element instanceof PsiBinaryExpression) {
-            Expression expression = getBinaryExpression((PsiBinaryExpression) element, document);
+        if (element instanceof PsiPolyadicExpression) {
+            Expression expression = getPolyadicExpression((PsiPolyadicExpression) element, document);
             if (expression != null) {
                 return expression;
             }
         }
-        if (element instanceof PsiPolyadicExpression) {
-            Expression expression = getPolyadicExpression((PsiPolyadicExpression) element, document);
+        if (element instanceof PsiBinaryExpression) {
+            Expression expression = getBinaryExpression((PsiBinaryExpression) element, document);
             if (expression != null) {
                 return expression;
             }
@@ -461,15 +461,14 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 }
             }
         }
-        if (add) {
-            assert operands != null;
+        if (add && operands != null) {
             operands[element.getOperands().length - 1] = getExpression(
                     element.getOperands()[element.getOperands().length - 1], document, true);
             if (operands[element.getOperands().length - 1] instanceof StringLiteral) {
                 string = true;
             }
         }
-        if (add && string) {
+        if (add && operands != null && string) {
             return new InterpolatedString(element.getTextRange(), Arrays.asList(operands));
         }
         if (element instanceof PsiBinaryExpression) {
