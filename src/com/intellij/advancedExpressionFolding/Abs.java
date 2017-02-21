@@ -29,7 +29,7 @@ public class Abs extends Function implements ArithmeticExpression {
 
     @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && operands.get(0).getTextRange() != null;
+        return getTextRange() != null && operands.get(0).getTextRange() != null && textRange.getStartOffset() < operands.get(0).getTextRange().getStartOffset();
     }
 
     @Override
