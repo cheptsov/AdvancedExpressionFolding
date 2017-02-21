@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class InterpolatedString extends Expression implements ConcatenationExpression {
@@ -104,6 +105,11 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
                      return operands.get(operands.size() - 1).format() + buf[0] + "\"";
                 }
             });
+        }
+        for (Expression operand : operands) {
+            if (operand.supportsFoldRegions(document, false)) {
+                Collections.addAll(descriptors, operand.buildFoldRegions(element, document));
+            }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
