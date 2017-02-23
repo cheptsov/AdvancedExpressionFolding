@@ -274,7 +274,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
 
     // 💩💩💩 Define the AdvancedExpressionFoldingProvider extension point
-    private static Expression getExpression(PsiElement element, @Nullable Document document, boolean createSynthetic) {
+    private static Expression getExpression(PsiElement element, @Nullable Document document, boolean synthetic) {
         if (element instanceof PsiForStatement) {
             Expression expression = getForStatementExpression((PsiForStatement) element, document);
             if (expression != null) {
@@ -344,7 +344,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             }
             if (((PsiParenthesizedExpression) element).getExpression() != null) {
                 Expression expression = getExpression(((PsiParenthesizedExpression) element).getExpression(), document,
-                        createSynthetic);
+                        synthetic);
                 if (expression != null) {
                     return expression;
                 }
@@ -364,7 +364,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 return expression;
             }
         }
-        if (createSynthetic && document != null) {
+        if (synthetic && document != null) {
             ArrayList<Expression> children = new ArrayList<>();
             findChildExpressions(element, children, document);
             return new SyntheticExpressionImpl(element.getTextRange(), document.getText(element.getTextRange()), children);
@@ -391,7 +391,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                             getExpression(element.getCondition(), document, true),
                             getExpression(element.getThenExpression(), document, true),
                             getExpression(element.getElseExpression(), document, true),
-                            references.stream().map(r -> r.getTextRange()).collect(Collectors.toList()));
+                            references.stream().map(PsiElement::getTextRange).collect(Collectors.toList()));
                 }
             }
         }
@@ -400,8 +400,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     private static boolean sameReference(PsiReferenceExpression reference, PsiElement object, PsiElement e) {
         return e instanceof PsiReferenceExpression
-        && ((PsiReferenceExpression) e).getReferenceName().equals(reference.getReferenceName())
-        && ((PsiReferenceExpression) e).resolve().equals(object);
+                && ((PsiReferenceExpression) e).getReferenceName().equals(reference.getReferenceName())
+                && ((PsiReferenceExpression) e).isReferenceTo(object);
     }
 
     private static VariableDeclarationImpl getVariableDeclaration(PsiVariable element, Document document) {
