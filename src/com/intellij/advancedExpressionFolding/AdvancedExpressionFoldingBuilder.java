@@ -1126,7 +1126,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     || ((PsiMethodCallExpression) element.getParent().getParent()).getMethodExpression().getReferenceName() != null
                             && !((PsiMethodCallExpression) element.getParent().getParent()).getMethodExpression().getReferenceName().startsWith("set"))
                 ) {
-            return new Setter(element.getTextRange(),
+            return new Setter(element.getTextRange(), TextRange.create(identifier.get().getTextRange().getStartOffset(),
+                    element.getTextRange().getEndOffset()),
                     getExpression(element.getMethodExpression().getQualifierExpression(), document, true),
                     guessPropertyName(identifier.get().getText()),
                     getExpression(element.getArgumentList().getExpressions()[0], document, true));

@@ -12,12 +12,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Setter extends Expression implements GetExpression {
+    private final TextRange setterTextRange;
     private final Expression object;
     private final String name;
     private final Expression value;
 
-    public Setter(TextRange textRange, Expression object, String name, Expression value) {
+    public Setter(TextRange textRange, TextRange setterTextRange, Expression object, String name, Expression value) {
         super(textRange);
+        this.setterTextRange = setterTextRange;
         this.object = object;
         this.name = name;
         this.value = value;
@@ -38,7 +40,7 @@ public class Setter extends Expression implements GetExpression {
         FoldingGroup group = FoldingGroup.newGroup(Setter.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
-                        TextRange.create(object.getTextRange().getEndOffset() + 1,
+                        TextRange.create(setterTextRange.getStartOffset(),
                                 value.getTextRange().getStartOffset()), group) {
                     @Nullable
                     @Override
