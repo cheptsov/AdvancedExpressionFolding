@@ -281,6 +281,12 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 return expression;
             }
         }
+        if (element instanceof PsiIfStatement) {
+            Expression expression = getIfExpression((PsiIfStatement) element, document);
+            if (expression != null) {
+                return expression;
+            }
+        }
         if (element instanceof PsiMethodCallExpression) {
             Expression expression = getMethodCallExpression((PsiMethodCallExpression) element, document);
             if (expression != null) {
@@ -372,6 +378,44 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
+    private static Expression getIfExpression(PsiIfStatement element, Document document) {
+        if (element.getCondition() instanceof PsiBinaryExpression) {
+            PsiBinaryExpression condition = (PsiBinaryExpression) element.getCondition();
+            if (condition.getOperationSign().getText().equals("!=")
+                    && element.getElseBranch() == null
+                    && (condition.getLOperand().getType() == PsiType.NULL
+                    && condition.getROperand() instanceof PsiReferenceExpression
+                    || condition.getROperand().getType() == PsiType.NULL
+                    && condition.getLOperand() instanceof PsiReferenceExpression)
+                    && element.getThenBranch() != null) {
+                PsiStatement thenStatement = element.getThenBranch();
+                if (thenStatement.getChildren().length == 1 && thenStatement
+                        .getChildren()[0] instanceof PsiCodeBlock) {
+                    PsiStatement[] statements = ((PsiCodeBlock) thenStatement.getChildren()[0]).getStatements();
+                    if (statements.length == 1) {
+                        thenStatement = statements[0];
+                    } else {
+                        return null;
+                    }
+                }
+                PsiReferenceExpression reference = (PsiReferenceExpression) (condition
+                        .getLOperand() instanceof PsiReferenceExpression
+                        ? condition.getLOperand()
+                        : condition.getROperand());
+                PsiElement object = reference.resolve();
+                List<PsiElement> references = SyntaxTraverser.psiTraverser(thenStatement)
+                        .filter(e -> sameReference(reference, object, e)).toList();
+                if (references.size() > 0) {
+                    return new ShortElvisExpression(element.getTextRange(),
+                            getExpression(element.getCondition(), document, true),
+                            getExpression(thenStatement, document, true),
+                            references.stream().map(PsiElement::getTextRange).collect(Collectors.toList()));
+                }
+            }
+        }
+        return null;
+    }
+
     private static Expression getConditionalExpression(PsiConditionalExpression element, Document document) {
         if (element.getCondition() instanceof PsiBinaryExpression) {
             PsiBinaryExpression condition = (PsiBinaryExpression) element.getCondition();
@@ -379,7 +423,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     && (condition.getLOperand().getType() == PsiType.NULL
                             && condition.getROperand() instanceof PsiReferenceExpression
             || condition.getROperand().getType() == PsiType.NULL
-                    && condition.getLOperand() instanceof PsiReferenceExpression)) {
+                    && condition.getLOperand() instanceof PsiReferenceExpression)
+                    && element.getThenExpression() != null
+                    && element.getElseExpression() != null) {
                 PsiReferenceExpression reference = (PsiReferenceExpression) (condition.getLOperand() instanceof PsiReferenceExpression
                                         ? condition.getLOperand()
                                         : condition.getROperand());
