@@ -48,26 +48,8 @@ public class ElvisExpression extends Expression implements CheckExpression {
                 return " ?: "; // TODO: Eat spaces around
             }
         });
-        for (TextRange range : elements) {
-            if (".".equals(document.getText(TextRange.create(range.getEndOffset(), range.getEndOffset() + 1)))) {
-                descriptors.add(new FoldingDescriptor(element.getNode(),
-                        TextRange.create(range.getEndOffset(), range.getEndOffset() + 1),
-                        group) {
-                    @Override
-                    public String getPlaceholderText() {
-                        return "?.";
-                    }
-                });
-            } else {
-                TextRange r = TextRange.create(range.getStartOffset(), range.getEndOffset());
-                descriptors.add(new FoldingDescriptor(element.getNode(), r, group) {
-                    @Override
-                    public String getPlaceholderText() {
-                        return document.getText(r) + "?";
-                    }
-                });
-            }
-        }
+        ShortElvisExpression.nullify(element, document, descriptors, group, elements,
+                !(elements.size() == 1 && elements.get(0).equals(thenExpression.getTextRange())));
         if (thenExpression.supportsFoldRegions(document, false)) {
             Collections.addAll(descriptors, thenExpression.buildFoldRegions(element, document));
         }
