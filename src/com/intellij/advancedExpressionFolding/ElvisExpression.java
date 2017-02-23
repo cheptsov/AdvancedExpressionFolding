@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ElvisExpression extends Expression {
+public class ElvisExpression extends Expression implements CheckExpression {
     private final Expression conditionExpression;
     private final Expression thenExpression;
     private final Expression elseExpression;
