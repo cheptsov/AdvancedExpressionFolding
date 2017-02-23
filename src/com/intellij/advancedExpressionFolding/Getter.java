@@ -13,10 +13,12 @@ import java.util.Collections;
 
 public class Getter extends Expression implements GettersSetters {
     private String name;
+    private TextRange getterTextRange;
     private Expression object;
 
-    public Getter(TextRange textRange, Expression object, String name) {
+    public Getter(TextRange textRange, TextRange getterTextRange, Expression object, String name) {
         super(textRange);
+        this.getterTextRange = getterTextRange;
         this.object = object;
         this.name = name;
     }
@@ -28,17 +30,14 @@ public class Getter extends Expression implements GettersSetters {
 
     @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && (object == null || object.getTextRange() != null);
+        return textRange != null && getterTextRange != null && (object == null || object.getTextRange() != null);
     }
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(
-                new FoldingDescriptor(element.getNode(), object != null
-                        ? TextRange.create(object.getTextRange().getEndOffset() + 1,
-                            getTextRange().getEndOffset())
-                        : getTextRange(),
+                new FoldingDescriptor(element.getNode(), getterTextRange,
                         FoldingGroup.newGroup(Getter.class.getName())) {
                     @Nullable
                     @Override

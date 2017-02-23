@@ -1108,7 +1108,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         if (identifier.isPresent() && ((identifier.get().getText().startsWith("get") && identifier.get().getText().length() > 3)
                 || (identifier.get().getText().startsWith("is") && identifier.get().getText().length() > 2))
                 && element.getArgumentList().getExpressions().length == 0) {
-            return new Getter(element.getTextRange(),
+            return new Getter(element.getTextRange(), TextRange.create(identifier.get().getTextRange().getStartOffset(),
+                    element.getTextRange().getEndOffset()),
                     element.getMethodExpression().getQualifierExpression() != null
                             ? getExpression(element.getMethodExpression().getQualifierExpression(), document, true)
                             : null,
