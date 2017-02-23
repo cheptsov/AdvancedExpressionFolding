@@ -28,7 +28,7 @@ public class ArrayLiteral extends Expression implements GetExpression {
 
     @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null && items.stream().allMatch(i -> i.supportsFoldRegions(document, quick));
+        return textRange != null && items.stream().allMatch(i -> i.getTextRange() != null);
     }
 
     @Override
