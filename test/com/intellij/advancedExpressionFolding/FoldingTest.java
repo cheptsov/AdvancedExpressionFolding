@@ -26,4 +26,8 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
     public void testAbs() throws Exception {
         doTest();
     }
+
+    public void testElvis() throws Exception {
+        doTest();
+    }
 }
