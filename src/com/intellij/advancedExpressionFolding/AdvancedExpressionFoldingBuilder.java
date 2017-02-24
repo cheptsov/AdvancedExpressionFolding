@@ -976,9 +976,23 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         case "contains":
                                         case "containsKey":
                                             return new Contains(element.getTextRange(), qualifierExpression, argumentExpression);
-                                        case "get":
                                         case "charAt":
-                                            return new Get(element.getTextRange(), qualifierExpression, argumentExpression);
+                                            return new Get(element.getTextRange(), qualifierExpression,
+                                                    argumentExpression, Get.Style.NORMAL);
+                                        case "get":
+                                            if (argumentExpression instanceof NumberLiteral && ((NumberLiteral) argumentExpression).getNumber().equals(0)) {
+                                                return new Get(element.getTextRange(), qualifierExpression,
+                                                        argumentExpression, Get.Style.FIRST);
+                                            } else if (argument instanceof PsiBinaryExpression) {
+                                                PsiBinaryExpression a2b = (PsiBinaryExpression) argument;
+                                                NumberLiteral position = getSlicePosition(qualifierExpression, a2b, document);
+                                                if (position != null && position.getNumber().equals(-1)) {
+                                                    return new Get(element.getTextRange(), qualifierExpression,
+                                                            argumentExpression, Get.Style.LAST);
+                                                }
+                                            }
+                                            return new Get(element.getTextRange(), qualifierExpression,
+                                                    argumentExpression, Get.Style.NORMAL);
                                         case "subList":
                                         case "substring":
                                             if (argument instanceof PsiBinaryExpression) {
