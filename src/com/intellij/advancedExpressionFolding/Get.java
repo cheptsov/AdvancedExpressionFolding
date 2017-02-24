@@ -68,10 +68,18 @@ public class Get extends Expression implements GetExpression {
         } else {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(object.getTextRange().getEndOffset(),
-                            getTextRange().getEndOffset()), group) {
+                            key.getTextRange().getStartOffset() - 1), group) {
                 @Override
                 public String getPlaceholderText() {
                     return "." + (style == Style.FIRST ? "first" : "last");
+                }
+            });
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(key.getTextRange().getStartOffset(),
+                            key.getTextRange().getEndOffset()), group) {
+                @Override
+                public String getPlaceholderText() {
+                    return "";
                 }
             });
         }

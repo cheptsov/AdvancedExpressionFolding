@@ -385,7 +385,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     && element.getElseBranch() == null
                     && (condition.getLOperand().getType() == PsiType.NULL
                     && condition.getROperand() instanceof PsiReferenceExpression
-                    || condition.getROperand().getType() == PsiType.NULL
+                    || condition.getROperand() != null && condition.getROperand().getType() == PsiType.NULL
                     && condition.getLOperand() instanceof PsiReferenceExpression)
                     && element.getThenBranch() != null) {
                 PsiStatement thenStatement = element.getThenBranch();
@@ -403,15 +403,35 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                         ? condition.getLOperand()
                         : condition.getROperand());
                 PsiElement object = reference.resolve();
-                List<PsiElement> references = SyntaxTraverser.psiTraverser(thenStatement)
-                        .filter(e -> sameReference(reference, object, e)).toList();
-                if (references.size() > 0) {
+
+                PsiElement r = findSameReference(thenStatement, reference, object);
+                if (r != null) {
                     return new ShortElvisExpression(element.getTextRange(),
                             getExpression(element.getCondition(), document, true),
                             getExpression(thenStatement, document, true),
-                            references.stream().map(PsiElement::getTextRange).collect(Collectors.toList()));
+                            Collections.singletonList(r.getTextRange()));
                 }
             }
+        }
+        return null;
+    }
+
+    private static PsiElement findSameReference(PsiElement element, PsiReferenceExpression reference, PsiElement value) {
+        if (element instanceof PsiStatement && element.getFirstChild() != null) {
+            return findSameReference(element.getFirstChild(), reference, value);
+        }
+        if (element instanceof PsiMethodCallExpression && ((PsiMethodCallExpression) element).getMethodExpression().getQualifierExpression() != null) {
+            return findSameReference(((PsiMethodCallExpression) element).getMethodExpression().getQualifierExpression(), reference, value);
+        }
+        if (element instanceof PsiReferenceExpression && ((PsiReferenceExpression) element).getQualifierExpression() != null) {
+            PsiElement r = findSameReference(((PsiReferenceExpression) element).getQualifierExpression(),
+                    reference, value);
+            if (r != null) {
+                return r;
+            }
+        }
+        if (sameReference(reference, value, element)) {
+            return element;
         }
         return null;
     }
@@ -444,10 +464,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private static boolean sameReference(PsiReferenceExpression reference, PsiElement object, PsiElement e) {
-        return e instanceof PsiReferenceExpression
-                && ((PsiReferenceExpression) e).getReferenceName().equals(reference.getReferenceName())
-                && ((PsiReferenceExpression) e).isReferenceTo(object);
+    private static boolean sameReference(PsiReferenceExpression reference, PsiElement value, PsiElement referenceToCheck) {
+        return referenceToCheck instanceof PsiReferenceExpression
+                && ((PsiReferenceExpression) referenceToCheck).getReferenceName().equals(reference.getReferenceName())
+                && ((PsiReferenceExpression) referenceToCheck).isReferenceTo(value);
     }
 
     private static VariableDeclarationImpl getVariableDeclaration(PsiVariable element, Document document) {
@@ -623,8 +643,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     if (method != null) {
                         PsiClass psiClass = method.getContainingClass();
                         if (psiClass != null && supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))) {
-                            Expression qualifier = getExpression(methodCallExpression.getMethodExpression()
-                                    .getQualifierExpression(), document, true);
+                            Expression qualifier = methodCallExpression.getMethodExpression()
+                                    .getQualifierExpression() != null ? getExpression(methodCallExpression.getMethodExpression()
+                                    .getQualifierExpression(), document, true) : null;
                             if (qualifier != null) {
                                 Expression argument = getExpression(methodCallExpression.getArgumentList()
                                         .getExpressions()[0], document, true);
