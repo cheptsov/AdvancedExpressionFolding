@@ -384,9 +384,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             if (condition.getOperationSign().getText().equals("!=")
                     && element.getElseBranch() == null
                     && (condition.getLOperand().getType() == PsiType.NULL
-                    && condition.getROperand() instanceof PsiReferenceExpression
-                    || condition.getROperand() != null && condition.getROperand().getType() == PsiType.NULL
-                    && condition.getLOperand() instanceof PsiReferenceExpression)
+                    && condition.getROperand() != null
+                    || condition.getROperand() != null && condition.getROperand().getType() == PsiType.NULL)
                     && element.getThenBranch() != null) {
                 PsiStatement thenStatement = element.getThenBranch();
                 if (thenStatement.getChildren().length == 1 && thenStatement
@@ -398,40 +397,40 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                         return null;
                     }
                 }
-                PsiReferenceExpression reference = (PsiReferenceExpression) (condition
-                        .getLOperand() instanceof PsiReferenceExpression
-                        ? condition.getLOperand()
-                        : condition.getROperand());
-                PsiElement object = reference.resolve();
-
-                PsiElement r = findSameReference(thenStatement, reference, object);
-                if (r != null) {
-                    return new ShortElvisExpression(element.getTextRange(),
-                            getExpression(element.getCondition(), document, true),
-                            getExpression(thenStatement, document, true),
-                            Collections.singletonList(r.getTextRange()));
+                PsiElement qualifier = condition.getLOperand().getType() == PsiType.NULL
+                        ? condition.getROperand()
+                        : condition.getLOperand();
+                if (qualifier instanceof PsiReferenceExpression
+                        || (qualifier instanceof PsiMethodCallExpression
+                        && ((PsiMethodCallExpression) qualifier).getMethodExpression().getReferenceName()
+                        .startsWith("get")
+                        && ((PsiMethodCallExpression) qualifier).getArgumentList().getExpressions().length == 0)) {
+                    PsiElement r = findSameQualifier(thenStatement, qualifier);
+                    if (r != null) {
+                        return new ShortElvisExpression(element.getTextRange(),
+                                getExpression(element.getCondition(), document, true),
+                                getExpression(thenStatement, document, true),
+                                Collections.singletonList(r.getTextRange()));
+                    }
                 }
             }
         }
         return null;
     }
 
-    private static PsiElement findSameReference(PsiElement element, PsiReferenceExpression reference, PsiElement value) {
+    private static PsiElement findSameQualifier(PsiElement element, PsiElement qualifier) {
         if (element instanceof PsiStatement && element.getFirstChild() != null) {
-            return findSameReference(element.getFirstChild(), reference, value);
+            return findSameQualifier(element.getFirstChild(), qualifier);
+        }
+        if (equal(qualifier, element)) {
+            return element;
         }
         if (element instanceof PsiMethodCallExpression && ((PsiMethodCallExpression) element).getMethodExpression().getQualifierExpression() != null) {
-            return findSameReference(((PsiMethodCallExpression) element).getMethodExpression().getQualifierExpression(), reference, value);
+            return findSameQualifier(((PsiMethodCallExpression) element).getMethodExpression().getQualifierExpression(), qualifier);
         }
         if (element instanceof PsiReferenceExpression && ((PsiReferenceExpression) element).getQualifierExpression() != null) {
-            PsiElement r = findSameReference(((PsiReferenceExpression) element).getQualifierExpression(),
-                    reference, value);
-            if (r != null) {
-                return r;
-            }
-        }
-        if (sameReference(reference, value, element)) {
-            return element;
+            return findSameQualifier(((PsiReferenceExpression) element).getQualifierExpression(),
+                    qualifier);
         }
         return null;
     }
@@ -441,33 +440,47 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             PsiBinaryExpression condition = (PsiBinaryExpression) element.getCondition();
             if (condition.getOperationSign().getText().equals("!=")
                     && (condition.getLOperand().getType() == PsiType.NULL
-                            && condition.getROperand() instanceof PsiReferenceExpression
-            || condition.getROperand().getType() == PsiType.NULL
-                    && condition.getLOperand() instanceof PsiReferenceExpression)
+                            && condition.getROperand() != null
+            || condition.getROperand().getType() == PsiType.NULL)
                     && element.getThenExpression() != null
                     && element.getElseExpression() != null) {
-                PsiReferenceExpression reference = (PsiReferenceExpression) (condition.getLOperand() instanceof PsiReferenceExpression
-                                        ? condition.getLOperand()
-                                        : condition.getROperand());
-                PsiElement object = reference.resolve();
-                List<PsiElement> references = SyntaxTraverser.psiTraverser(element.getThenExpression())
-                        .filter(e -> sameReference(reference, object, e)).toList();
-                if (references.size() > 0) {
-                    return new ElvisExpression(element.getTextRange(),
-                            getExpression(element.getCondition(), document, true),
-                            getExpression(element.getThenExpression(), document, true),
-                            getExpression(element.getElseExpression(), document, true),
-                            references.stream().map(PsiElement::getTextRange).collect(Collectors.toList()));
+                PsiElement qualifier = condition.getLOperand().getType() == PsiType.NULL
+                        ? condition.getROperand()
+                        : condition.getLOperand();
+                if (qualifier instanceof PsiReferenceExpression
+                        || (qualifier instanceof PsiMethodCallExpression
+                        && ((PsiMethodCallExpression) qualifier).getMethodExpression().getReferenceName()
+                        .startsWith("get")
+                        && ((PsiMethodCallExpression) qualifier).getArgumentList().getExpressions().length == 0)) {
+                    PsiElement r = findSameQualifier(element.getThenExpression(), qualifier);
+
+                    List<PsiElement> references = SyntaxTraverser.psiTraverser(element.getThenExpression())
+                            .filter(e -> equal(e, r)).toList();
+                    if (references.size() > 0) {
+                        return new ElvisExpression(element.getTextRange(),
+                                getExpression(element.getCondition(), document, true),
+                                getExpression(element.getThenExpression(), document, true),
+                                getExpression(element.getElseExpression(), document, true),
+                                references.stream().map(PsiElement::getTextRange).collect(Collectors.toList()));
+                    }
                 }
             }
         }
         return null;
     }
 
-    private static boolean sameReference(PsiReferenceExpression reference, PsiElement value, PsiElement referenceToCheck) {
-        return referenceToCheck instanceof PsiReferenceExpression
-                && ((PsiReferenceExpression) referenceToCheck).getReferenceName().equals(reference.getReferenceName())
-                && ((PsiReferenceExpression) referenceToCheck).isReferenceTo(value);
+    private static boolean equal(PsiElement e1, PsiElement e2) {
+        // TODO: Use a cache for the resolved instance
+        if (e2 instanceof PsiReferenceExpression && e1 instanceof PsiReferenceExpression) {
+            return ((PsiReferenceExpression) e2).getReferenceName().equals(((PsiReferenceExpression)e1).getReferenceName())
+                    && ((PsiReferenceExpression) e2).isReferenceTo(((PsiReferenceExpression)e1).resolve());
+        } else if (e2 instanceof PsiMethodCallExpression && e1 instanceof PsiMethodCallExpression) {
+            return equal(((PsiMethodCallExpression) e2).getMethodExpression(),
+                    ((PsiMethodCallExpression) e1).getMethodExpression())
+                    && equal(((PsiMethodCallExpression) e2).getMethodExpression().getQualifierExpression(),
+                    ((PsiMethodCallExpression) e1).getMethodExpression().getQualifierExpression());
+        }
+        return false;
     }
 
     private static VariableDeclarationImpl getVariableDeclaration(PsiVariable element, Document document) {
