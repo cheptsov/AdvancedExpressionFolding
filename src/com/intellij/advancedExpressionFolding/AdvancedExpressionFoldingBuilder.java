@@ -1349,8 +1349,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                             ? getExpression(element.getMethodExpression().getQualifierExpression(), document, true)
                             : null,
                     guessPropertyName(identifier.get().getText()));
-        } else if (identifier.isPresent() && identifier.get().getText().startsWith("set")
+        } else if (identifier.isPresent()
+                && identifier.get().getText().startsWith("set")
                 && identifier.get().getText().length() > 3
+                && Character.isUpperCase(identifier.get().getText().charAt(3))
                 && element.getArgumentList().getExpressions().length == 1
                 && element.getMethodExpression().getQualifierExpression() != null
                 &&
