@@ -555,10 +555,16 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                         && ((PsiMethodCallExpression) qualifier).getMethodExpression().getReferenceName()
                         .startsWith("get")
                         && ((PsiMethodCallExpression) qualifier).getArgumentList().getExpressions().length == 0)) {
-                    PsiElement r = findSameQualifier(element.getThenExpression(), qualifier);
-
+                    PsiReferenceExpression r = qualifier instanceof PsiReferenceExpression
+                            ? ((PsiReferenceExpression) qualifier)
+                            : ((PsiMethodCallExpression) qualifier).getMethodExpression();
                     List<PsiElement> references = SyntaxTraverser.psiTraverser(element.getThenExpression())
-                            .filter(e -> equal(e, r)).toList();
+                            .filter(e ->
+                                    e instanceof PsiReferenceExpression
+                                            && !(e.getParent() instanceof PsiMethodCallExpression)
+                                            && ((PsiReferenceExpression) e).isReferenceTo(r.resolve())
+                                    || e instanceof PsiMethodCallExpression && ((PsiMethodCallExpression) e).getMethodExpression().isReferenceTo(r.resolve())
+                            ).toList();
                     if (references.size() > 0) {
                         return new ElvisExpression(element.getTextRange(),
                                 getExpression(element.getCondition(), document, true),
