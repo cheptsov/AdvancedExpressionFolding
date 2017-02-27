@@ -39,4 +39,8 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
     public void testGet() throws Exception {
         doTest();
     }
+
+    public void testFor() throws Exception {
+        doTest();
+    }
 }
