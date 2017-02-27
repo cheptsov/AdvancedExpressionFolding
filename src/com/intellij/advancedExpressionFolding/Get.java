@@ -32,9 +32,9 @@ public class Get extends Expression implements GetExpression {
     public String format() {
         switch (style) {
             case FIRST:
-                return object.format() + ".first";
+                return object.format() + ".first()";
             case LAST:
-                return object.format() + ".last";
+                return object.format() + ".last()";
         }
         return object.format() + "[" + key + "]";
     }

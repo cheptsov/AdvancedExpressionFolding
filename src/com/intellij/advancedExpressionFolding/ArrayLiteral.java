@@ -41,7 +41,7 @@ public class ArrayLiteral extends Expression implements GetExpression {
                         @Nullable
                         @Override
                         public String getPlaceholderText() {
-                            return "{}";
+                            return "[]";
                         }
                     }
             };
@@ -52,7 +52,7 @@ public class ArrayLiteral extends Expression implements GetExpression {
                 @Nullable
                 @Override
                 public String getPlaceholderText() {
-                    return "{";
+                    return "[";
                 }
             });
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(
@@ -61,7 +61,7 @@ public class ArrayLiteral extends Expression implements GetExpression {
                 @Nullable
                 @Override
                 public String getPlaceholderText() {
-                    return "}";
+                    return "]";
                 }
             });
             for (Expression item : items) {

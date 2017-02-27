@@ -287,6 +287,12 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 return expression;
             }
         }
+        if (element instanceof PsiArrayAccessExpression) {
+            Expression expression = getArrayAccessExpression((PsiArrayAccessExpression) element, document);
+            if (expression != null) {
+                return expression;
+            }
+        }
         if (element instanceof PsiMethodCallExpression) {
             Expression expression = getMethodCallExpression((PsiMethodCallExpression) element, document);
             if (expression != null) {
@@ -374,6 +380,21 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             ArrayList<Expression> children = new ArrayList<>();
             findChildExpressions(element, children, document);
             return new SyntheticExpressionImpl(element.getTextRange(), document.getText(element.getTextRange()), children);
+        }
+        return null;
+    }
+
+    private static Expression getArrayAccessExpression(PsiArrayAccessExpression element, Document document) {
+        Expression indexExpression = getExpression(element.getIndexExpression(), document, false);
+        Expression arrayExpression = getExpression(element.getArrayExpression(), document, true);
+        if (indexExpression instanceof NumberLiteral && ((NumberLiteral) indexExpression).getNumber().equals(0)) {
+            return new ArrayGet(element.getTextRange(), arrayExpression, ArrayGet.Style.FIRST);
+        } else if (element.getIndexExpression() instanceof PsiBinaryExpression) {
+            PsiBinaryExpression a2b = (PsiBinaryExpression) element.getIndexExpression();
+            NumberLiteral position = getSlicePosition(arrayExpression, a2b, document);
+            if (position != null && position.getNumber().equals(-1)) {
+                return new ArrayGet(element.getTextRange(), arrayExpression, ArrayGet.Style.LAST);
+            }
         }
         return null;
     }
@@ -1292,12 +1313,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     @Nullable
     private static NumberLiteral getSlicePosition(Expression qualifierExpression, PsiBinaryExpression a2b, @Nullable Document document) {
         if (a2b.getOperationSign().getText().equals("-")
-                && a2b.getLOperand() instanceof PsiMethodCallExpression) {
+                && (a2b.getLOperand() instanceof PsiMethodCallExpression || a2b.getLOperand() instanceof PsiReferenceExpression)) {
             Expression s = getExpression(a2b.getROperand(), document, true);
             if (s instanceof NumberLiteral) {
-                PsiMethodCallExpression a2m = (PsiMethodCallExpression) a2b
-                        .getLOperand();
-                PsiReferenceExpression a2me = a2m.getMethodExpression();
+                PsiReferenceExpression a2me = a2b.getLOperand() instanceof PsiMethodCallExpression
+                        ? ((PsiMethodCallExpression) a2b.getLOperand()).getMethodExpression(): (PsiReferenceExpression) a2b.getLOperand();
                 Optional<PsiElement> a2i = Stream.of(a2me.getChildren())
                         .filter(c -> c instanceof PsiIdentifier).findAny();
                 if (a2i.isPresent() && (a2i.get().getText().equals("length")
