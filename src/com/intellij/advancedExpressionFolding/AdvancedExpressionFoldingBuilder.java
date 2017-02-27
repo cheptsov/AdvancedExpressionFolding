@@ -293,6 +293,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             variableName.getText(), arrayExpression.getText());
                                 } else {
                                     PsiIdentifier indexName = conditionVariable.getNameIdentifier();
+                                    AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
                                     return new ForEachIndexedStatement(TextRange.create(
                                             element.getInitialization().getTextRange().getStartOffset() - 1,
                                             declaration.getTextRange().getEndOffset()),
@@ -301,9 +302,45 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             arrayExpression.getTextRange(),
                                             indexName.getText(),
                                             variableName.getText(),
-                                            arrayExpression.getText());
+                                            arrayExpression.getText(), settings.isVarExpressionsCollapse(),
+                                            declaration.getModifierList() != null && declaration.getModifierList().hasExplicitModifier(PsiModifier.FINAL));
+                                }
+                            } else if (initializer instanceof PsiMethodCallExpression
+                                    && ((PsiMethodCallExpression) initializer).getArgumentList().getExpressions().length == 1
+                                    && ((PsiMethodCallExpression) initializer).getArgumentList().getExpressions()[0] instanceof PsiReferenceExpression
+                                    && ((PsiReferenceExpression) ((PsiMethodCallExpression) initializer).getArgumentList().getExpressions()[0]).isReferenceTo(conditionVariable)
+                                    && ((PsiBinaryExpression) condition).getROperand() instanceof PsiMethodCallExpression
+                                    && ((PsiMethodCallExpression) ((PsiBinaryExpression) condition).getROperand()).getMethodExpression().getQualifierExpression() instanceof PsiReferenceExpression
+                                    && ((PsiReferenceExpression) ((PsiMethodCallExpression) ((PsiBinaryExpression) condition)
+                                    .getROperand()).getMethodExpression().getQualifierExpression()).isReferenceTo(
+                                    ((PsiReferenceExpression) ((PsiMethodCallExpression) initializer).getMethodExpression()
+                                            .getQualifierExpression()).resolve())) {
+                                PsiExpression arrayExpression = ((PsiMethodCallExpression) initializer).getMethodExpression().getQualifierExpression();
+                                List<PsiElement> references = SyntaxTraverser.psiTraverser(element.getBody()).filter(e -> e instanceof PsiReferenceExpression
+                                        && ((PsiReferenceExpression) e).isReferenceTo(conditionVariable)).toList();
+                                if (references.size() == 1) {
+                                    return new ForEachStatement(TextRange.create(
+                                            element.getInitialization().getTextRange().getStartOffset(),
+                                            declaration.getTextRange().getEndOffset()),
+                                            declaration.getTextRange(), variableName.getTextRange(),
+                                            arrayExpression.getTextRange(),
+                                            variableName.getText(), arrayExpression.getText());
+                                } else {
+                                    PsiIdentifier indexName = conditionVariable.getNameIdentifier();
+                                    AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+                                    return new ForEachIndexedStatement(TextRange.create(
+                                            element.getInitialization().getTextRange().getStartOffset() - 1,
+                                            declaration.getTextRange().getEndOffset()),
+                                            declaration.getTextRange(),
+                                            indexName.getTextRange(), variableName.getTextRange(),
+                                            arrayExpression.getTextRange(),
+                                            indexName.getText(),
+                                            variableName.getText(),
+                                            arrayExpression.getText(), settings.isVarExpressionsCollapse(),
+                                            declaration.getModifierList() != null && declaration.getModifierList().hasExplicitModifier(PsiModifier.FINAL));
                                 }
                             }
+
                         }
                     }
                     int startOffset = lParenth.getTextRange().getStartOffset() + 1;

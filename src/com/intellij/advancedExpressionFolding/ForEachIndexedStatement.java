@@ -18,11 +18,13 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
     private final String indexName;
     private final String itemName;
     private final String arrayName;
+    private final boolean varSyntax;
+    private final boolean isFinal;
 
     public ForEachIndexedStatement(TextRange textRange, TextRange declarationTextRange,
                                    TextRange indexTextRange,
                                    TextRange variableTextRange, TextRange arrayTextRange, String indexName,
-                                   String itemName, String arrayName) {
+                                   String itemName, String arrayName, boolean varSyntax, boolean isFinal) {
         super(textRange);
         this.declarationTextRange = declarationTextRange;
         this.indexTextRange = indexTextRange;
@@ -31,6 +33,8 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
         this.indexName = indexName;
         this.itemName = itemName;
         this.arrayName = arrayName;
+        this.varSyntax = varSyntax;
+        this.isFinal = isFinal;
     }
 
     @Override
@@ -45,21 +49,40 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
         TextRange prefixRange = TextRange.create(textRange.getStartOffset(),
                 textRange.getStartOffset() + 1);
         String prefix = document.getText(prefixRange);
-        descriptors.add(new FoldingDescriptor(element.getNode(), prefixRange, group) {
-            @Nullable
-            @Override
-            public String getPlaceholderText() {
-                return  prefix + "(";
-            }
-        });
-        descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(indexTextRange.getEndOffset(),
-                declarationTextRange.getStartOffset()), group) {
-            @Nullable
-            @Override
-            public String getPlaceholderText() {
-                return ", ";
-            }
-        });
+        if (varSyntax) {
+            descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset(),
+                    indexTextRange.getStartOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return prefix + (isFinal ? "val" : "var" ) + " (";
+                }
+            });
+            descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(indexTextRange.getEndOffset(),
+                    variableTextRange.getStartOffset() - 1), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return ",";
+                }
+            });
+        } else {
+            descriptors.add(new FoldingDescriptor(element.getNode(), prefixRange, group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return  prefix + "(";
+                }
+            });
+            descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(indexTextRange.getEndOffset(),
+                    declarationTextRange.getStartOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return ", ";
+                }
+            });
+        }
         descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(variableTextRange.getEndOffset(),
                 arrayTextRange.getStartOffset()), group) {
             @Nullable
@@ -82,6 +105,6 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
     @Override
     public String format() {
         // TODO: Get rid out of format here at least as first "(" might be not correct
-        return "((var " + itemName + ", var "  + indexName + ") : " + arrayName + ")" + "{\n";
+        return "(" + (isFinal ? "val" : "var" ) + " (" + itemName + ", "  + indexName + ") : " + arrayName + ")" + "{\n";
     }
 }
