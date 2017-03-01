@@ -151,8 +151,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @NotNull
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, boolean quick) {
-        List<FoldingDescriptor> allDescriptors = null;
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, boolean quick) {List<FoldingDescriptor> allDescriptors = null;
         try {
             FoldingGroup group = FoldingGroup.newGroup(AdvancedExpressionFoldingBuilder.class.getName());
             allDescriptors = null;
@@ -294,6 +293,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                 } else {
                                     PsiIdentifier indexName = conditionVariable.getNameIdentifier();
                                     AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+                                    boolean isFinal = calculateIfFinal(declaration) && calculateIfFinal(updateVariable);
                                     return new ForEachIndexedStatement(TextRange.create(
                                             element.getInitialization().getTextRange().getStartOffset() - 1,
                                             declaration.getTextRange().getEndOffset()),
@@ -303,7 +303,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             indexName.getText(),
                                             variableName.getText(),
                                             arrayExpression.getText(), settings.isVarExpressionsCollapse(),
-                                            declaration.getModifierList() != null && declaration.getModifierList().hasExplicitModifier(PsiModifier.FINAL));
+                                            isFinal);
                                 }
                             } else if (initializer instanceof PsiMethodCallExpression
                                     && ((PsiMethodCallExpression) initializer).getArgumentList().getExpressions().length == 1
@@ -328,6 +328,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                 } else {
                                     PsiIdentifier indexName = conditionVariable.getNameIdentifier();
                                     AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+                                    boolean isFinal = calculateIfFinal(declaration) && calculateIfFinal(updateVariable);
                                     return new ForEachIndexedStatement(TextRange.create(
                                             element.getInitialization().getTextRange().getStartOffset() - 1,
                                             declaration.getTextRange().getEndOffset()),
@@ -337,7 +338,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             indexName.getText(),
                                             variableName.getText(),
                                             arrayExpression.getText(), settings.isVarExpressionsCollapse(),
-                                            declaration.getModifierList() != null && declaration.getModifierList().hasExplicitModifier(PsiModifier.FINAL));
+                                            isFinal);
                                 }
                             }
 
@@ -596,12 +597,42 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         if (element.getName() != null && element.getTypeElement() != null
                 && (element.getInitializer() != null || element.getParent() instanceof PsiForeachStatement)
                 && element.getTextRange().getStartOffset() < element.getTypeElement().getTextRange().getEndOffset()) {
+            boolean isFinal = calculateIfFinal(element);
             return new VariableDeclarationImpl(TextRange.create(
                     element.getTextRange().getStartOffset(),
                     element.getTypeElement().getTextRange().getEndOffset()),
-                    element.getModifierList() != null && element.getModifierList().hasExplicitModifier(PsiModifier.FINAL));
+                    element.getModifierList() != null && isFinal);
         }
         return null;
+    }
+
+    private static boolean calculateIfFinal(PsiVariable element) {
+        boolean isFinal = element.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
+        if (!isFinal) {
+            PsiElement body = element.getParent() instanceof PsiDeclarationStatement
+                    ? element.getParent().getParent()
+                    : element.getParent() instanceof PsiLoopStatement
+                    ? ((PsiLoopStatement) element.getParent()).getBody()
+                    : element.getParent();
+            if (body instanceof PsiLoopStatement) {
+                body = ((PsiLoopStatement) body).getBody();
+            }
+            List<PsiElement> references = SyntaxTraverser.psiTraverser(body)
+                    .filter(e ->
+                            e instanceof PsiAssignmentExpression
+                                    && ((PsiAssignmentExpression) e).getLExpression() instanceof PsiReferenceExpression
+                                    && ((PsiReferenceExpression) ((PsiAssignmentExpression) e).getLExpression()).isReferenceTo(element)
+                                    || e instanceof PsiPostfixExpression
+                                    && (((PsiPostfixExpression) e).getOperationSign().getText().equals("++")
+                                    || ((PsiPostfixExpression) e).getOperationSign().getText().equals("--"))
+                                    && ((PsiPostfixExpression) e).getOperand() instanceof PsiReferenceExpression
+                                    && ((PsiReferenceExpression) ((PsiPostfixExpression) e).getOperand()).isReferenceTo(element)
+                    ).toList();
+            if (references.size() == 0) {
+                isFinal = true;
+            }
+        }
+        return isFinal;
     }
 
     private static void findChildExpressions(PsiElement element, List<Expression> expressions, @Nullable Document document) {
