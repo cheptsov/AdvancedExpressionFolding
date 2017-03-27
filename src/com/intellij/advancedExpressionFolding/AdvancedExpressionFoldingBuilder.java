@@ -1087,13 +1087,13 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                                 case "java.util.Map":
                                                 case "java.util.HashMap":
                                                 case "java.util.Collection":
-                                                    return new AddAssign(element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                                    return new AddAssignForCollection(element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
                                             }
                                             return new Add(element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
                                         case "remove":
                                             if (method.getParameterList().getParameters().length == 1
                                                     && !method.getParameterList().getParameters()[0].getType().equals(PsiType.INT)) {
-                                                return new RemoveAssign(element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                                return new RemoveAssignForCollection(element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
                                             }
                                         case "subtract":
                                             return new Subtract(element.getTextRange(),
@@ -1182,9 +1182,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             return new Slice(element.getTextRange(),
                                                     Arrays.asList(qualifierExpression, argumentExpression));
                                         case "addAll":
-                                            return new AddAssign(element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                            return new AddAssignForCollection(element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
                                         case "removeAll":
-                                            return new RemoveAssign(element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                            return new RemoveAssignForCollection(element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
                                     }
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 0) {
@@ -1367,7 +1367,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                                         .asList(new Pow(null, Arrays.asList(a1Expression, new NumberLiteral(null, 2))),
                                                                 new Pow(null, Arrays.asList(a2Expression, new NumberLiteral(null, 2)))))))));
                                     case "addAll":
-                                        return new AddAssign(element.getTextRange(), Arrays.asList(a1Expression, a2Expression));
+                                        return new AddAssignForCollection(element.getTextRange(), Arrays.asList(a1Expression, a2Expression));
                                 }
                             }
                         } else if (element.getArgumentList().getExpressions().length == 0) {
