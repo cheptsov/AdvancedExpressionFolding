@@ -71,17 +71,17 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
                     descriptors.add(new FoldingDescriptor(element.getNode(), range, group) {
                         @Override
                         public String getPlaceholderText() {
-                            return token + "\"${";
+                            return token + "\"$";
                         }
                     });
-                    buf[0] = "}";
                 } else {
                     descriptors.add(new FoldingDescriptor(element.getNode(), range, group) {
                         @Override
                         public String getPlaceholderText() {
-                            return token + "\"$";
+                            return token + "\"${";
                         }
                     });
+                    buf[0] = "}";
                 }
             } else {
                 descriptors.add(new FoldingDescriptor(element.getNode(),

@@ -104,7 +104,6 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
 
     @Override
     public String format() {
-        // TODO: Get rid out of format here at least as first "(" might be not correct
         return "(" + (isFinal ? "val" : "var" ) + " (" + itemName + ", "  + indexName + ") : " + arrayName + ")" + "{\n";
     }
 }
