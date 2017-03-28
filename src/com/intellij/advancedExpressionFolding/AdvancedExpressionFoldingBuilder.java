@@ -969,7 +969,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                             eraseGenerics(element.getType().getCanonicalText()));
                 } else if (element.getArgumentList().getExpressions()[0] instanceof PsiReferenceExpression) {
                     return getReferenceExpression(
-                            (PsiReferenceExpression) element.getArgumentList().getExpressions()[0]);
+                            (PsiReferenceExpression) element.getArgumentList().getExpressions()[0], true);
                 }
             } else if (element.getArgumentList() != null && element.getArgumentList().getExpressions().length == 0) {
                 switch (eraseGenerics(element.getType().getCanonicalText())) {
@@ -992,6 +992,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @Nullable
     private static Expression getReferenceExpression(PsiReferenceExpression element) {
+        return getReferenceExpression(element, false);
+    }
+
+    @Nullable
+    private static Expression getReferenceExpression(PsiReferenceExpression element, boolean copy) {
         Optional<PsiElement> found = Optional.empty();
         for (PsiElement c : element.getChildren()) {
             if (c instanceof PsiIdentifier) {
@@ -1006,10 +1011,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 if (isSupportedClass(element) && constant instanceof Number) {
                     return new NumberLiteral(element.getTextRange(), (Number) constant);
                 } else if (isSupportedClass(element) && constant instanceof String) {
-                    return new Variable(element.getTextRange(), (String) constant);
+                    return new Variable(element.getTextRange(), (String) constant, copy);
                 }
             } else {
-                Expression variable = getVariableExpression(element);
+                Expression variable = getVariableExpression(element, copy);
                 if (variable != null) return variable;
             }
         }
@@ -1018,16 +1023,21 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @Nullable
     private static Variable getVariableExpression(PsiElement element) {
+        return getVariableExpression(element, false);
+    }
+
+    @Nullable
+    private static Variable getVariableExpression(PsiElement element, boolean copy) {
         PsiReference reference = element.getReference();
         if (reference != null) {
             PsiElement e = reference.resolve();
             if (e instanceof PsiVariable && ((PsiVariable)e).getName().equals(element.getText())) {
                 PsiVariable variable = (PsiVariable) e;
                 if (supportedClasses.contains(eraseGenerics(variable.getType().getCanonicalText()))) {
-                    return new Variable(element.getTextRange(), variable.getName());
+                    return new Variable(element.getTextRange(), variable.getName(), copy);
                 } else if (supportedPrimitiveTypes
                         .contains(eraseGenerics(variable.getType().getCanonicalText()))) {
-                    return new Variable(element.getTextRange(), variable.getName());
+                    return new Variable(element.getTextRange(), variable.getName(), copy);
                 }
             }
         }

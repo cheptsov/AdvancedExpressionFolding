@@ -30,7 +30,7 @@ public class Append extends Operation implements ConcatenationExpression {
     @Override
     public String format() {
         String format = super.format();
-        if (operands.get(0) instanceof Variable) {
+        if (operands.get(0) instanceof Variable && !((Variable)operands.get(0)).isCopy()) {
             format = format.replaceFirst("\\+", "+=");
         }
         return format;
@@ -66,7 +66,7 @@ public class Append extends Operation implements ConcatenationExpression {
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
         FoldingDescriptor[] descriptors = super.buildFoldRegions(element, document);
-        if (operands.get(0) instanceof Variable) {
+        if (operands.get(0) instanceof Variable && !((Variable)operands.get(0)).isCopy()) {
             FoldingDescriptor[] newDescriptors = Arrays.copyOf(descriptors, descriptors.length);
             for (int i = 0; i < newDescriptors.length; i++) {
                 FoldingDescriptor d = newDescriptors[i];

@@ -8,10 +8,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class Variable extends Expression {
     protected String name;
+    protected boolean copy;
 
     public Variable(TextRange textRange, String name) {
         super(textRange);
         this.name = name;
+        this.copy = false;
+    }
+
+    public Variable(TextRange textRange, String name, boolean copy) {
+        super(textRange);
+        this.name = name;
+        this.copy = copy;
     }
 
     @Override
@@ -46,5 +54,9 @@ public class Variable extends Expression {
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
         return FoldingDescriptor.EMPTY;
+    }
+
+    public boolean isCopy() {
+        return copy;
     }
 }
