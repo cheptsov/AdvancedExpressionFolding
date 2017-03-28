@@ -121,15 +121,17 @@ public abstract class Function extends Expression {
                 }
             }
         }
-        descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(operands.get(operands.size() - 1).getTextRange().getEndOffset(),
-                        getTextRange().getEndOffset()), group) {
-            @Nullable
-            @Override
-            public String getPlaceholderText() {
-                return ")";
-            }
-        });
+        if (operands.get(operands.size() - 1).getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(operands.get(operands.size() - 1).getTextRange().getEndOffset(),
+                            getTextRange().getEndOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return ")";
+                }
+            });
+        }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 }
