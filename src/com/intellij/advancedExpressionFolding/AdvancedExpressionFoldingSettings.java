@@ -76,7 +76,7 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
     }
 
     public static final class State {
-        public boolean ARITHMETIC_EXPRESSIONS = true;
+        public boolean ARITHMETIC_EXPRESSIONS = false;
         public boolean CONCATENATION_EXPRESSIONS = true;
         public boolean SLICING_EXPRESSIONS = true;
         public boolean COMPARING_EXPRESSIONS = true;

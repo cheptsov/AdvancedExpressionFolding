@@ -67,7 +67,7 @@ public class TypeCast extends Expression implements CastExpression {
                                     @Nullable
                                     @Override
                                     public String getPlaceholderText() {
-                                        return "~";
+                                        return ""; // TODO: It used to be  "~"
                                     }
                                 }
                 );
@@ -88,7 +88,7 @@ public class TypeCast extends Expression implements CastExpression {
                                 @Nullable
                                 @Override
                                 public String getPlaceholderText() {
-                                    return "~";
+                                    return ""; // TODO: It used to be  "~"
                                 }
                             });
         }

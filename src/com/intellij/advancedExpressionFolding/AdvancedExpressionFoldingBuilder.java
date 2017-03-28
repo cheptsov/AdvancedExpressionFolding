@@ -118,6 +118,14 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("java.util.Optional");
             add("java.util.Collection");
             add("java.util.Collections");
+            add("java.util.Objects");
+        }
+    };
+
+    private static Set<String> unsupportedClassesMethodsExceptions = new HashSet<String>() {
+        {
+            add("equals");
+            add("compareTo");
         }
     };
 
@@ -153,7 +161,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @NotNull
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, boolean quick) {List<FoldingDescriptor> allDescriptors = null;
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, boolean quick) {
+        List<FoldingDescriptor> allDescriptors = null;
         try {
             FoldingGroup group = FoldingGroup.newGroup(AdvancedExpressionFoldingBuilder.class.getName());
             allDescriptors = null;
@@ -797,7 +806,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     PsiMethod method = (PsiMethod) methodCallExpression.getMethodExpression().resolve();
                     if (method != null) {
                         PsiClass psiClass = method.getContainingClass();
-                        if (psiClass != null && supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))) {
+                        if (psiClass != null && (supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))
+                                ||unsupportedClassesMethodsExceptions.contains(method.getName()))) {
                             Expression qualifier = methodCallExpression.getMethodExpression()
                                     .getQualifierExpression() != null ? getExpression(methodCallExpression.getMethodExpression()
                                     .getQualifierExpression(), document, true) : null;
@@ -871,6 +881,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             return getAndTwoBinaryExpressions(((PsiBinaryExpression) element.getLOperand()),
                     ((PsiBinaryExpression) element.getROperand()), document);
         }
+/*
         if ("!=".equals(element.getOperationSign().getText())
                 && element.getROperand() != null && element.getLOperand() != null
                 && (element.getLOperand().getType() == PsiType.NULL
@@ -879,6 +890,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     getExpression(element.getLOperand().getType() == PsiType.NULL
                             ? element.getROperand() : element.getLOperand(), document, true));
         }
+*/
         return null;
     }
 
@@ -1061,7 +1073,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 PsiClass psiClass = method.getContainingClass();
                 if (psiClass != null) {
                     String className = eraseGenerics(psiClass.getQualifiedName());
-                    if (supportedClasses.contains(className)
+                    if ((supportedClasses.contains(className) || unsupportedClassesMethodsExceptions.contains(method.getName()))
                             && element.getMethodExpression().getQualifierExpression() != null) {
                         PsiExpression qualifier = element
                                 .getMethodExpression().getQualifierExpression();
@@ -1149,9 +1161,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         case "append":
                                             return new Append(element.getTextRange(),
                                                     Arrays.asList(qualifierExpression, argumentExpression));
-                                        case "contains":
+                                        /*case "contains":
                                         case "containsKey":
-                                            return new Contains(element.getTextRange(), qualifierExpression, argumentExpression);
+                                            return new Contains(element.getTextRange(), qualifierExpression, argumentExpression);*/
                                         case "charAt":
                                             return new Get(element.getTextRange(), qualifierExpression,
                                                     argumentExpression, Get.Style.NORMAL);
@@ -1199,12 +1211,12 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         return new Abs(element.getTextRange(), Collections.singletonList(qualifierExpression));
                                     case "signum":
                                         return new Signum(element.getTextRange(), Collections.singletonList(qualifierExpression));
-                                    case "get":
+                                    /*case "get":
                                         return new AssertNotNullExpression(element.getTextRange(),
-                                                qualifierExpression);
-                                    case "isPresent":
+                                                qualifierExpression);*/
+                                    /*case "isPresent":
                                         return new NotNullExpression(element.getTextRange(),
-                                                qualifierExpression);
+                                                qualifierExpression);*/
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 2) {
                                 PsiExpression a1 = element.getArgumentList().getExpressions()[0];
@@ -1368,6 +1380,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                                                 new Pow(null, Arrays.asList(a2Expression, new NumberLiteral(null, 2)))))))));
                                     case "addAll":
                                         return new AddAssignForCollection(element.getTextRange(), Arrays.asList(a1Expression, a2Expression));
+                                    case "equals":
+                                        return new Equal(element.getTextRange(), Arrays.asList(a1Expression, a2Expression));
                                 }
                             }
                         } else if (element.getArgumentList().getExpressions().length == 0) {
@@ -1446,7 +1460,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 Optional<PsiElement> a2i = Stream.of(a2me.getChildren())
                         .filter(c -> c instanceof PsiIdentifier).findAny();
                 if (a2i.isPresent() && (a2i.get().getText().equals("length")
-                        || a2i.get().getText().equals("size"))) {
+                        || a2i.get().getText().equals("size")) && a2me.getQualifierExpression() != null) {
                     Expression a2qe = getExpression(
                             a2me.getQualifierExpression(), document, true);
                     if (a2qe != null && a2qe.equals(qualifierExpression)) {

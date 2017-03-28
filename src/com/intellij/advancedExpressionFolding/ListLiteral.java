@@ -55,15 +55,17 @@ public class ListLiteral extends Expression implements GetExpression {
                     return "[";
                 }
             });
-            descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(
-                    items.get(items.size() - 1).getTextRange().getEndOffset(),
-                    textRange.getEndOffset()), group) {
-                @Nullable
-                @Override
-                public String getPlaceholderText() {
-                    return "]";
-                }
-            });
+            if (items.get(items.size() - 1).getTextRange().getEndOffset() < textRange.getEndOffset()) {
+                descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(
+                        items.get(items.size() - 1).getTextRange().getEndOffset(),
+                        textRange.getEndOffset()), group) {
+                    @Nullable
+                    @Override
+                    public String getPlaceholderText() {
+                        return "]";
+                    }
+                });
+            }
             for (Expression item : items) {
                 Collections.addAll(descriptors, item.buildFoldRegions(element, document));
             }
