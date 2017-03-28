@@ -1062,7 +1062,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             if (e instanceof PsiField) {
                 PsiField field = (PsiField) e;
                 PsiClass psiClass = field.getContainingClass();
-                if (psiClass != null) {
+                if (psiClass != null && psiClass.getQualifiedName() != null) {
                     if (supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))) {
                         return true;
                     }
@@ -1081,7 +1081,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             PsiMethod method = (PsiMethod) referenceExpression.resolve();
             if (method != null) {
                 PsiClass psiClass = method.getContainingClass();
-                if (psiClass != null) {
+                if (psiClass != null && psiClass.getQualifiedName() != null) {
                     String className = eraseGenerics(psiClass.getQualifiedName());
                     if ((supportedClasses.contains(className) || unsupportedClassesMethodsExceptions.contains(method.getName()))
                             && element.getMethodExpression().getQualifierExpression() != null) {
