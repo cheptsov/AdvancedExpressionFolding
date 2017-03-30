@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.intellij.bigdecimal-folding</id>
   <name>Advanced Java Folding</name>
-  <version>0.6.9</version>
+  <version>0.7.0</version>
   <vendor email="andrey.cheptsov@jetbrains.com" url="http://www.jetbrains.com">JetBrains</vendor>
 
   <description><![CDATA[
@@ -29,9 +29,7 @@
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends>com.intellij.modules.lang</depends>
-  -->
+  <depends>com.intellij.modules.java</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
