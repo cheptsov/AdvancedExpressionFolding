@@ -6,12 +6,12 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Rint extends Function implements ArithmeticExpression {
-    public Rint(TextRange textRange, List<Expression> operands) {
-        super(textRange, "rint", operands);
+    public Rint(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "rint", operands);
     }
 
     @Override
     protected Rint copy(List<Expression> newOperands) {
-        return new Rint(textRange, newOperands);
+        return new Rint(element, textRange, newOperands);
     }
 }

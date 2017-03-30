@@ -6,12 +6,12 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Cosh extends Function implements ArithmeticExpression {
-    public Cosh(TextRange textRange, List<Expression> operands) {
-        super(textRange, "cosh", operands);
+    public Cosh(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "cosh", operands);
     }
 
     @Override
     protected Cosh copy(List<Expression> newOperands) {
-        return new Cosh(textRange, newOperands);
+        return new Cosh(element, textRange, newOperands);
     }
 }

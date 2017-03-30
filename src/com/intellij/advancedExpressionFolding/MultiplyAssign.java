@@ -6,12 +6,12 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class MultiplyAssign extends Operation implements ArithmeticExpression {
-    public MultiplyAssign(TextRange textRange, List<Expression> operands) {
-        super(textRange, "*=", 300, operands);
+    public MultiplyAssign(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "*=", 300, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
-        return new MultiplyAssign(textRange, newOperands);
+        return new MultiplyAssign(element, textRange, newOperands);
     }
 }

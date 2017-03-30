@@ -13,13 +13,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class Abs extends Function implements ArithmeticExpression {
-    public Abs(TextRange textRange, List<Expression> operands) {
-        super(textRange, "abs", operands);
+    public Abs(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "abs", operands);
     }
 
     @Override
     protected Abs copy(List<Expression> newOperands) {
-        return new Abs(textRange, newOperands);
+        return new Abs(element, textRange, newOperands);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class Abs extends Function implements ArithmeticExpression {
             }
         });
         if (operands.get(0).supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(element, document));
+            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

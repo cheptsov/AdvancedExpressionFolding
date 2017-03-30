@@ -6,12 +6,12 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Max extends Function implements ArithmeticExpression {
-    public Max(TextRange textRange, List<Expression> operands) {
-        super(textRange, "max", operands);
+    public Max(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "max", operands);
     }
 
     @Override
     protected Max copy(List<Expression> newOperands) {
-        return new Max(textRange, newOperands);
+        return new Max(element, textRange, newOperands);
     }
 }

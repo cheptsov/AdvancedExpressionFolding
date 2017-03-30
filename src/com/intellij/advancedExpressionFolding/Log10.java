@@ -6,13 +6,13 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Log10 extends Function implements ArithmeticExpression {
-    public Log10(TextRange textRange, List<Expression> operands) {
-        super(textRange, "log", operands);
+    public Log10(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "log", operands);
     }
 
     @Override
     protected Log10 copy(List<Expression> newOperands) {
-        return new Log10(textRange, newOperands);
+        return new Log10(element, textRange, newOperands);
     }
 
     @Override

@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 public class NumberLiteral extends Expression {
     private Number number;
 
-    public NumberLiteral(TextRange textRange, Number number) {
-        super(textRange);
+    public NumberLiteral(PsiElement element, TextRange textRange, Number number) {
+        super(element, textRange);
         this.number = number;
     }
 

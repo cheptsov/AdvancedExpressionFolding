@@ -10,14 +10,14 @@ public class Variable extends Expression {
     protected String name;
     protected boolean copy;
 
-    public Variable(TextRange textRange, String name) {
-        super(textRange);
+    public Variable(PsiElement element, TextRange textRange, String name) {
+        super(element, textRange);
         this.name = name;
         this.copy = false;
     }
 
-    public Variable(TextRange textRange, String name, boolean copy) {
-        super(textRange);
+    public Variable(PsiElement element, TextRange textRange, String name, boolean copy) {
+        super(element, textRange);
         this.name = name;
         this.copy = copy;
     }

@@ -7,13 +7,13 @@ import java.util.List;
 
 public class Remove extends Operation {
 
-    public Remove(TextRange textRange, List<Expression> operands) {
-        super(textRange, "-=", 10, operands);
+    public Remove(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "-=", 10, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
-        return new Remove(textRange, newOperands);
+        return new Remove(element, textRange, newOperands);
     }
 
     @Override

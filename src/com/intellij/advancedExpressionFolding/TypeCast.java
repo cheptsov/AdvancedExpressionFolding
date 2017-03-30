@@ -14,8 +14,8 @@ import java.util.Collections;
 public class TypeCast extends Expression implements CastExpression {
     private final Expression object;
 
-    public TypeCast(TextRange textRange, Expression object) {
-        super(textRange);
+    public TypeCast(PsiElement element, TextRange textRange, Expression object) {
+        super(element, textRange);
         this.object = object;
     }
 
@@ -93,7 +93,7 @@ public class TypeCast extends Expression implements CastExpression {
                             });
         }
         if (object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

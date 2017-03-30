@@ -77,9 +77,11 @@ public abstract class Expression {
         }
     };
 
+    protected PsiElement element;
     protected TextRange textRange;
 
-    public Expression(TextRange textRange) {
+    public Expression(PsiElement element, TextRange textRange) {
+        this.element = element;
         this.textRange = textRange;
     }
 
@@ -226,5 +228,9 @@ public abstract class Expression {
 
     public TextRange getTextRange() {
         return textRange;
+    }
+
+    public PsiElement getElement() {
+        return element;
     }
 }

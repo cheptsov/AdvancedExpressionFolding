@@ -6,12 +6,12 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Sin extends Function implements ArithmeticExpression {
-    public Sin(TextRange textRange, List<Expression> operands) {
-        super(textRange, "sin", operands);
+    public Sin(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "sin", operands);
     }
 
     @Override
     protected Sin copy(List<Expression> newOperands) {
-        return new Sin(textRange, newOperands);
+        return new Sin(element, textRange, newOperands);
     }
 }

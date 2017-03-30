@@ -16,8 +16,8 @@ public class Getter extends Expression implements GettersSetters {
     private TextRange getterTextRange;
     private Expression object;
 
-    public Getter(TextRange textRange, TextRange getterTextRange, Expression object, String name) {
-        super(textRange);
+    public Getter(PsiElement element, TextRange textRange, TextRange getterTextRange, Expression object, String name) {
+        super(element, textRange);
         this.getterTextRange = getterTextRange;
         this.object = object;
         this.name = name;
@@ -47,7 +47,7 @@ public class Getter extends Expression implements GettersSetters {
                 }
         );
         if (object != null && object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

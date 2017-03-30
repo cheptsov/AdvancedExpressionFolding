@@ -17,9 +17,9 @@ public class ForEachStatement extends Expression implements RangeExpression {
     private final String itemName;
     private final String arrayName;
 
-    public ForEachStatement(TextRange textRange, TextRange declarationTextRange,
+    public ForEachStatement(PsiElement element, TextRange textRange, TextRange declarationTextRange,
                             TextRange variableTextRange, TextRange arrayTextRange, String itemName, String arrayName) {
-        super(textRange);
+        super(element, textRange);
         this.declarationTextRange = declarationTextRange;
         this.variableTextRange = variableTextRange;
         this.arrayTextRange = arrayTextRange;

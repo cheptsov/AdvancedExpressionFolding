@@ -2,17 +2,18 @@ package com.intellij.advancedExpressionFolding;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
 
 import java.util.List;
 
 public class Negate extends Function implements ArithmeticExpression {
-    public Negate(TextRange textRange, List<Expression> operands) {
-        super(textRange, "negate", operands);
+    public Negate(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "negate", operands);
     }
 
     @Override
     protected Negate copy(List<Expression> newOperands) {
-        return new Negate(textRange, newOperands);
+        return new Negate(element, textRange, newOperands);
     }
 
     @Override

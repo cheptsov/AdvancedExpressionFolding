@@ -6,12 +6,12 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Cos extends Function implements ArithmeticExpression {
-    public Cos(TextRange textRange, List<Expression> operands) {
-        super(textRange, "cos", operands);
+    public Cos(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "cos", operands);
     }
 
     @Override
     protected Cos copy(List<Expression> newOperands) {
-        return new Cos(textRange, newOperands);
+        return new Cos(element, textRange, newOperands);
     }
 }

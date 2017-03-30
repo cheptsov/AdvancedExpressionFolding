@@ -6,12 +6,12 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class XorAssign extends Operation implements ArithmeticExpression {
-    public XorAssign(TextRange textRange, List<Expression> operands) {
-        super(textRange, "^=", 300, operands);
+    public XorAssign(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "^=", 300, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
-        return new XorAssign(textRange, newOperands);
+        return new XorAssign(element, textRange, newOperands);
     }
 }

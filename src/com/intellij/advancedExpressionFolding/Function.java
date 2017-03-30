@@ -17,8 +17,8 @@ public abstract class Function extends Expression {
     private final String name;
     protected final List<Expression> operands;
 
-    public Function(TextRange textRange, String name, List<Expression> operands) {
-        super(textRange);
+    public Function(PsiElement element, TextRange textRange, String name, List<Expression> operands) {
+        super(element, textRange);
         this.name = name;
         this.operands = operands;
     }
@@ -103,7 +103,7 @@ public abstract class Function extends Expression {
             }
         });
         if (operands.get(0).supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(element, document));
+            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document));
         }
         if (operands.size() == 2) {
             TextRange commaOffset = TextRange.create(operands.get(0).getTextRange().getEndOffset(),
@@ -117,7 +117,7 @@ public abstract class Function extends Expression {
                     }
                 });
                 if (operands.get(1).supportsFoldRegions(document, false)) {
-                    Collections.addAll(descriptors, operands.get(1).buildFoldRegions(element, document));
+                    Collections.addAll(descriptors, operands.get(1).buildFoldRegions(operands.get(1).getElement(), document));
                 }
             }
         }

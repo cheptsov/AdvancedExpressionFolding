@@ -15,8 +15,8 @@ public class Contains extends Expression implements CheckExpression {
     private final Expression object;
     private final Expression key;
 
-    public Contains(TextRange textRange, Expression object, Expression key) {
-        super(textRange);
+    public Contains(PsiElement element, TextRange textRange, Expression object, Expression key) {
+        super(element, textRange);
         this.object = object;
         this.key = key;
     }
@@ -54,10 +54,10 @@ public class Contains extends Expression implements CheckExpression {
             }
         });
         if (object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
         }
         if (key.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, key.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, key.buildFoldRegions(key.getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

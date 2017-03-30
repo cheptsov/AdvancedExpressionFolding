@@ -13,13 +13,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class Pow extends Function implements ArithmeticExpression {
-    public Pow(TextRange textRange, List<Expression> operands) {
-        super(textRange, "pow", operands);
+    public Pow(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "pow", operands);
     }
 
     @Override
     protected Pow copy(List<Expression> newOperands) {
-        return new Pow(textRange, newOperands);
+        return new Pow(element, textRange, newOperands);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class Pow extends Function implements ArithmeticExpression {
             });
         }
         if (operands.get(0).supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(element, document));
+            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document));
         }
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(operands.get(0).getTextRange().getEndOffset(),

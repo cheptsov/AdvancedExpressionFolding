@@ -21,11 +21,11 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
     private final boolean varSyntax;
     private final boolean isFinal;
 
-    public ForEachIndexedStatement(TextRange textRange, TextRange declarationTextRange,
+    public ForEachIndexedStatement(PsiElement element, TextRange textRange, TextRange declarationTextRange,
                                    TextRange indexTextRange,
                                    TextRange variableTextRange, TextRange arrayTextRange, String indexName,
                                    String itemName, String arrayName, boolean varSyntax, boolean isFinal) {
-        super(textRange);
+        super(element, textRange);
         this.declarationTextRange = declarationTextRange;
         this.indexTextRange = indexTextRange;
         this.variableTextRange = variableTextRange;

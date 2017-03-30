@@ -13,13 +13,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class Slice extends Function implements SlicingExpression {
-    public Slice(TextRange textRange, List<Expression> operands) {
-        super(textRange, "slice", operands);
+    public Slice(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "slice", operands);
     }
 
     @Override
     protected Slice copy(List<Expression> newOperands) {
-        return new Slice(textRange, newOperands);
+        return new Slice(element, textRange, newOperands);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class Slice extends Function implements SlicingExpression {
         });
         for (Expression operand : operands) {
             if (operand.supportsFoldRegions(document, false)) {
-                Collections.addAll(descriptors, operand.buildFoldRegions(element, document));
+                Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

@@ -18,8 +18,8 @@ public abstract class Operation extends Expression {
     protected List<Expression> operands;
     private int priority;
 
-    public Operation(TextRange textRange, String character, int priority, List<Expression> operands) {
-        super(textRange);
+    public Operation(PsiElement element, TextRange textRange, String character, int priority, List<Expression> operands) {
+        super(element, textRange);
         this.character = character;
         this.priority = priority;
         this.operands = operands;
@@ -186,7 +186,7 @@ public abstract class Operation extends Expression {
         }
         for (Expression operand : operands) {
             if (operand.supportsFoldRegions(document, false)) {
-                Collections.addAll(descriptors, operand.buildFoldRegions(element, document));
+                Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

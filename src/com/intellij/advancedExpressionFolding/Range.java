@@ -24,10 +24,10 @@ public class Range extends Expression implements RangeExpression {
     private boolean startInclusive;
     private boolean endInclusive;
 
-    public Range(TextRange textRange, Expression operand, Expression startRange, boolean startInclusive,
+    public Range(PsiElement element, TextRange textRange, Expression operand, Expression startRange, boolean startInclusive,
                  Expression endRange,
                  boolean endInclusive) {
-        super(textRange);
+        super(element, textRange);
         this.operand = operand;
         this.startRange = startRange;
         this.startInclusive = startInclusive;
@@ -76,7 +76,7 @@ public class Range extends Expression implements RangeExpression {
         Expression sStartRange = startRange.simplify(compute);
         Expression sEndRange = endRange.simplify(compute);
         if (sOperator != operand || sStartRange != startRange || sEndRange != endRange) {
-            return new Range(textRange, sOperator, sStartRange, startInclusive, sEndRange, endInclusive);
+            return new Range(element, textRange, sOperator, sStartRange, startInclusive, sEndRange, endInclusive);
         } else {
             return this;
         }
@@ -195,10 +195,10 @@ public class Range extends Expression implements RangeExpression {
                 }
         );
         if (startRange.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, startRange.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, startRange.buildFoldRegions(startRange.getElement(), document));
         }
         if (endRange.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, endRange.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, endRange.buildFoldRegions(endRange.getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

@@ -6,13 +6,13 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Sqrt extends Function implements ArithmeticExpression {
-    public Sqrt(TextRange textRange, List<Expression> operands) {
-        super(textRange, "sqrt", operands);
+    public Sqrt(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "sqrt", operands);
     }
 
     @Override
     protected Sqrt copy(List<Expression> newOperands) {
-        return new Sqrt(textRange, newOperands);
+        return new Sqrt(element, textRange, newOperands);
     }
 
     @Override

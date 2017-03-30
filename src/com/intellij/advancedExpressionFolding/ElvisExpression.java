@@ -17,10 +17,10 @@ public class ElvisExpression extends Expression implements CheckExpression {
     private final Expression elseExpression;
     private final List<TextRange> elements;
 
-    public ElvisExpression(TextRange textRange, Expression conditionExpression, Expression thenExpression,
+    public ElvisExpression(PsiElement element, TextRange textRange, Expression conditionExpression, Expression thenExpression,
                            Expression elseExpression,
                            List<TextRange> elements) {
-        super(textRange);
+        super(element, textRange);
         this.conditionExpression = conditionExpression;
         this.thenExpression = thenExpression;
         this.elseExpression = elseExpression;
@@ -51,10 +51,10 @@ public class ElvisExpression extends Expression implements CheckExpression {
         ShortElvisExpression.nullify(element, document, descriptors, group, elements,
                 !(elements.size() == 1 && elements.get(0).equals(thenExpression.getTextRange())));
         if (thenExpression.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, thenExpression.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, thenExpression.buildFoldRegions(thenExpression.getElement(), document));
         }
         if (elseExpression.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, elseExpression.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, elseExpression.buildFoldRegions(elseExpression.getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

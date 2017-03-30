@@ -13,13 +13,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class Cbrt extends Function implements ArithmeticExpression {
-    public Cbrt(TextRange textRange, List<Expression> operands) {
-        super(textRange, "∛", operands);
+    public Cbrt(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "∛", operands);
     }
 
     @Override
     protected Cbrt copy(List<Expression> newOperands) {
-        return new Cbrt(textRange, newOperands);
+        return new Cbrt(element, textRange, newOperands);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class Cbrt extends Function implements ArithmeticExpression {
             }
         });
         if (operands.get(0).supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(element, document));
+            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

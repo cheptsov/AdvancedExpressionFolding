@@ -21,8 +21,8 @@ public class Get extends Expression implements GetExpression {
         LAST
     }
 
-    public Get(TextRange textRange, Expression object, Expression key, Style style) {
-        super(textRange);
+    public Get(PsiElement element, TextRange textRange, Expression object, Expression key, Style style) {
+        super(element, textRange);
         this.object = object;
         this.key = key;
         this.style = style;
@@ -85,11 +85,11 @@ public class Get extends Expression implements GetExpression {
         }
         // TODO: Generalize it
         if (object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
         }
         if (style == Style.NORMAL) {
             if (key.supportsFoldRegions(document, false)) {
-                Collections.addAll(descriptors, key.buildFoldRegions(element, document));
+                Collections.addAll(descriptors, key.buildFoldRegions(key.getElement(), document));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

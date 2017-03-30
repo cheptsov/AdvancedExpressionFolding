@@ -13,8 +13,8 @@ import java.util.Collections;
 public class NotNullExpression extends Expression implements CheckExpression {
     private final Expression object;
 
-    public NotNullExpression(TextRange textRange, Expression object) {
-        super(textRange);
+    public NotNullExpression(PsiElement element, TextRange textRange, Expression object) {
+        super(element, textRange);
         this.object = object;
     }
 
@@ -44,7 +44,7 @@ public class NotNullExpression extends Expression implements CheckExpression {
             }
         });
         if (object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

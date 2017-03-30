@@ -6,13 +6,13 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Random extends Function implements ArithmeticExpression {
-    public Random(TextRange textRange, List<Expression> operands) {
-        super(textRange, "random", operands);
+    public Random(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "random", operands);
     }
 
     @Override
     protected Random copy(List<Expression> newOperands) {
-        return new Random(textRange, newOperands);
+        return new Random(element, textRange, newOperands);
     }
 
     @Override

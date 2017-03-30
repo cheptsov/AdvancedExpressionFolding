@@ -17,8 +17,8 @@ public class Setter extends Expression implements GettersSetters {
     private final String name;
     private final Expression value;
 
-    public Setter(TextRange textRange, TextRange setterTextRange, Expression object, String name, Expression value) {
-        super(textRange);
+    public Setter(PsiElement element, TextRange textRange, TextRange setterTextRange, Expression object, String name, Expression value) {
+        super(element, textRange);
         this.setterTextRange = setterTextRange;
         this.object = object;
         this.name = name;
@@ -58,10 +58,10 @@ public class Setter extends Expression implements GettersSetters {
                     }
                 });
         if (object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
         }
         if (value.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, value.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, value.buildFoldRegions(value.getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

@@ -16,8 +16,8 @@ public class Put extends Expression implements GetExpression {
     private final Expression key;
     private final Expression value;
 
-    public Put(TextRange textRange, Expression object, Expression key, Expression value) {
-        super(textRange);
+    public Put(PsiElement element, TextRange textRange, Expression object, Expression key, Expression value) {
+        super(element, textRange);
         this.object = object;
         this.key = key;
         this.value = value;
@@ -65,13 +65,13 @@ public class Put extends Expression implements GetExpression {
                             }
                         });
         if (object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
         }
         if (key.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, key.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, key.buildFoldRegions(key.getElement(), document));
         }
         if (value.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, value.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, value.buildFoldRegions(value.getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

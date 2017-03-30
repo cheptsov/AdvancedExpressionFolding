@@ -13,8 +13,8 @@ import java.util.*;
 public class InterpolatedString extends Expression implements ConcatenationExpression {
     private final List<Expression> operands;
 
-    public InterpolatedString(TextRange textRange, List<Expression> operands) {
-        super(textRange);
+    public InterpolatedString(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange);
         this.operands = operands;
     }
 
@@ -180,7 +180,7 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
         }
         for (Expression operand : operands) {
             if (operand.supportsFoldRegions(document, false)) {
-                Collections.addAll(descriptors, operand.buildFoldRegions(element, document));
+                Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

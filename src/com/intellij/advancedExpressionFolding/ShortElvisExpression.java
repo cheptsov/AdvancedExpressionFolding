@@ -14,9 +14,9 @@ public class ShortElvisExpression extends Expression implements CheckExpression 
     private final Expression thenExpression;
     private final List<TextRange> elements;
 
-    public ShortElvisExpression(TextRange textRange, Expression conditionExpression, Expression thenExpression,
+    public ShortElvisExpression(PsiElement element, TextRange textRange, Expression conditionExpression, Expression thenExpression,
                                 List<TextRange> elements) {
-        super(textRange);
+        super(element, textRange);
         this.conditionExpression = conditionExpression;
         this.thenExpression = thenExpression;
         this.elements = elements;
@@ -47,7 +47,7 @@ public class ShortElvisExpression extends Expression implements CheckExpression 
         }
         nullify(element, document, descriptors, group, elements, true);
         if (thenExpression.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, thenExpression.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, thenExpression.buildFoldRegions(thenExpression.getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

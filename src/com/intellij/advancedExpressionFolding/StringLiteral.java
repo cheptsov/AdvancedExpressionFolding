@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 public class StringLiteral extends Expression {
     private String string;
 
-    public StringLiteral(TextRange textRange, String string) {
-        super(textRange);
+    public StringLiteral(PsiElement element, TextRange textRange, String string) {
+        super(element, textRange);
         this.string = string;
     }
 

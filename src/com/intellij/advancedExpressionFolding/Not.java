@@ -6,13 +6,13 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Not extends Function implements ArithmeticExpression {
-    public Not(TextRange textRange, List<Expression> operands) {
-        super(textRange, "negate", operands);
+    public Not(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "negate", operands);
     }
 
     @Override
     protected Not copy(List<Expression> newOperands) {
-        return new Not(textRange, newOperands);
+        return new Not(element, textRange, newOperands);
     }
 
     @Override

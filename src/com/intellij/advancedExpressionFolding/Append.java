@@ -13,13 +13,13 @@ import java.util.List;
 
 public class Append extends Operation implements ConcatenationExpression {
 
-    public Append(TextRange textRange, List<Expression> operands) {
-        super(textRange, "+", 10, operands);
+    public Append(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "+", 10, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
-        return new Append(textRange, newOperands);
+        return new Append(element, textRange, newOperands);
     }
 
     @Override

@@ -6,12 +6,12 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class RemoveAllAssign extends Operation {
-    public RemoveAllAssign(TextRange textRange, List<Expression> operands) {
-        super(textRange, "--=", 300, operands);
+    public RemoveAllAssign(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "--=", 300, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
-        return new RemoveAllAssign(textRange, newOperands);
+        return new RemoveAllAssign(element, textRange, newOperands);
     }
 }

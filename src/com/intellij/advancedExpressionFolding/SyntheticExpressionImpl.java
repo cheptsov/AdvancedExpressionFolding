@@ -13,9 +13,9 @@ public class SyntheticExpressionImpl extends Expression implements SyntheticExpr
     private final String text;
     private final ArrayList<Expression> children;
 
-    public SyntheticExpressionImpl(TextRange textRange, String text,
+    public SyntheticExpressionImpl(PsiElement element, TextRange textRange, String text,
                                    ArrayList<Expression> children) {
-        super(textRange);
+        super(element, textRange);
         this.text = text;
         this.children = children;
     }
@@ -51,7 +51,7 @@ public class SyntheticExpressionImpl extends Expression implements SyntheticExpr
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         for (Expression child : children) {
             if (child.supportsFoldRegions(document, false)) {
-                Collections.addAll(descriptors, child.buildFoldRegions(element, document));
+                Collections.addAll(descriptors, child.buildFoldRegions(child.getElement(), document));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

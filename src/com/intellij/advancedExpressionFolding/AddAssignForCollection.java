@@ -1,16 +1,17 @@
 package com.intellij.advancedExpressionFolding;
 
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
 
 import java.util.List;
 
 public class AddAssignForCollection extends Operation implements ConcatenationExpression {
-    public AddAssignForCollection(TextRange textRange, List<Expression> operands) {
-        super(textRange, "+=", 300, operands);
+    public AddAssignForCollection(PsiElement element, TextRange textRange, List<Expression> operands) {
+        super(element, textRange, "+=", 300, operands);
     }
 
     @Override
     protected Operation copy(List<Expression> newOperands) {
-        return new AddAssignForCollection(textRange, newOperands);
+        return new AddAssignForCollection(element, textRange, newOperands);
     }
 }

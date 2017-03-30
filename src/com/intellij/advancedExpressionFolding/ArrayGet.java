@@ -19,8 +19,8 @@ public class ArrayGet extends Expression implements GetExpression {
         LAST
     }
 
-    public ArrayGet(TextRange textRange, Expression object, Style style) {
-        super(textRange);
+    public ArrayGet(PsiElement element, TextRange textRange, Expression object, Style style) {
+        super(element, textRange);
         this.object = object;
         this.style = style;
     }
@@ -55,7 +55,7 @@ public class ArrayGet extends Expression implements GetExpression {
         });
         // TODO: Generalize it
         if (object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(element, document));
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

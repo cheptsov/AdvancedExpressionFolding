@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 public class ListLiteral extends Expression implements GetExpression {
     private final List<Expression> items;
 
-    public ListLiteral(TextRange textRange, List<Expression> items) {
-        super(textRange);
+    public ListLiteral(PsiElement element, TextRange textRange, List<Expression> items) {
+        super(element, textRange);
         this.items = items;
     }
 
@@ -67,7 +67,7 @@ public class ListLiteral extends Expression implements GetExpression {
                 });
             }
             for (Expression item : items) {
-                Collections.addAll(descriptors, item.buildFoldRegions(element, document));
+                Collections.addAll(descriptors, item.buildFoldRegions(item.getElement(), document));
             }
             return descriptors.toArray(new FoldingDescriptor[0]);
         }
