@@ -136,7 +136,7 @@ public class Range extends Expression implements RangeExpression {
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
-        FoldingGroup group = FoldingGroup.newGroup(ForStatement.class.getName());
+        FoldingGroup group = FoldingGroup.newGroup(getClass().getName());
         StringBuilder sb1 = new StringBuilder().append(" ").append(separator).append(" ");
         if (isStartInclusive()) {
             sb1.append("[");

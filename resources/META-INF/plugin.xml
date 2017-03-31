@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.intellij.bigdecimal-folding</id>
   <name>Advanced Java Folding</name>
-  <version>0.7.1</version>
+  <version>0.7.2</version>
   <vendor email="andrey.cheptsov@jetbrains.com" url="http://www.jetbrains.com">JetBrains</vendor>
 
   <description><![CDATA[
@@ -42,4 +42,10 @@
     <!-- Add your actions here -->
   </actions>
 
+  <project-components>
+    <component>
+      <implementation-class>com.intellij.advancedExpressionFolding.AdvancedExpressionFoldingHighlightingComponent
+      </implementation-class>
+    </component>
+  </project-components>
 </idea-plugin>

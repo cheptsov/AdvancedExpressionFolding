@@ -35,7 +35,7 @@ public class Cbrt extends Function implements ArithmeticExpression {
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
-        FoldingGroup group = FoldingGroup.newGroup(Abs.class.getName());
+        FoldingGroup group = FoldingGroup.newGroup(Cbrt.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(getTextRange().getStartOffset(),
                         operands.get(0).getTextRange().getStartOffset()), group) {

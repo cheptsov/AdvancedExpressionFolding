@@ -149,7 +149,7 @@ public abstract class Operation extends Expression {
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
-        FoldingGroup group = FoldingGroup.newGroup(Operation.class.getName());
+        FoldingGroup group = FoldingGroup.newGroup(getClass().getName());
         List<FoldingDescriptor> descriptors = new ArrayList<>();
         int offset = getTextRange().getStartOffset();
         if (operands.get(0).getTextRange().getStartOffset() > offset) {

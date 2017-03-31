@@ -9,6 +9,9 @@ import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.tree.java.PsiAssignmentExpressionImpl;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.psi.util.PsiModificationTracker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -368,9 +371,17 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
+    public static Expression getExpression(PsiElement element, @Nullable Document document, boolean synthetic) {
+        if (element != null) {
+            return CachedValuesManager.getCachedValue(element,
+                    () -> CachedValueProvider.Result.create(calculateExpression(element, document, synthetic),
+                            PsiModificationTracker.MODIFICATION_COUNT));
+        }
+        return null;
+    }
 
-    // 💩💩💩 Define the AdvancedExpressionFoldingProvider extension point
-    private static Expression getExpression(PsiElement element, @Nullable Document document, boolean synthetic) {
+        // 💩💩💩 Define the AdvancedExpressionFoldingProvider extension point
+    private static Expression calculateExpression(PsiElement element, @Nullable Document document, boolean synthetic) {
         if (element instanceof PsiForStatement) {
             Expression expression = getForStatementExpression((PsiForStatement) element, document);
             if (expression != null) {
@@ -776,7 +787,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 && (b.getOperationSign().getText().equals("<") || b.getOperationSign().getText().equals("<="))
                 && a.getLOperand() != null
                 && a.getROperand() != null
-                && b.getLOperand() != null) {
+                && b.getLOperand() != null
+                && b.getROperand() != null) {
             Expression e1 = getExpression(a.getLOperand(), document, true);
             Expression e2 = getExpression(a.getROperand(), document, true);
             Expression e3 = getExpression(b.getLOperand(), document, true);

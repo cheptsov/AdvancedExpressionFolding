@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class TypeCast extends Expression implements CastExpression {
+public class TypeCast extends Expression implements CastExpression, HighlightingExpression {
     private final Expression object;
 
     public TypeCast(PsiElement element, TextRange textRange, Expression object) {
@@ -35,7 +35,7 @@ public class TypeCast extends Expression implements CastExpression {
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
-        FoldingGroup group = FoldingGroup.newGroup(Contains.class.getName());
+        FoldingGroup group = FoldingGroup.newGroup(TypeCast.class.getName() + GROUP_POSTFIX);
         boolean dotAccess = document.getText(TextRange.create(getTextRange().getEndOffset(),
                 getTextRange().getEndOffset() + 1)).equals(".");
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
@@ -83,14 +83,14 @@ public class TypeCast extends Expression implements CastExpression {
             }
         } else {
             descriptors.add(new FoldingDescriptor(element.getNode(),
-                                    TextRange.create(getTextRange().getStartOffset(),
-                                            object.getTextRange().getStartOffset()), group) {
-                                @Nullable
-                                @Override
-                                public String getPlaceholderText() {
-                                    return ""; // TODO: It used to be  "~"
-                                }
-                            });
+                    TextRange.create(getTextRange().getStartOffset(),
+                            object.getTextRange().getStartOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return ""; // TODO: It used to be  "~"
+                }
+            });
         }
         if (object.supportsFoldRegions(document, false)) {
             Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
