@@ -1,19 +1,25 @@
 <idea-plugin>
   <id>com.intellij.bigdecimal-folding</id>
   <name>Advanced Java Folding</name>
-  <version>0.7.2</version>
+  <version>0.7.3</version>
   <vendor email="andrey.cheptsov@jetbrains.com" url="http://www.jetbrains.com">JetBrains</vendor>
 
   <description><![CDATA[
-      <p>This plugin folds arithmetic, concatenation, slice, compare, index and key access, type cast expressions, getters, setters and variable declarations in Java for better code readability. This covers BigDecimal, BigInteger,
-      Long, Integer, Double, Float, Math, String, StringBuilder, List, Set, Map, Optional, primitive types and more.</p>
+      <p>Modern JVM languages such as Kotlin, Groovy, Scala and some others offer many language features that let you
+        write code in a more concise and expressive manner. These features include type inference, properties,
+        interpolated string, range and tuple literals, enhanced operators, clojures, implicits, smart casts and many more.</p>
+
+      <p>This plugin extends the IDE’s folding features to emulate some of these modern languages’ features helping
+        fight verbosity.</p>
+      
+      <p>For more information, read the <a hred="https://medium.com/@andrey_cheptsov/making-java-code-easier-to-read-without-changing-it-adeebd5c36de" target="_blank">blog post</a>.</p>
 
       <p>To get access to experimental features, go to <strong>Settings</strong> |
       <strong>Plugins</strong> | <strong>Browse Repositories</strong> | <strong>Manage Repositories</strong> and
       add <a href="https://plugins.jetbrains.com/plugins/EAP/com.intellij.bigdecimal-folding">https://plugins.jetbrains.com/plugins/EAP/com.intellij.bigdecimal-folding</a>
       as a custom plugin repository URL.</p>
 
-      <p>For more clarity, adjust your color scheme: go to <strong>Settings</strong> | <strong>Editor</strong> |
+      <p>For more clarity, you may try to adjust your color scheme: go to <strong>Settings</strong> | <strong>Editor</strong> |
       <strong>Colors &amp; Fonts</strong> | <strong>General</strong>, select <strong>Folded text</strong>,
       uncheck the <strong>Background</strong> color, and change the
       <strong>Foreground</strong> color to #000091 for the default scheme and #D7AE72 for Darcula.</p>

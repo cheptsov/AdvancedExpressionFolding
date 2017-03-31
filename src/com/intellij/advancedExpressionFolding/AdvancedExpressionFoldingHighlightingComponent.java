@@ -163,11 +163,11 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                         if (highlighter != null) {
                             editorEx.getMarkupModel().removeHighlighter(highlighter);
                         }
-                        EditorMouseMotionListener m = motionListeners.get(region);
+                        EditorMouseMotionListener m = motionListeners.remove(region);
                         if (m != null) {
                             editorEx.removeEditorMouseMotionListener(m);
                         }
-                        EditorMouseListener n = mouseListeners.get(region);
+                        EditorMouseListener n = mouseListeners.remove(region);
                         if (n != null) {
                             editorEx.removeEditorMouseListener(n);
                         }
