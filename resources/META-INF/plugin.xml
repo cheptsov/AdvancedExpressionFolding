@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.intellij.bigdecimal-folding</id>
   <name>Advanced Java Folding</name>
-  <version>0.7.3</version>
+  <version>0.7.4</version>
   <vendor email="andrey.cheptsov@jetbrains.com" url="http://www.jetbrains.com">JetBrains</vendor>
 
   <description><![CDATA[
@@ -12,7 +12,7 @@
       <p>This plugin extends the IDE’s folding features to emulate some of these modern languages’ features helping
         fight verbosity.</p>
       
-      <p>For more information, read the <a hred="https://medium.com/@andrey_cheptsov/making-java-code-easier-to-read-without-changing-it-adeebd5c36de" target="_blank">blog post</a>.</p>
+      <p>For more information, read the <a href="https://medium.com/@andrey_cheptsov/making-java-code-easier-to-read-without-changing-it-adeebd5c36de" target="_blank">blog post</a>.</p>
 
       <p>To get access to experimental features, go to <strong>Settings</strong> |
       <strong>Plugins</strong> | <strong>Browse Repositories</strong> | <strong>Manage Repositories</strong> and
