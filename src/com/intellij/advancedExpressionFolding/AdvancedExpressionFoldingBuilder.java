@@ -1440,15 +1440,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 && identifier.get().getText().length() > 3
                 && Character.isUpperCase(identifier.get().getText().charAt(3))
                 && element.getArgumentList().getExpressions().length == 1
-                && element.getMethodExpression().getQualifierExpression() != null
-                &&
-                (!(element.getMethodExpression().getQualifierExpression() instanceof PsiMethodCallExpression)
-                    || ((PsiMethodCallExpression) element.getMethodExpression().getQualifierExpression()).getMethodExpression().getReferenceName() != null
-                            && !((PsiMethodCallExpression) element.getMethodExpression().getQualifierExpression()).getMethodExpression().getReferenceName().startsWith("set"))
-                && (!(element.getParent().getParent() instanceof PsiMethodCallExpression)
-                    || ((PsiMethodCallExpression) element.getParent().getParent()).getMethodExpression().getReferenceName() != null
-                            && !((PsiMethodCallExpression) element.getParent().getParent()).getMethodExpression().getReferenceName().startsWith("set"))
-                ) {
+                && element.getParent() instanceof PsiStatement
+                && (element.getMethodExpression().getQualifierExpression() == null
+                    || !(element.getMethodExpression().getQualifierExpression() instanceof PsiMethodCallExpression)
+                    || !(((PsiMethodCallExpression)element.getMethodExpression().getQualifierExpression()).getMethodExpression().getReferenceName().startsWith("set")))) {
             return new Setter(element, element.getTextRange(), TextRange.create(identifier.get().getTextRange().getStartOffset(),
                     element.getTextRange().getEndOffset()),
                     getExpression(element.getMethodExpression().getQualifierExpression(), document, true),

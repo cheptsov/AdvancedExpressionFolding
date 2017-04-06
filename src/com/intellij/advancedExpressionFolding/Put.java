@@ -55,15 +55,17 @@ public class Put extends Expression implements GetExpression {
                         return "] = ";
                     }
                 });
-        descriptors.add(new FoldingDescriptor(element.getNode(),
-                                TextRange.create(value.getTextRange().getEndOffset(),
-                                        getTextRange().getEndOffset()), group) {
-                            @Nullable
-                            @Override
-                            public String getPlaceholderText() {
-                                return "";
-                            }
-                        });
+        if (value.getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(value.getTextRange().getEndOffset(),
+                            getTextRange().getEndOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return "";
+                }
+            });
+        }
         if (object.supportsFoldRegions(document, false)) {
             Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
         }

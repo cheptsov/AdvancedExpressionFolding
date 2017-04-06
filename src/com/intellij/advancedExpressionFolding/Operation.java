@@ -49,8 +49,8 @@ public abstract class Operation extends Expression {
                 Operation simplifiedOperand = (Operation) operand;
                 Expression s = simplifiedOperand.simplify(compute);
                 if (s != simplifiedOperand) {
-                    toSimplify = true;
                     if (s instanceof Operation) {
+                        toSimplify = true;
                         simplifiedOperand = (Operation) s;
                         if (simplifiedOperands == null) {
                             simplifiedOperands = new ArrayList<>();

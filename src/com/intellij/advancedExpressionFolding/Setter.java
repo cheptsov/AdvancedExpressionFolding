@@ -27,12 +27,12 @@ public class Setter extends Expression implements GettersSetters {
 
     @Override
     public String format() {
-        return object.format() + "." + name + " = " + value.format();
+        return (object != null ? object.format() + "." : "") + name + " = " + value.format();
     }
 
     @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && object.getTextRange() != null && value.getTextRange() != null;
+        return getTextRange() != null && (object == null || object.getTextRange() != null) && value.getTextRange() != null;
     }
 
     @Override
@@ -48,16 +48,18 @@ public class Setter extends Expression implements GettersSetters {
                         return name + " = ";
                     }
                 });
-        descriptors.add(new FoldingDescriptor(element.getNode(),
-                        TextRange.create(value.getTextRange().getEndOffset(),
-                                getTextRange().getEndOffset()), group) {
-                    @Nullable
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
-        if (object.supportsFoldRegions(document, false)) {
+        if (value.getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(value.getTextRange().getEndOffset(),
+                            getTextRange().getEndOffset()), group) {
+                @Nullable
+                @Override
+                public String getPlaceholderText() {
+                    return "";
+                }
+            });
+        }
+        if (object != null && object.supportsFoldRegions(document, false)) {
             Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
         }
         if (value.supportsFoldRegions(document, false)) {

@@ -9,15 +9,12 @@ import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.FoldingListener;
-import com.intellij.openapi.editor.ex.util.EditorUtil;
 import com.intellij.openapi.editor.impl.FoldingModelImpl;
+import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
-import com.intellij.openapi.fileEditor.FileEditorManagerListener;
+import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
@@ -72,7 +69,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
 
     protected void processEditors(FileEditor[] editors, PsiDocumentManager documentManager) {
         for (FileEditor editor : editors) {
-            EditorEx editorEx = EditorUtil.getEditorEx(editor);
+            EditorEx editorEx = getEditorEx(editor);
             if (editorEx != null) {
                 for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
                     processRegion(region, documentManager, editorEx);
@@ -93,6 +90,11 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
         }
     }
 
+    private static EditorEx getEditorEx(FileEditor fileEditor) {
+        Editor editor = fileEditor instanceof TextEditor ? ((TextEditor)fileEditor).getEditor() : null;
+        return editor instanceof EditorEx ? (EditorEx)editor : null;
+    }
+
     protected void processRegion(@NotNull FoldRegion region, PsiDocumentManager documentManager, EditorEx editorEx) {
         FoldingGroup group = region.getGroup();
         if (group != null && group.toString().endsWith(HighlightingExpression.GROUP_POSTFIX)) {
@@ -103,13 +105,14 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                 if (expression != null) {
                     TextAttributes foldedTextAttributes = editorEx.getColorsScheme().getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES);
                     foldedTextAttributes.setForegroundColor(null);
+                    foldedTextAttributes.setFontType(Font.PLAIN);
                     if (!region.isExpanded()) {
                         RangeHighlighter h = highlighters.remove(region);
                         if (h != null) {
                             editorEx.getMarkupModel().removeHighlighter(h);
                         }
                         RangeHighlighter highlighter = editorEx.getMarkupModel().addRangeHighlighter(expression.getElement().getTextRange().getStartOffset(),
-                                expression.getElement().getTextRange().getEndOffset(), 0, foldedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
+                                expression.getElement().getTextRange().getEndOffset(), HighlighterLayer.ADDITIONAL_SYNTAX, foldedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
                         highlighters.put(region, highlighter);
                         EditorMouseMotionListener m = motionListeners.get(region);
                         if (m != null) {
