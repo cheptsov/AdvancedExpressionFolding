@@ -94,6 +94,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("addAll");
             add("removeAll");
             add("remove");
+            add("collect");
+            add("stream");
         }
     };
 
@@ -124,6 +126,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("java.util.Collection");
             add("java.util.Collections");
             add("java.util.Objects");
+            add("java.util.stream.Stream");
         }
     };
 
@@ -1228,6 +1231,26 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             return new AddAssignForCollection(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
                                         case "removeAll":
                                             return new RemoveAssignForCollection(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                        case "collect":
+                                            if (argument instanceof PsiMethodCallExpression
+                                                    && ((PsiMethodCallExpression) argument).getMethodExpression().getReferenceName().startsWith("to")
+                                                    && ((PsiMethodCallExpression) argument).getMethodExpression().getQualifierExpression() instanceof PsiReferenceExpression
+                                                    && ((PsiReferenceExpression) ((PsiMethodCallExpression) argument).getMethodExpression().getQualifierExpression()).getReferenceName().equals("Collectors")) {
+                                                Optional<PsiElement> i = Arrays.stream(((PsiMethodCallExpression) argument).getMethodExpression().getChildren()).filter(c -> c instanceof PsiIdentifier && c.getText().startsWith("to")).findAny();
+                                                if (i.isPresent()) {
+                                                    return new Collect(element, TextRange.create(identifier.get().getTextRange().getStartOffset(),
+                                                            element.getTextRange().getEndOffset()), qualifierExpression,
+                                                            TextRange.create(i.get().getTextRange().getStartOffset(),
+                                                                    argument.getTextRange().getEndOffset()));
+                                                }
+                                            }
+                                        case "stream":
+                                            if (element.getParent() instanceof PsiReferenceExpression &&
+                                                    ((PsiReferenceExpression) element.getParent()).getQualifierExpression() == element) {
+                                                return new ArrayStream(element, TextRange.create(
+                                                        element.getTextRange().getStartOffset(), element.getTextRange().getEndOffset()
+                                                ), argumentExpression);
+                                            }
                                     }
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 0) {
@@ -1248,6 +1271,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                     /*case "isPresent":
                                         return new NotNullExpression(element.getTextRange(),
                                                 qualifierExpression);*/
+                                    case "stream":
+                                        if (element.getParent() instanceof PsiReferenceExpression && ((PsiReferenceExpression) element.getParent()).getQualifierExpression() == element) {
+                                            return new StreamExpression(element, TextRange.create(identifier.get().getTextRange().getStartOffset(),
+                                                    element.getTextRange().getEndOffset()));
+                                        }
                                 }
                             } else if (element.getArgumentList().getExpressions().length == 2) {
                                 PsiExpression a1 = element.getArgumentList().getExpressions()[0];
@@ -1451,6 +1479,15 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     getExpression(element.getArgumentList().getExpressions()[0], document, true));
         }
         return null;
+    }
+
+    protected static int findDot(Document document, int position, int i) {
+        int offset = 0;
+        while (Math.abs(offset) < 100 && position > 0 && position < document.getText().length() && !document.getText(TextRange.create(position, position + 1)).equals(".")) {
+            position += i;
+            offset += i;
+        };
+        return offset;
     }
 
     private static String guessPropertyName(String text) {

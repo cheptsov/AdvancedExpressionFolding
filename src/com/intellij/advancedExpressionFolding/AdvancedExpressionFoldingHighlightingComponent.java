@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.FoldingListener;
+import com.intellij.openapi.editor.ex.RangeHighlighterEx;
 import com.intellij.openapi.editor.impl.FoldingModelImpl;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
@@ -104,15 +105,18 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                 Expression expression = findHighlightingExpression(psiFile, region.getDocument(), region.getStartOffset());
                 if (expression != null) {
                     TextAttributes foldedTextAttributes = editorEx.getColorsScheme().getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES);
-                    foldedTextAttributes.setForegroundColor(null);
+                    if (foldedTextAttributes.getBackgroundColor() != null) {
+                        foldedTextAttributes.setForegroundColor(null);
+                    }
                     foldedTextAttributes.setFontType(Font.PLAIN);
                     if (!region.isExpanded()) {
                         RangeHighlighter h = highlighters.remove(region);
                         if (h != null) {
                             editorEx.getMarkupModel().removeHighlighter(h);
                         }
-                        RangeHighlighter highlighter = editorEx.getMarkupModel().addRangeHighlighter(expression.getElement().getTextRange().getStartOffset(),
-                                expression.getElement().getTextRange().getEndOffset(), HighlighterLayer.ADDITIONAL_SYNTAX, foldedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
+                        RangeHighlighterEx highlighter = (RangeHighlighterEx) editorEx.getMarkupModel().addRangeHighlighter(expression.getElement().getTextRange().getStartOffset(),
+                                expression.getElement().getTextRange().getEndOffset(), HighlighterLayer.WARNING - 1, foldedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
+                        highlighter.setAfterEndOfLine(false);
                         highlighters.put(region, highlighter);
                         EditorMouseMotionListener m = motionListeners.get(region);
                         if (m != null) {
