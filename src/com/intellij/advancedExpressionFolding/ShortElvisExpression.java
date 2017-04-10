@@ -97,6 +97,6 @@ public class ShortElvisExpression extends Expression implements CheckExpression 
     @Override
     public String format() {
         // TODO: Get rid out of format completely
-        return "if (" + conditionExpression.format() + ") " + thenExpression.format();
+        return ""; // "if (" + conditionExpression.format() + ") " + thenExpression.format();
     }
 }

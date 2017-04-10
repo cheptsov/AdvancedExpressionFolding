@@ -35,9 +35,9 @@ public class TypeCast extends Expression implements CastExpression, Highlighting
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
-        FoldingGroup group = FoldingGroup.newGroup(TypeCast.class.getName() + GROUP_POSTFIX);
         boolean dotAccess = document.getText(TextRange.create(getTextRange().getEndOffset(),
                 getTextRange().getEndOffset() + 1)).equals(".");
+        FoldingGroup group = FoldingGroup.newGroup(TypeCast.class.getName() + (dotAccess ? "" : GROUP_POSTFIX));
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         if (object.getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
             if (dotAccess) {
