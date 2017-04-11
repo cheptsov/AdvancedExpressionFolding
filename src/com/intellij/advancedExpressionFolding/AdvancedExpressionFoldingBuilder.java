@@ -330,6 +330,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                     && ((PsiReferenceExpression) ((PsiMethodCallExpression) initializer).getArgumentList().getExpressions()[0]).isReferenceTo(conditionVariable)
                                     && ((PsiBinaryExpression) condition).getROperand() instanceof PsiMethodCallExpression
                                     && ((PsiMethodCallExpression) ((PsiBinaryExpression) condition).getROperand()).getMethodExpression().getQualifierExpression() instanceof PsiReferenceExpression
+                                    && ((PsiMethodCallExpression) initializer).getMethodExpression().getQualifierExpression() instanceof PsiReferenceExpression
                                     && ((PsiReferenceExpression) ((PsiMethodCallExpression) ((PsiBinaryExpression) condition)
                                     .getROperand()).getMethodExpression().getQualifierExpression()).isReferenceTo(
                                     ((PsiReferenceExpression) ((PsiMethodCallExpression) initializer).getMethodExpression()
