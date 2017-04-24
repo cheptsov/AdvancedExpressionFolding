@@ -16,46 +16,6 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         return myState;
     }
 
-    public boolean isArithmeticExpressionsCollapse() {
-        return myState.ARITHMETIC_EXPRESSIONS;
-    }
-
-    public boolean isConcatenationExpressionsCollapse() {
-        return myState.CONCATENATION_EXPRESSIONS;
-    }
-
-    public boolean isSlicingExpressionsCollapse() {
-        return myState.SLICING_EXPRESSIONS;
-    }
-
-    public boolean isComparingExpressionsCollapse() {
-        return myState.COMPARING_EXPRESSIONS;
-    }
-
-    public boolean isGetExpressionsCollapse() {
-        return myState.GET_EXPRESSIONS;
-    }
-
-    public boolean isRangeExpressionsCollapse() {
-        return myState.RANGE_EXPRESSIONS;
-    }
-
-    public boolean isCheckExpressionsCollapse() {
-        return myState.CHECK_EXPRESSIONS;
-    }
-
-    public boolean isCastExpressionsCollapse() {
-        return myState.CHECK_EXPRESSIONS;
-    }
-
-    public boolean isVarExpressionsCollapse() {
-        return myState.VAR_EXPRESSIONS;
-    }
-
-    public boolean isGetSetExpressionsCollapse() {
-        return myState.GET_SET_EXPRESSIONS;
-    }
-
     @NotNull
     public static AdvancedExpressionFoldingSettings getInstance() {
         return ServiceManager.getService(AdvancedExpressionFoldingSettings.class);
@@ -76,17 +36,97 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
     }
 
     public static final class State {
-        public boolean ARITHMETIC_EXPRESSIONS = false;
-        public boolean CONCATENATION_EXPRESSIONS = true;
-        public boolean SLICING_EXPRESSIONS = true;
-        public boolean COMPARING_EXPRESSIONS = true;
-        public boolean GET_EXPRESSIONS = true;
-        public boolean RANGE_EXPRESSIONS = true;
-        public boolean CHECK_EXPRESSIONS = true;
-        public boolean CAST_EXPRESSIONS = true;
-        public boolean VAR_EXPRESSIONS = true;
-        public boolean GET_SET_EXPRESSIONS = true;
+        private boolean ARITHMETIC_EXPRESSIONS = false;
+        private boolean CONCATENATION_EXPRESSIONS = true;
+        private boolean SLICING_EXPRESSIONS = true;
+        private boolean COMPARING_EXPRESSIONS = true;
+        private boolean GET_EXPRESSIONS = true;
+        private boolean RANGE_EXPRESSIONS = true;
+        private boolean CHECK_EXPRESSIONS = true;
+        private boolean CAST_EXPRESSIONS = true;
+        private boolean VAR_EXPRESSIONS = true;
+        private boolean GET_SET_EXPRESSIONS = true;
 
-        public State() { /* compiled code */ }
+        public boolean isArithmeticExpressionsCollapse() {
+            return ARITHMETIC_EXPRESSIONS;
+        }
+
+        public boolean isConcatenationExpressionsCollapse() {
+            return CONCATENATION_EXPRESSIONS;
+        }
+
+        public boolean isSlicingExpressionsCollapse() {
+            return SLICING_EXPRESSIONS;
+        }
+
+        public boolean isComparingExpressionsCollapse() {
+            return COMPARING_EXPRESSIONS;
+        }
+
+        public boolean isGetExpressionsCollapse() {
+            return GET_EXPRESSIONS;
+        }
+
+        public boolean isRangeExpressionsCollapse() {
+            return RANGE_EXPRESSIONS;
+        }
+
+        public boolean isCheckExpressionsCollapse() {
+            return CHECK_EXPRESSIONS;
+        }
+
+        public boolean isCastExpressionsCollapse() {
+            return CHECK_EXPRESSIONS;
+        }
+
+        public boolean isVarExpressionsCollapse() {
+            return VAR_EXPRESSIONS;
+        }
+
+        public boolean isGetSetExpressionsCollapse() {
+            return GET_SET_EXPRESSIONS;
+        }
+
+        public void setArithmeticExpressionsCollapse(boolean value) {
+            ARITHMETIC_EXPRESSIONS = value;
+        }
+
+        public void setConcatenationExpressionsCollapse(boolean value) {
+            CONCATENATION_EXPRESSIONS = value;
+        }
+
+        public void setSlicingExpressionsCollapse(boolean value) {
+            SLICING_EXPRESSIONS = value;
+        }
+
+        public void setComparingExpressionsCollapse(boolean value) {
+            COMPARING_EXPRESSIONS = value;
+        }
+
+        public void setGetExpressionsCollapse(boolean value) {
+            GET_EXPRESSIONS = value;
+        }
+
+        public void setRangeExpressionsCollapse(boolean value) {
+            RANGE_EXPRESSIONS = value;
+        }
+
+        public void setCheckExpressionsCollapse(boolean value) {
+            CHECK_EXPRESSIONS = value;
+        }
+
+        public void setCastExpressionsCollapse(boolean value) {
+            CHECK_EXPRESSIONS = value;
+        }
+
+        public void setVarExpressionsCollapse(boolean value) {
+            VAR_EXPRESSIONS = value;
+        }
+
+        public void setGetSetExpressionsCollapse(boolean value) {
+            GET_SET_EXPRESSIONS = value;
+        }
+
+
     }
 }

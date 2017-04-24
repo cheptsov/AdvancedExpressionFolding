@@ -225,16 +225,16 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             PsiElement element = astNode.getPsi();
             Expression expression = getExpression(element, PsiDocumentManager.getInstance(astNode.getPsi().getProject()).getDocument(astNode.getPsi().getContainingFile()), true);
             AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
-            return expression != null && (settings.isArithmeticExpressionsCollapse() && expression instanceof ArithmeticExpression
-                        || settings.isComparingExpressionsCollapse() && expression instanceof ComparingExpression
-                        || settings.isSlicingExpressionsCollapse() && expression instanceof SlicingExpression
-                        || settings.isConcatenationExpressionsCollapse() && expression instanceof ConcatenationExpression
-                        || settings.isRangeExpressionsCollapse() && expression instanceof RangeExpression
-                        || settings.isGetExpressionsCollapse() && expression instanceof GetExpression
-                        || settings.isCheckExpressionsCollapse() && expression instanceof CheckExpression
-                        || settings.isCastExpressionsCollapse() && expression instanceof CastExpression
-                        || settings.isVarExpressionsCollapse() && expression instanceof VariableDeclaration
-                        || settings.isGetSetExpressionsCollapse() && expression instanceof GettersSetters
+            return expression != null && (settings.getState().isArithmeticExpressionsCollapse() && expression instanceof ArithmeticExpression
+                        || settings.getState().isComparingExpressionsCollapse() && expression instanceof ComparingExpression
+                        || settings.getState().isSlicingExpressionsCollapse() && expression instanceof SlicingExpression
+                        || settings.getState().isConcatenationExpressionsCollapse() && expression instanceof ConcatenationExpression
+                        || settings.getState().isRangeExpressionsCollapse() && expression instanceof RangeExpression
+                        || settings.getState().isGetExpressionsCollapse() && expression instanceof GetExpression
+                        || settings.getState().isCheckExpressionsCollapse() && expression instanceof CheckExpression
+                        || settings.getState().isCastExpressionsCollapse() && expression instanceof CastExpression
+                        || settings.getState().isVarExpressionsCollapse() && expression instanceof VariableDeclaration
+                        || settings.getState().isGetSetExpressionsCollapse() && expression instanceof GettersSetters
             )
                     && expression.isCollapsedByDefault();
         } catch (IndexNotReadyException e) {
@@ -321,7 +321,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             arrayExpression.getTextRange(),
                                             indexName.getText(),
                                             variableName.getText(),
-                                            arrayExpression.getText(), settings.isVarExpressionsCollapse(),
+                                            arrayExpression.getText(), settings.getState().isVarExpressionsCollapse(),
                                             isFinal);
                                 }
                             } else if (initializer instanceof PsiMethodCallExpression
@@ -357,7 +357,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             arrayExpression.getTextRange(),
                                             indexName.getText(),
                                             variableName.getText(),
-                                            arrayExpression.getText(), settings.isVarExpressionsCollapse(),
+                                            arrayExpression.getText(), settings.getState().isVarExpressionsCollapse(),
                                             isFinal);
                                 }
                             }

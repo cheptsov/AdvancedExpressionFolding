@@ -65,7 +65,9 @@ public class ArrayLiteral extends Expression implements GetExpression {
                 }
             });
             for (Expression item : items) {
-                Collections.addAll(descriptors, item.buildFoldRegions(item.getElement(), document));
+                if (item.supportsFoldRegions(document, false)) {
+                    Collections.addAll(descriptors, item.buildFoldRegions(item.getElement(), document));
+                }
             }
             return descriptors.toArray(new FoldingDescriptor[0]);
         }

@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ListLiteral extends Expression implements GetExpression {
     private final List<Expression> items;
@@ -23,7 +22,8 @@ public class ListLiteral extends Expression implements GetExpression {
 
     @Override
     public String format() {
-        return "[" + String.join(", ", items.stream().map(Expression::format).collect(Collectors.toList())) + "]";
+        // TODO: Get rid out of format completely
+        return ""; // "[" + String.join(", ", items.stream().map(Expression::format).collect(Collectors.toList())) + "]";
     }
 
     @Override

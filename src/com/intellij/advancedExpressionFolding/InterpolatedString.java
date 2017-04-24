@@ -126,7 +126,8 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
                 }
             });
         }
-        if (!(operands.get(operands.size() - 1) instanceof StringLiteral)) {
+        if (!(operands.get(operands.size() - 1) instanceof StringLiteral)
+                && document.getTextLength() > operands.get(operands.size() - 1).getTextRange().getEndOffset() + 1) {
             TextRange range = TextRange.create(operands.get(operands.size() - 1).getTextRange().getEndOffset(),
                     operands.get(operands.size() - 1).getTextRange().getEndOffset() + 1);
             int s = operands.get(operands.size() - 2) instanceof StringLiteral
