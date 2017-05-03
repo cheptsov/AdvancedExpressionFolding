@@ -16,6 +16,8 @@ import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.project.DumbService;
+import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
@@ -128,13 +130,21 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                                 if (e.getArea() == EditorMouseEventArea.EDITING_AREA) {
                                     VisualPosition visualPosition = editorEx.xyToVisualPosition(e.getMouseEvent().getPoint());
                                     int mouseOffset = editorEx.logicalPositionToOffset(editorEx.visualToLogicalPosition(visualPosition));
-                                    Expression expr = findHighlightingExpression(psiFile, editorEx.getDocument(), mouseOffset);
-                                    if (expr != null) {
-                                        if (expression.getElement().getTextRange().contains(mouseOffset) && !region.isExpanded()) {
-                                            DocumentFragment range = createDocumentFragment(editorEx, region);
-                                            final Point p = SwingUtilities.convertPoint((Component) e.getMouseEvent().getSource(), e.getMouseEvent().getPoint(),
-                                                    editorEx.getComponent().getRootPane().getLayeredPane());
-                                            controller.showTooltip(editorEx, p, new DocumentFragmentTooltipRenderer(range), false, FOLDING_TOOLTIP_GROUP);
+                                    if (!DumbService.isDumb(myProject)) {
+                                        try {
+                                            Expression expr = findHighlightingExpression(psiFile, editorEx.getDocument(), mouseOffset);
+                                            if (expr != null) {
+                                                if (expression.getElement().getTextRange().contains(mouseOffset) && !region.isExpanded()) {
+                                                    DocumentFragment range = createDocumentFragment(editorEx, region);
+                                                    final Point p = SwingUtilities.convertPoint((Component) e.getMouseEvent().getSource(), e.getMouseEvent().getPoint(),
+                                                            editorEx.getComponent().getRootPane().getLayeredPane());
+                                                    controller.showTooltip(editorEx, p, new DocumentFragmentTooltipRenderer(range), false, FOLDING_TOOLTIP_GROUP);
+                                                }
+                                            } else {
+                                                controller.cancelTooltip(FOLDING_TOOLTIP_GROUP, e.getMouseEvent(), true);
+                                            }
+                                        } catch (IndexNotReadyException t) {
+                                            controller.cancelTooltip(FOLDING_TOOLTIP_GROUP, e.getMouseEvent(), true);
                                         }
                                     } else {
                                         controller.cancelTooltip(FOLDING_TOOLTIP_GROUP, e.getMouseEvent(), true);

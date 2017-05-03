@@ -22,13 +22,13 @@ public class ArrayLiteral extends Expression implements GetExpression {
     }
 
     @Override
-    public String format() {
-        return "[" + String.join(", ", items.stream().map(Expression::format).collect(Collectors.toList())) + "]";
+    public boolean supportsFoldRegions(Document document, boolean quick) {
+        return textRange != null && items.stream().allMatch(i -> i.getTextRange() != null);
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null && items.stream().allMatch(i -> i.getTextRange() != null);
+    public String format() {
+        return "[" + String.join(", ", items.stream().map(Expression::format).collect(Collectors.toList())) + "]";
     }
 
     @Override
