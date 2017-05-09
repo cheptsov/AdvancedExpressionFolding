@@ -1126,22 +1126,30 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                 if (argumentExpression != null) {
                                     switch (methodName) {
                                         case "add":
-                                            switch (className) {
-                                                case "java.util.List":
-                                                case "java.util.ArrayList":
-                                                case "java.util.Set":
-                                                case "java.util.HashSet":
-                                                case "java.util.Map":
-                                                case "java.util.HashMap":
-                                                case "java.util.Collection":
-                                                    return new AddAssignForCollection(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                            if (element.getParent() instanceof PsiStatement) {
+                                                switch (className) {
+                                                    case "java.util.List":
+                                                    case "java.util.ArrayList":
+                                                    case "java.util.Set":
+                                                    case "java.util.HashSet":
+                                                    case "java.util.Map":
+                                                    case "java.util.HashMap":
+                                                    case "java.util.Collection":
+                                                        return new AddAssignForCollection(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                                    default:
+                                                        return new Add(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+
+                                                }
                                             }
-                                            return new Add(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                            break;
                                         case "remove":
                                             if (method.getParameterList().getParameters().length == 1
                                                     && !method.getParameterList().getParameters()[0].getType().equals(PsiType.INT)) {
-                                                return new RemoveAssignForCollection(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                                if (element.getParent() instanceof PsiStatement) {
+                                                    return new RemoveAssignForCollection(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                                }
                                             }
+                                            break;
                                         case "subtract":
                                             return new Subtract(element, element.getTextRange(),
                                                     Arrays.asList(qualifierExpression, argumentExpression));
@@ -1288,7 +1296,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         switch (methodName) {
                                             case "put":
                                             case "set":
-                                                return new Put(element, element.getTextRange(), qualifierExpression, a1Expression, a2Expression);
+                                                if (element.getParent() instanceof PsiStatement) {
+                                                    return new Put(element, element.getTextRange(), qualifierExpression, a1Expression, a2Expression);
+                                                } else {
+                                                    break;
+                                                }
                                             case "atan2":
                                                 return new Atan2(element, element.getTextRange(), Arrays.asList(qualifierExpression, a1Expression,
                                                         a2Expression));
