@@ -65,10 +65,4 @@ public class ElvisExpression extends Expression implements CheckExpression {
                 && thenExpression.getTextRange() != null
                 && elseExpression.getTextRange() != null;
     }
-
-    @Override
-    public String format() {
-        // TODO: Get rid out of format completely
-        return ""; // conditionExpression.format() + " ? " + thenExpression.format() + " : " + elseExpression;
-    }
 }

@@ -18,21 +18,6 @@ public class Cbrt extends Function implements ArithmeticExpression {
     }
 
     @Override
-    protected Cbrt copy(List<Expression> newOperands) {
-        return new Cbrt(element, textRange, newOperands);
-    }
-
-    @Override
-    public String format() {
-        if (operands.get(0) instanceof NumberLiteral ||
-                operands.get(0) instanceof Variable) {
-            return "∛" + operands.get(0).format();
-        } else {
-            return "∛" + "(" + operands.get(0).format() + ")";
-        }
-    }
-
-    @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(Cbrt.class.getName());

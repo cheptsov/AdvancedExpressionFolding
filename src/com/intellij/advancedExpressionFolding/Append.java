@@ -7,46 +7,12 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Append extends Operation implements ConcatenationExpression {
-
     public Append(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, "+", 10, operands);
-    }
-
-    @Override
-    protected Operation copy(List<Expression> newOperands) {
-        return new Append(element, textRange, newOperands);
-    }
-
-    @Override
-    public boolean isAssociative() {
-        return false;
-    }
-
-    @Override
-    public String format() {
-        String format = super.format();
-        if (operands.get(0) instanceof Variable && !((Variable)operands.get(0)).isCopy()) {
-            format = format.replaceFirst("\\+", "+=");
-        }
-        return format;
-    }
-
-    @Override
-    public Expression simplify(boolean compute) {
-        Append simplified = (Append) super.simplify(compute);
-        if (simplified.getOperands().get(0) instanceof StringLiteral && ((StringLiteral) simplified.getOperands().get(0)).getString().equals("")) {
-            if (simplified == this) {
-                simplified = (Append) copy(new ArrayList<>(simplified.getOperands()));
-            }
-            simplified.getOperands().remove(0);
-            return simplified;
-        }
-        return simplified;
     }
 
     @Override

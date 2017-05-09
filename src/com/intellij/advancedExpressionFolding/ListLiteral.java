@@ -21,12 +21,6 @@ public class ListLiteral extends Expression implements GetExpression {
     }
 
     @Override
-    public String format() {
-        // TODO: Get rid out of format completely
-        return ""; // "[" + String.join(", ", items.stream().map(Expression::format).collect(Collectors.toList())) + "]";
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return textRange != null && items.stream().allMatch(i -> i.getTextRange() != null);
     }

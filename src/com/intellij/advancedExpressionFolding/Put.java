@@ -24,11 +24,6 @@ public class Put extends Expression implements GetExpression {
     }
 
     @Override
-    public String format() {
-        return object.format() + "[" + key.format() + "] = " + value.format();
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null && object.getTextRange() != null && key.getTextRange() != null && value.getTextRange() != null;
     }

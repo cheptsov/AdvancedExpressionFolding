@@ -11,11 +11,6 @@ public class Random extends Function implements ArithmeticExpression {
     }
 
     @Override
-    protected Random copy(List<Expression> newOperands) {
-        return new Random(element, textRange, newOperands);
-    }
-
-    @Override
     public boolean equals(Object o) {
         return false;
     }

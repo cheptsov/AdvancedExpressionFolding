@@ -87,7 +87,7 @@ public abstract class Expression {
 
     @Override
     public String toString() {
-        return format();
+        return element.getText();
     }
 
     private static Map<Character, Character> subscriptMapping = new HashMap<Character, Character>() {
@@ -163,23 +163,13 @@ public abstract class Expression {
         return a == b || Math.abs(a - b) < EPSILON;
     }
 
-    public Expression simplify(boolean compute) {
-        return this;
-    }
-
-    public final Expression simplify() {
-        return simplify(false);
-    }
-
     public boolean supportsFoldRegions(Document document, boolean quick) {
-        return false;
+        return false; // TODO no-format: This should be impossible
     }
 
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
         throw new UnsupportedOperationException();
     }
-
-    public abstract String format();
 
     protected static String format(double value) {
         if (equals(_1_4, value)) {

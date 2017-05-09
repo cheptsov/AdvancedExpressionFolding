@@ -18,21 +18,6 @@ public class Slice extends Function implements SlicingExpression {
     }
 
     @Override
-    protected Slice copy(List<Expression> newOperands) {
-        return new Slice(element, textRange, newOperands);
-    }
-
-    @Override
-    public String format() {
-        String q = operands.get(0).format();
-        String r1 = operands.get(1) instanceof NumberLiteral &&
-                ((NumberLiteral) operands.get(1)).getNumber().intValue() == 0 ?
-                "" : operands.get(1).format();
-        String r2 = operands.size() == 2 ? "" : operands.get(2).format();
-        return q + "[" + r1 + ":" + r2 + "]";
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null && operands.stream().allMatch(e -> e.getTextRange() != null);
     }

@@ -14,11 +14,6 @@ public class StreamExpression extends Expression implements StreamsExpression, H
     }
 
     @Override
-    public String format() {
-        return ".";
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return textRange != null;
     }

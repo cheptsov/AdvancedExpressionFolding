@@ -19,28 +19,6 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
     }
 
     @Override
-    public String format() {
-        StringBuilder sb = new StringBuilder("\"");
-        for (Expression operand : operands) {
-            if (!(operand instanceof StringLiteral)) {
-                sb.append("$");
-                if (!(operand instanceof Variable)) {
-                    sb.append("{");
-                }
-                sb.append(operand.format());
-                if (!(operand instanceof Variable)) {
-                    sb.append("}");
-                }
-            } else {
-                String formatted = operand.format();
-                sb.append(formatted.substring(1, formatted.length() - 1));
-            }
-        }
-        sb.append("\"");
-        return sb.toString();
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null
                 && operands.stream().allMatch(o -> o.getTextRange() != null);
@@ -91,9 +69,9 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
                     @Override
                     public String getPlaceholderText() {
                         if (operands.get(0) instanceof Variable) {
-                            return "\"$" + operands.get(0).format();
+                            return "\"$" + operands.get(0).getElement().getText(); // TODO no-format: not sure
                         } else {
-                            return "\"${" + operands.get(0).format() + "}";
+                            return "\"${" + operands.get(0).getElement().getText() + "}"; // TODO no-format: not sure
                         }
                     }
                 });
@@ -174,7 +152,7 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
                     @Nullable
                     @Override
                     public String getPlaceholderText() {
-                        return operands.get(operands.size() - 1).format() + buf[0] + "\"";
+                        return operands.get(operands.size() - 1).getElement().getText() + buf[0] + "\""; // TODO no-format: not sure
                     }
                 });
             }

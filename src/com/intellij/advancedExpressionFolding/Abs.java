@@ -18,16 +18,6 @@ public class Abs extends Function implements ArithmeticExpression {
     }
 
     @Override
-    protected Abs copy(List<Expression> newOperands) {
-        return new Abs(element, textRange, newOperands);
-    }
-
-    @Override
-    public String format() {
-        return "|" + operands.get(0).format() + "|";
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null && operands.get(0).getTextRange() != null && textRange.getStartOffset() < operands.get(0).getTextRange().getStartOffset();
     }

@@ -9,9 +9,4 @@ public class Round extends Function implements ArithmeticExpression {
     public Round(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, "round", operands);
     }
-
-    @Override
-    protected Round copy(List<Expression> newOperands) {
-        return new Round(element, textRange, newOperands);
-    }
 }

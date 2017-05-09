@@ -4,7 +4,7 @@ public class AdvancedExpressionFoldingOptionsProvider extends com.intellij.opena
     protected AdvancedExpressionFoldingOptionsProvider() {
         super(AdvancedExpressionFoldingSettings.getInstance().getState());
         AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
-        checkBox("arithmeticExpressionsCollapse", "Math, BigDecimal and BigInteger expressions");
+        checkBox("arithmeticExpressionsCollapse", "Math, BigDecimal and BigInteger expressions (Deprecated)");
         checkBox("concatenationExpressionsCollapse", "StringBuilder.append and Collection.add/remove expressions, interpolated Strings and Stream expressions");
         checkBox("slicingExpressionsCollapse", "List.subList and String.substring expressions");
         checkBox("comparingExpressionsCollapse", "Object.equals and Comparable.compareTo expressions");

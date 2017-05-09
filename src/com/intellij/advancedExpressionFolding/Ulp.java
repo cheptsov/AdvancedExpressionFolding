@@ -9,9 +9,4 @@ public class Ulp extends Function implements ArithmeticExpression {
     public Ulp(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, "ulp", operands);
     }
-
-    @Override
-    protected Ulp copy(List<Expression> newOperands) {
-        return new Ulp(element, textRange, newOperands);
-    }
 }

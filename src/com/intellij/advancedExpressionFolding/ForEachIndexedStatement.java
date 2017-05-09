@@ -101,9 +101,4 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
         });
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
-
-    @Override
-    public String format() {
-        return "(" + (isFinal ? "val" : "var" ) + " (" + itemName + ", "  + indexName + ") : " + arrayName + ")" + "{\n";
-    }
 }

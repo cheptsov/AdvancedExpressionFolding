@@ -14,11 +14,6 @@ public class StringLiteral extends Expression {
         this.string = string;
     }
 
-    @Override
-    public String format() {
-        return "\"" + string + "\"";
-    }
-
     public String getString() {
         return string;
     }

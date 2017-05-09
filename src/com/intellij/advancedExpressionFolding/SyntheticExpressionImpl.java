@@ -21,12 +21,6 @@ public class SyntheticExpressionImpl extends Expression implements SyntheticExpr
     }
 
     @Override
-    public String format() {
-        // TODO: Workaround to prevent formatting instead of building fold regions
-        return /*children.size() > 0 ? "" : */"";
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

@@ -9,9 +9,4 @@ public class Cos extends Function implements ArithmeticExpression {
     public Cos(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, "cos", operands);
     }
-
-    @Override
-    protected Cos copy(List<Expression> newOperands) {
-        return new Cos(element, textRange, newOperands);
-    }
 }

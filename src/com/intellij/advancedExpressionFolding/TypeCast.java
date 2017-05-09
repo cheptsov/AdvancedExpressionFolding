@@ -19,11 +19,6 @@ public class TypeCast extends Expression implements CastExpression, Highlighting
         this.object = object;
     }
 
-    @Override
-    public String format() {
-        return object.format();
-    }
-
     public Expression getObject() {
         return object;
     }

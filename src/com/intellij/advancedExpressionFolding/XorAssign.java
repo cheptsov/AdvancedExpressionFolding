@@ -9,9 +9,4 @@ public class XorAssign extends Operation implements ArithmeticExpression {
     public XorAssign(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, "^=", 300, operands);
     }
-
-    @Override
-    protected Operation copy(List<Expression> newOperands) {
-        return new XorAssign(element, textRange, newOperands);
-    }
 }

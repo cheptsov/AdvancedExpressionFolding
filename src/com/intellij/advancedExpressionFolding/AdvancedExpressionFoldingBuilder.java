@@ -4,7 +4,6 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.folding.FoldingBuilderEx;
 import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
@@ -172,29 +171,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, boolean quick) {
         List<FoldingDescriptor> allDescriptors = null;
         try {
-            FoldingGroup group = FoldingGroup.newGroup(AdvancedExpressionFoldingBuilder.class.getName());
-            allDescriptors = null;
             Expression expression = getExpression(element, document,false);
-            if (expression != null) {
-                expression = expression.simplify();
-                final String text = expression.format();
-                if (!text.replaceAll("\\s+", "")
-                        .equals(document.getText(expression.getTextRange()).replaceAll("\\s+", ""))) {
-                    allDescriptors = new ArrayList<>();
-                    if (expression.supportsFoldRegions(document, true)) {
-                        Collections.addAll(allDescriptors, expression.buildFoldRegions(expression.getElement(), document));
-                    } else {
-                        allDescriptors.add(new FoldingDescriptor(element.getNode(),
-                                expression.getTextRange(),
-                                group) {
-                            @Nullable
-                            @Override
-                            public String getPlaceholderText() {
-                                return text;
-                            }
-                        });
-                    }
-                }
+            if (expression != null && expression.supportsFoldRegions(document, true)) {
+                allDescriptors = new ArrayList<>();
+                FoldingDescriptor[] descriptors = expression.buildFoldRegions(expression.getElement(), document);
+                Collections.addAll(allDescriptors, descriptors);
             }
             if (expression == null || !expression.getTextRange().equals(element.getTextRange())) {
                 for (PsiElement child : element.getChildren()) {
@@ -368,7 +349,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     int endOffset = rParenth.getTextRange().getEndOffset() - 1;
                     ForStatement expression = new ForStatement(element, TextRange.create(startOffset, endOffset), variable,
                             start, true, end, "<=".equals(sign));
-                    return expression.simplify(true);
+                    return expression;
                 }
             }
         }
@@ -1202,8 +1183,22 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         case "equals":
                                             return new Equal(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
                                         case "append":
-                                            return new Append(element, element.getTextRange(),
-                                                    Arrays.asList(qualifierExpression, argumentExpression));
+                                            if (qualifierExpression instanceof Append) {
+                                                List<Expression> operands = new ArrayList<>();
+                                                operands.addAll(((Append) qualifierExpression).getOperands());
+                                                operands.add(argumentExpression);
+                                                return new Append(element, element.getTextRange(),
+                                                        operands);
+                                            } else {
+                                                if (qualifierExpression instanceof StringLiteral
+                                                        && ((StringLiteral) qualifierExpression).getString().isEmpty()) {
+                                                    return new Append(element, element.getTextRange(),
+                                                            Arrays.asList(argumentExpression));
+                                                } else {
+                                                    return new Append(element, element.getTextRange(),
+                                                            Arrays.asList(qualifierExpression, argumentExpression));
+                                                }
+                                            }
                                         /*case "contains":
                                         case "containsKey":
                                             return new Contains(element.getTextRange(), qualifierExpression, argumentExpression);*/

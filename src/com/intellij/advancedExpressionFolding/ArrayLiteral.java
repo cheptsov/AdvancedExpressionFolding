@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ArrayLiteral extends Expression implements GetExpression {
     private final List<Expression> items;
@@ -24,11 +23,6 @@ public class ArrayLiteral extends Expression implements GetExpression {
     @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return textRange != null && items.stream().allMatch(i -> i.getTextRange() != null);
-    }
-
-    @Override
-    public String format() {
-        return "[" + String.join(", ", items.stream().map(Expression::format).collect(Collectors.toList())) + "]";
     }
 
     @Override

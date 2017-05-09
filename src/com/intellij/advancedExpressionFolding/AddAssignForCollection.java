@@ -9,9 +9,4 @@ public class AddAssignForCollection extends Operation implements ConcatenationEx
     public AddAssignForCollection(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, "+=", 300, operands);
     }
-
-    @Override
-    protected Operation copy(List<Expression> newOperands) {
-        return new AddAssignForCollection(element, textRange, newOperands);
-    }
 }

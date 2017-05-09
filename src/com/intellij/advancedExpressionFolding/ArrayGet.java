@@ -26,17 +26,6 @@ public class ArrayGet extends Expression implements GetExpression {
     }
 
     @Override
-    public String format() {
-        switch (style) {
-            case FIRST:
-                return object.format() + ".first()";
-            case LAST:
-                return object.format() + ".last()";
-        }
-        throw new IllegalStateException();
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null && object.getTextRange() != null;
     }

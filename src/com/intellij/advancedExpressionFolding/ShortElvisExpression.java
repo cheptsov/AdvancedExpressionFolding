@@ -93,10 +93,4 @@ public class ShortElvisExpression extends Expression implements CheckExpression 
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return textRange != null && thenExpression.getTextRange() != null;
     }
-
-    @Override
-    public String format() {
-        // TODO: Get rid out of format completely
-        return ""; // "if (" + conditionExpression.format() + ") " + thenExpression.format();
-    }
 }

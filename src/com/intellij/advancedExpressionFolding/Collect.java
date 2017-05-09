@@ -22,11 +22,6 @@ public class Collect extends Expression implements StreamsExpression {
     }
 
     @Override
-    public String format() {
-        return (qualifier != null ? (qualifier.format() + ".") : "") + "toSomething()"; // TODO: Get rid out of it
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return textRange != null && qualifier != null && collectorTextRange != null;
     }

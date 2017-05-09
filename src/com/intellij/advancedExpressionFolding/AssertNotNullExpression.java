@@ -19,11 +19,6 @@ public class AssertNotNullExpression extends Expression implements CheckExpressi
     }
 
     @Override
-    public String format() {
-        return object.format() + "!!";
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null && object.getTextRange() != null;
     }

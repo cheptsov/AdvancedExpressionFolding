@@ -9,9 +9,4 @@ public class SubtractAssign extends Operation implements ArithmeticExpression {
     public SubtractAssign(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, "-=", 300, operands);
     }
-
-    @Override
-    protected Operation copy(List<Expression> newOperands) {
-        return new SubtractAssign(element, textRange, newOperands);
-    }
 }

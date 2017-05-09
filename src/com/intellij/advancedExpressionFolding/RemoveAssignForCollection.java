@@ -9,9 +9,4 @@ public class RemoveAssignForCollection extends Operation implements Concatenatio
     public RemoveAssignForCollection(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, "-=", 300, operands);
     }
-
-    @Override
-    protected Operation copy(List<Expression> newOperands) {
-        return new RemoveAssignForCollection(element, textRange, newOperands);
-    }
 }

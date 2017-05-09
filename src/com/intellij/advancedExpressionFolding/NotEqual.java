@@ -9,9 +9,4 @@ public class NotEqual extends Operation implements ComparingExpression {
     public NotEqual(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, "≢", 18, operands);
     }
-
-    @Override
-    protected Operation copy(List<Expression> newOperands) {
-        return new NotEqual(element, textRange, operands);
-    }
 }

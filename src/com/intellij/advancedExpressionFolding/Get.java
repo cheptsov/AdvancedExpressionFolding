@@ -29,17 +29,6 @@ public class Get extends Expression implements GetExpression {
     }
 
     @Override
-    public String format() {
-        switch (style) {
-            case FIRST:
-                return object.format() + ".first()";
-            case LAST:
-                return object.format() + ".last()";
-        }
-        return object.format() + "[" + key + "]";
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null && object.getTextRange() != null && key.getTextRange() != null;
     }

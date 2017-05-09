@@ -26,11 +26,6 @@ public class Setter extends Expression implements GettersSetters {
     }
 
     @Override
-    public String format() {
-        return (object != null ? object.format() + "." : "") + name + " = " + value.format();
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null && (object == null || object.getTextRange() != null) && value.getTextRange() != null;
     }

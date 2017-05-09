@@ -62,9 +62,4 @@ public class ForEachStatement extends Expression implements RangeExpression {
         });
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
-
-    @Override
-    public String format() {
-        return "var " + itemName + " : " + arrayName + ")" + "{\n";
-    }
 }

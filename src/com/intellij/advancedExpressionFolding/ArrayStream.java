@@ -20,11 +20,6 @@ public class ArrayStream extends Expression implements StreamsExpression, Highli
     }
 
     @Override
-    public String format() {
-        return argument.format() + ".";
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return textRange != null && argument != null;
     }

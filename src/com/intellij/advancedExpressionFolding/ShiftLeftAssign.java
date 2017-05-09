@@ -9,9 +9,4 @@ public class ShiftLeftAssign extends Operation implements ArithmeticExpression {
     public ShiftLeftAssign(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, "<<=", 300, operands);
     }
-
-    @Override
-    protected Operation copy(List<Expression> newOperands) {
-        return new ShiftLeftAssign(element, textRange, newOperands);
-    }
 }

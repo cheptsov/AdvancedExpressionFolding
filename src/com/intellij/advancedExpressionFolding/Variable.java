@@ -22,11 +22,6 @@ public class Variable extends Expression {
         this.copy = copy;
     }
 
-    @Override
-    public String format() {
-        return name;
-    }
-
     public String getName() {
         return name;
     }

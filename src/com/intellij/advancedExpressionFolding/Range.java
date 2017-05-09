@@ -70,37 +70,6 @@ public class Range extends Expression implements RangeExpression {
         return endInclusive;
     }
 
-    @Override
-    public Expression simplify(boolean compute) {
-        Expression sOperator = operand.simplify(compute);
-        Expression sStartRange = startRange.simplify(compute);
-        Expression sEndRange = endRange.simplify(compute);
-        if (sOperator != operand || sStartRange != startRange || sEndRange != endRange) {
-            return new Range(element, textRange, sOperator, sStartRange, startInclusive, sEndRange, endInclusive);
-        } else {
-            return this;
-        }
-    }
-
-    @Override
-    public String format() {
-        StringBuilder sb = new StringBuilder().append(operand.format()).append(" ").append(separator).append(" ");
-        if (startInclusive) {
-            sb.append("[");
-        } else {
-            sb.append("(");
-        }
-        sb.append(startRange.format());
-        sb.append(RANGE_COMMA_DELIMITER);
-        sb.append(endRange.format());
-        if (endInclusive) {
-            sb.append("]");
-        } else {
-            sb.append(")");
-        }
-        return sb.toString();
-    }
-
     public Expression getStart() {
         return startRange;
     }

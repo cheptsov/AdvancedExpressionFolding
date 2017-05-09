@@ -18,27 +18,10 @@ public class Pow extends Function implements ArithmeticExpression {
     }
 
     @Override
-    protected Pow copy(List<Expression> newOperands) {
-        return new Pow(element, textRange, newOperands);
-    }
-
-    @Override
-    public String format() {
-        String a = operands.get(0).format();
-        String b = operands.get(1).format();
-        String bs = superscript(b);
-        // TODO: Extend "format" with "superscript" parameter
-        /*if (bs != null && !bs.contains(getCharacter())) {*/
-            return a + bs;
-        /*} else {
-            return a + " " + getCharacter() + " " + b;
-        }*/
-    }
-
-    @Override
     public boolean supportsFoldRegions(Document document, boolean quick) {
         return getTextRange() != null && operands.get(0).getTextRange() != null
-                && operands.get(0).getTextRange().getEndOffset() < getTextRange().getEndOffset();
+                && operands.get(0).getTextRange().getEndOffset() < getTextRange().getEndOffset() &&
+                superscript(operands.get(1).getElement().getText()) != null; // TODO no-format: Forbid non-literal/non-variable operands.get(1)
     }
 
     @Override
@@ -66,7 +49,7 @@ public class Pow extends Function implements ArithmeticExpression {
             @Nullable
             @Override
             public String getPlaceholderText() {
-                String b = operands.get(1).format();
+                String b = operands.get(1).getElement().getText();
                 return operands.get(0) instanceof Operation
                         ? ")" + superscript(b) : superscript(b);
             }

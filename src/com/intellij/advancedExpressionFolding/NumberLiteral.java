@@ -14,12 +14,6 @@ public class NumberLiteral extends Expression {
         this.number = number;
     }
 
-    @Override
-    public String format() {
-        String format = format(number.doubleValue());
-        return format != null ? format : number.toString();
-    }
-
     public Number getNumber() {
         return number;
     }

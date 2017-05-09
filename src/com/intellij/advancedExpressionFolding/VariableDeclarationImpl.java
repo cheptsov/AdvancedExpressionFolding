@@ -11,11 +11,6 @@ public class VariableDeclarationImpl extends Expression implements VariableDecla
         this.isFinal = isFinal;
     }
 
-    @Override
-    public String format() {
-        return isFinal ? "val" : "var";
-    }
-
     public boolean isFinal() {
         return isFinal;
     }
