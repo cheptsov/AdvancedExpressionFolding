@@ -167,7 +167,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         }
     };
 
-    private static Expression getForStatementExpression(PsiForStatement element, @Nullable Document document) {
+    @Nullable
+    private static Expression getForStatementExpression(@NotNull PsiForStatement element, @NotNull Document document) {
         @Nullable PsiJavaToken lParenth = element.getLParenth();
         @Nullable PsiJavaToken rParenth = element.getRParenth();
         @Nullable PsiStatement initialization = element.getInitialization();
@@ -419,10 +420,12 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         }
         if (element instanceof PsiParenthesizedExpression) {
             if (((PsiParenthesizedExpression) element).getExpression() instanceof PsiTypeCastExpression) {
-                TypeCast typeCast = getTypeCastExpression(
-                        (PsiTypeCastExpression) ((PsiParenthesizedExpression) element).getExpression(), document);
-                if (typeCast != null) {
-                    return new TypeCast(element, element.getTextRange(), typeCast.getObject());
+                PsiTypeCastExpression e = (PsiTypeCastExpression) ((PsiParenthesizedExpression) element).getExpression();
+                if (e != null) {
+                    TypeCast typeCast = getTypeCastExpression(e, document);
+                    if (typeCast != null) {
+                        return new TypeCast(element, element.getTextRange(), typeCast.getObject());
+                    }
                 }
             }
             @Nullable PsiExpression e = ((PsiParenthesizedExpression) element).getExpression();
@@ -580,7 +583,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return string != null && string.startsWith(prefix);
     }
 
-    private static boolean equal(PsiElement e1, PsiElement e2) {
+    private static boolean equal(@Nullable PsiElement e1, @Nullable PsiElement e2) {
         // TODO: Use a cache for the resolved instance
         if (e2 instanceof PsiReferenceExpression && e1 instanceof PsiReferenceExpression) {
             return Objects.equals(((PsiReferenceExpression) e2).getReferenceName(),((PsiReferenceExpression) e1).getReferenceName())
@@ -594,7 +597,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return false;
     }
 
-    private static VariableDeclarationImpl getVariableDeclaration(PsiVariable element) {
+    @Nullable
+    private static VariableDeclarationImpl getVariableDeclaration(@NotNull PsiVariable element) {
         if (element.getName() != null && element.getTypeElement() != null
                 && (element.getInitializer() != null || element.getParent() instanceof PsiForeachStatement)
                 && element.getTextRange().getStartOffset() < element.getTypeElement().getTextRange().getEndOffset()) {
@@ -607,7 +611,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private static boolean calculateIfFinal(PsiVariable element) {
+    private static boolean calculateIfFinal(@NotNull PsiVariable element) {
         PsiModifierList modifiers = element.getModifierList();
         if (modifiers != null) {
             boolean isFinal = modifiers.hasExplicitModifier(PsiModifier.FINAL);
@@ -640,7 +644,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return false;
     }
 
-    private static void findChildExpressions(PsiElement element, List<Expression> expressions, @Nullable Document document) {
+    private static void findChildExpressions(@NotNull PsiElement element, @NotNull List<Expression> expressions, @NotNull Document document) {
         for (PsiElement child : element.getChildren()) {
             @Nullable Expression expression = getNonSyntheticExpression(child, document);
             if (expression != null) {
@@ -652,14 +656,16 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         }
     }
 
-    private static TypeCast getTypeCastExpression(PsiTypeCastExpression expression, @Nullable Document document) {
-        return expression.getOperand() != null
-                ? new TypeCast(expression, expression.getTextRange(),
-                getAnyExpression(expression.getOperand(), document))
+    @Nullable
+    private static TypeCast getTypeCastExpression(@NotNull PsiTypeCastExpression expression, @NotNull Document document) {
+        PsiExpression operand = expression.getOperand();
+        return operand != null
+                ? new TypeCast(expression, expression.getTextRange(), getAnyExpression(operand, document))
                 : null;
     }
 
-    private static Expression getLiteralExpression(PsiLiteralExpression element) {
+    @Nullable
+    private static Expression getLiteralExpression(@NotNull PsiLiteralExpression element) {
         if (element.getType() != null) {
             if (supportedPrimitiveTypes.contains(element.getType().getCanonicalText())) {
                 Object value = element.getValue();
@@ -675,7 +681,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private static Expression getPrefixExpression(PsiPrefixExpression element, @Nullable Document document) {
+    @Nullable
+    private static Expression getPrefixExpression(@NotNull PsiPrefixExpression element, @NotNull Document document) {
         if (element.getOperand() != null) {
             if (element.getOperationSign().getText().equals("!")) {
                 @NotNull Expression operand = getAnyExpression(element.getOperand(), document);
@@ -690,7 +697,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private static Expression getPolyadicExpression(PsiPolyadicExpression element, @Nullable Document document) {
+    @Nullable
+    private static Expression getPolyadicExpression(@NotNull PsiPolyadicExpression element, @NotNull Document document) {
         boolean add = true;
         boolean string = false;
         Expression[] operands = null;
@@ -742,7 +750,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private static Expression getAndTwoBinaryExpressions(PsiElement parent, PsiBinaryExpression a, PsiBinaryExpression b, @Nullable Document document) {
+    @Nullable
+    private static Expression getAndTwoBinaryExpressions(@NotNull PsiElement parent, @NotNull PsiBinaryExpression a,
+                                                         @NotNull PsiBinaryExpression b, @NotNull Document document) {
         if ((a.getOperationSign().getText().equals("<") || a.getOperationSign().getText().equals("<="))
                 && (b.getOperationSign().getText().equals(">") || b.getOperationSign().getText().equals(">="))
                 && a.getROperand() != null
@@ -776,7 +786,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private static Expression getBinaryExpression(PsiBinaryExpression element, @Nullable Document document) {
+    @Nullable
+    private static Expression getBinaryExpression(@NotNull PsiBinaryExpression element, @NotNull Document document) {
         if (element.getLOperand() instanceof PsiMethodCallExpression
                 && element.getROperand() instanceof PsiLiteralExpression
                 || element.getROperand() instanceof PsiMethodCallExpression &&
@@ -797,7 +808,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     @Nullable PsiMethod method = (PsiMethod) methodCallExpression.getMethodExpression().resolve();
                     if (method != null) {
                         @Nullable PsiClass psiClass = method.getContainingClass();
-                        if (psiClass != null && (supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))
+                        if (psiClass != null && (psiClass.getQualifiedName() != null && supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))
                                 || unsupportedClassesMethodsExceptions.contains(method.getName()))) {
                             @Nullable Expression qualifier = methodCallExpression.getMethodExpression()
                                     .getQualifierExpression() != null ? getAnyExpression(methodCallExpression.getMethodExpression()
@@ -878,6 +889,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
+    @Nullable
     private static Expression getAssignmentExpression(PsiAssignmentExpression element, @Nullable Document document) {
         Variable leftVariable = getVariableExpression(element.getLExpression());
         if (leftVariable != null && element.getRExpression() != null) {
@@ -1039,7 +1051,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private static String eraseGenerics(String signature) {
+    @NotNull
+    private static String eraseGenerics(@NotNull String signature) {
         String re = "<[^<>]*>";
         Pattern p = Pattern.compile(re);
         Matcher m = p.matcher(signature);
@@ -1050,7 +1063,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return signature;
     }
 
-    private static boolean isSupportedClass(PsiElement element) {
+    private static boolean isSupportedClass(@NotNull PsiElement element) {
         PsiReference reference = element.getReference();
         if (reference != null) {
             PsiElement e = reference.resolve();
@@ -1444,7 +1457,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    static int findDot(Document document, int position, int i) {
+    static int findDot(@NotNull Document document, int position, int i) {
         int offset = 0;
         while (Math.abs(offset) < 100 && position > 0 && position < document.getText().length() && !document.getText(TextRange.create(position, position + 1)).equals(".")) {
             position += i;
@@ -1477,7 +1490,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     }
 
     @Nullable
-    private static NumberLiteral getSlicePosition(@NotNull PsiElement parent, @NotNull Expression qualifierExpression, @NotNull PsiBinaryExpression a2b, @NotNull Document document) {
+    private static NumberLiteral getSlicePosition(@NotNull PsiElement parent, @NotNull Expression qualifierExpression,
+                                                  @NotNull PsiBinaryExpression a2b, @NotNull Document document) {
         PsiExpression rOperand = a2b.getROperand();
         PsiExpression lOperand = a2b.getLOperand();
         if (a2b.getOperationSign().getText().equals("-")
@@ -1505,7 +1519,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     }
 
     @Nullable
-    private static Expression getConstructorExpression(PsiElement parent, PsiExpression argument, String classQualifiedNameNoGenerics) {
+    private static Expression getConstructorExpression(@NotNull PsiElement parent, @NotNull PsiExpression argument, @NotNull String classQualifiedNameNoGenerics) {
         Expression literalExpression = getLiteralExpression((PsiLiteralExpression) argument);
         if (literalExpression instanceof NumberLiteral) {
             return literalExpression;
@@ -1515,18 +1529,19 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 if (value.startsWith("\"") && value.endsWith("\"")) {
                     value = value.substring(1, value.length() - 1);
                 }
-                if ("java.lang.Long".equals(classQualifiedNameNoGenerics)) {
-                    return new NumberLiteral(parent, parent.getTextRange(), Long.valueOf(value));
-                } else if ("java.lang.Integer".equals(classQualifiedNameNoGenerics)) {
-                    return new NumberLiteral(parent, parent.getTextRange(), Integer.valueOf(value));
-                } else if ("java.lang.Float".equals(classQualifiedNameNoGenerics)) {
-                    return new NumberLiteral(parent, parent.getTextRange(), Float.valueOf(value));
-                } else if ("java.lang.Double".equals(classQualifiedNameNoGenerics)) {
-                    return new NumberLiteral(parent, parent.getTextRange(), Double.valueOf(value));
-                } else if ("java.lang.StringBuilder".equals(classQualifiedNameNoGenerics)) {
-                    return new StringLiteral(parent, parent.getTextRange(), value);
-                } else if ("java.lang.String".equals(classQualifiedNameNoGenerics)) {
-                    return new StringLiteral(parent, parent.getTextRange(), value);
+                switch (classQualifiedNameNoGenerics) {
+                    case "java.lang.Long":
+                        return new NumberLiteral(parent, parent.getTextRange(), Long.valueOf(value));
+                    case "java.lang.Integer":
+                        return new NumberLiteral(parent, parent.getTextRange(), Integer.valueOf(value));
+                    case "java.lang.Float":
+                        return new NumberLiteral(parent, parent.getTextRange(), Float.valueOf(value));
+                    case "java.lang.Double":
+                        return new NumberLiteral(parent, parent.getTextRange(), Double.valueOf(value));
+                    case "java.lang.StringBuilder":
+                        return new StringLiteral(parent, parent.getTextRange(), value);
+                    case "java.lang.String":
+                        return new StringLiteral(parent, parent.getTextRange(), value);
                 }
             } catch (Exception ignore) {
             }
