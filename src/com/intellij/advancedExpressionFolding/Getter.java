@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Getter extends Expression implements GettersSetters {
-    private String name;
-    private TextRange getterTextRange;
-    private Expression object;
+    private @NotNull String name;
+    private @NotNull TextRange getterTextRange;
+    private @Nullable Expression object;
 
-    public Getter(PsiElement element, TextRange textRange, TextRange getterTextRange, Expression object, String name) {
+    public Getter(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull TextRange getterTextRange, @Nullable Expression object, @NotNull String name) {
         super(element, textRange);
         this.getterTextRange = getterTextRange;
         this.object = object;
@@ -24,8 +24,8 @@ public class Getter extends Expression implements GettersSetters {
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null && getterTextRange != null && (object == null || object.getTextRange() != null);
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class Getter extends Expression implements GettersSetters {
         descriptors.add(
                 new FoldingDescriptor(element.getNode(), getterTextRange,
                         FoldingGroup.newGroup(Getter.class.getName())) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return name;

@@ -10,14 +10,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class ShortElvisExpression extends Expression implements CheckExpression {
-    private final Expression conditionExpression;
-    private final Expression thenExpression;
-    private final List<TextRange> elements;
+    private final @NotNull Expression thenExpression;
+    private final @NotNull List<TextRange> elements;
 
-    public ShortElvisExpression(PsiElement element, TextRange textRange, Expression conditionExpression, Expression thenExpression,
-                                List<TextRange> elements) {
+    public ShortElvisExpression(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression thenExpression,
+                                @NotNull List<TextRange> elements) {
         super(element, textRange);
-        this.conditionExpression = conditionExpression;
         this.thenExpression = thenExpression;
         this.elements = elements;
     }
@@ -90,7 +88,7 @@ public class ShortElvisExpression extends Expression implements CheckExpression 
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null && thenExpression.getTextRange() != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 }

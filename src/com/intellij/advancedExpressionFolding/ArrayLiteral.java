@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,14 +14,14 @@ import java.util.List;
 public class ArrayLiteral extends Expression implements GetExpression {
     private final List<Expression> items;
 
-    public ArrayLiteral(PsiElement element, TextRange textRange, List<Expression> items) {
+    public ArrayLiteral(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> items) {
         super(element, textRange);
         this.items = items;
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null && items.stream().allMatch(i -> i.getTextRange() != null);
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return items.stream().allMatch(i -> true);
     }
 
     @Override
@@ -32,7 +31,7 @@ public class ArrayLiteral extends Expression implements GetExpression {
             return new FoldingDescriptor[] {
                     new FoldingDescriptor(element.getNode(), textRange,
                             group) {
-                        @Nullable
+                        @NotNull
                         @Override
                         public String getPlaceholderText() {
                             return "[]";
@@ -43,7 +42,7 @@ public class ArrayLiteral extends Expression implements GetExpression {
             ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset(),
                     items.get(0).getTextRange().getStartOffset()), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return "[";
@@ -52,7 +51,7 @@ public class ArrayLiteral extends Expression implements GetExpression {
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(
                     items.get(items.size() - 1).getTextRange().getEndOffset(),
                     textRange.getEndOffset()), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return "]";

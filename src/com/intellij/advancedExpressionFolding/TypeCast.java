@@ -6,26 +6,26 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class TypeCast extends Expression implements CastExpression, HighlightingExpression {
-    private final Expression object;
+    private final @NotNull Expression object;
 
-    public TypeCast(PsiElement element, TextRange textRange, Expression object) {
+    public TypeCast(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object) {
         super(element, textRange);
         this.object = object;
     }
 
+    @NotNull
     public Expression getObject() {
         return object;
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && object.getTextRange() != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class TypeCast extends Expression implements CastExpression, Highlighting
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(getTextRange().getStartOffset(),
                                 object.getTextRange().getStartOffset()), group) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return "";
@@ -48,7 +48,7 @@ public class TypeCast extends Expression implements CastExpression, Highlighting
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                                         TextRange.create(object.getTextRange().getEndOffset(),
                                                 getTextRange().getEndOffset() + 1), group) {
-                                    @Nullable
+                                    @NotNull
                                     @Override
                                     public String getPlaceholderText() {
                                         return ".";
@@ -59,7 +59,7 @@ public class TypeCast extends Expression implements CastExpression, Highlighting
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                                         TextRange.create(getTextRange().getStartOffset(),
                                                 object.getTextRange().getStartOffset()), group) {
-                                    @Nullable
+                                    @NotNull
                                     @Override
                                     public String getPlaceholderText() {
                                         return ""; // TODO: It used to be  "~"
@@ -69,7 +69,7 @@ public class TypeCast extends Expression implements CastExpression, Highlighting
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(object.getTextRange().getEndOffset(),
                                 getTextRange().getEndOffset()), group) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return "";
@@ -80,7 +80,7 @@ public class TypeCast extends Expression implements CastExpression, Highlighting
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(getTextRange().getStartOffset(),
                             object.getTextRange().getStartOffset()), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return ""; // TODO: It used to be  "~"

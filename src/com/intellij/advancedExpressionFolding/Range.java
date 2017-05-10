@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,16 +16,15 @@ public class Range extends Expression implements RangeExpression {
     public static final String RANGE_COMMA_DELIMITER = ", ";
     public static final String RANGE_IN_SEPARATOR = "in";
 
-    private Expression operand;
-    private Expression startRange;
-    private Expression endRange;
-    protected String separator;
+    private @NotNull Expression operand;
+    private @NotNull Expression startRange;
+    private @NotNull Expression endRange;
+    String separator;
     private boolean startInclusive;
     private boolean endInclusive;
 
-    public Range(PsiElement element, TextRange textRange, Expression operand, Expression startRange, boolean startInclusive,
-                 Expression endRange,
-                 boolean endInclusive) {
+    public Range(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression operand, @NotNull Expression startRange, boolean startInclusive,
+                 @NotNull Expression endRange, boolean endInclusive) {
         super(element, textRange);
         this.operand = operand;
         this.startRange = startRange;
@@ -70,14 +68,17 @@ public class Range extends Expression implements RangeExpression {
         return endInclusive;
     }
 
+    @NotNull
     public Expression getStart() {
         return startRange;
     }
 
+    @NotNull
     public Expression getOperand() {
         return operand;
     }
 
+    @NotNull
     public Expression getEnd() {
         return endRange;
     }
@@ -93,14 +94,10 @@ public class Range extends Expression implements RangeExpression {
     };
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getOperand().getTextRange() != null
-                && getStart().getTextRange() != null
-                && getEnd().getTextRange() != null
-                && getTextRange() != null
-                && getStart().getTextRange().getStartOffset() < getEnd().getTextRange().getStartOffset()
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return getStart().getTextRange().getStartOffset() < getEnd().getTextRange().getStartOffset()
                 && (getEnd().getTextRange().getEndOffset() < getTextRange().getEndOffset()
-                    || supportedOverlappedSymbols.contains(document.getText(TextRange.create(getEnd().getTextRange().getEndOffset(), getEnd().getTextRange().getEndOffset() + 1))));
+                || supportedOverlappedSymbols.contains(document.getText(TextRange.create(getEnd().getTextRange().getEndOffset(), getEnd().getTextRange().getEndOffset() + 1))));
     }
 
     @Override
@@ -125,7 +122,7 @@ public class Range extends Expression implements RangeExpression {
                 TextRange.create(getOperand().getTextRange().getEndOffset(),
                         getStart().getTextRange().getStartOffset()),
                 group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return p1;
@@ -135,7 +132,7 @@ public class Range extends Expression implements RangeExpression {
                 TextRange.create(getStart().getTextRange().getEndOffset(),
                         getEnd().getTextRange().getStartOffset()),
                 group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return RANGE_COMMA_DELIMITER;
@@ -146,7 +143,7 @@ public class Range extends Expression implements RangeExpression {
                                 TextRange.create(getEnd().getTextRange().getEndOffset(),
                                         getTextRange().getEndOffset()),
                                 group) {
-                            @Nullable
+                            @NotNull
                             @Override
                             public String getPlaceholderText() {
                                 return p2;
@@ -155,7 +152,7 @@ public class Range extends Expression implements RangeExpression {
                         TextRange.create(getEnd().getTextRange().getEndOffset(),
                                 getEnd().getTextRange().getEndOffset() + 1),
                         group) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return p2 + document.getText(TextRange

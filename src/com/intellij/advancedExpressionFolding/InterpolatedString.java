@@ -6,22 +6,20 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class InterpolatedString extends Expression implements ConcatenationExpression {
-    private final List<Expression> operands;
+    private final @NotNull List<Expression> operands;
 
-    public InterpolatedString(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public InterpolatedString(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
         super(element, textRange);
         this.operands = operands;
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null
-                && operands.stream().allMatch(o -> o.getTextRange() != null);
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     protected static Set<String> supportedTokens = new HashSet<String>() {
@@ -65,7 +63,7 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(operands.get(0).getTextRange().getStartOffset(),
                                 operands.get(0).getTextRange().getEndOffset()), group) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         if (operands.get(0) instanceof Variable) {
@@ -87,7 +85,7 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
             int fI = i;
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(s, e), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     StringBuilder sb = new StringBuilder().append(buf[0]);
@@ -149,7 +147,7 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(operands.get(operands.size() - 1).getTextRange().getStartOffset(),
                                 operands.get(operands.size() - 1).getTextRange().getEndOffset()), group) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return operands.get(operands.size() - 1).getElement().getText() + buf[0] + "\""; // TODO no-format: not sure

@@ -5,13 +5,12 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class Append extends Operation implements ConcatenationExpression {
-    public Append(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Append(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
         super(element, textRange, "+", 10, operands);
     }
 
@@ -38,7 +37,7 @@ public class Append extends Operation implements ConcatenationExpression {
                 FoldingDescriptor d = newDescriptors[i];
                 if (" + ".equals(d.getPlaceholderText())) {
                     newDescriptors[i] = new FoldingDescriptor(d.getElement(), d.getRange(), d.getGroup()) {
-                        @Nullable
+                        @NotNull
                         @Override
                         public String getPlaceholderText() {
                             return " += ";

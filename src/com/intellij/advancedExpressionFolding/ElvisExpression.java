@@ -12,16 +12,14 @@ import java.util.Collections;
 import java.util.List;
 
 public class ElvisExpression extends Expression implements CheckExpression {
-    private final Expression conditionExpression;
-    private final Expression thenExpression;
-    private final Expression elseExpression;
-    private final List<TextRange> elements;
+    private final @NotNull Expression thenExpression;
+    private final @NotNull Expression elseExpression;
+    private final @NotNull List<TextRange> elements;
 
-    public ElvisExpression(PsiElement element, TextRange textRange, Expression conditionExpression, Expression thenExpression,
-                           Expression elseExpression,
-                           List<TextRange> elements) {
+    public ElvisExpression(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression thenExpression,
+                           @NotNull Expression elseExpression,
+                           @NotNull List<TextRange> elements) {
         super(element, textRange);
-        this.conditionExpression = conditionExpression;
         this.thenExpression = thenExpression;
         this.elseExpression = elseExpression;
         this.elements = elements;
@@ -60,9 +58,7 @@ public class ElvisExpression extends Expression implements CheckExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null
-                && thenExpression.getTextRange() != null
-                && elseExpression.getTextRange() != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 }

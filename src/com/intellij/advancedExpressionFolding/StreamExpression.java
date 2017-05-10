@@ -6,16 +6,15 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class StreamExpression extends Expression implements StreamsExpression, HighlightingExpression {
-    public StreamExpression(PsiElement element, TextRange textRange) {
+    public StreamExpression(@NotNull PsiElement element, @NotNull TextRange textRange) {
         super(element, textRange);
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override
@@ -27,7 +26,7 @@ public class StreamExpression extends Expression implements StreamsExpression, H
                 new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset() + startOffset,
                         textRange.getEndOffset() + (noSpaces ? 1 : 0)),
                         FoldingGroup.newGroup(StreamExpression.class.getName() + (noSpaces ? "" : HighlightingExpression.GROUP_POSTFIX))) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return noSpaces ? "." : "";

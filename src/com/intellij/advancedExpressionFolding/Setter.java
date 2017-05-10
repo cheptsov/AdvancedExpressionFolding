@@ -12,12 +12,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Setter extends Expression implements GettersSetters {
-    private final TextRange setterTextRange;
-    private final Expression object;
-    private final String name;
-    private final Expression value;
+    private final @NotNull TextRange setterTextRange;
+    private final @Nullable Expression object;
+    private final @NotNull String name;
+    private final @NotNull Expression value;
 
-    public Setter(PsiElement element, TextRange textRange, TextRange setterTextRange, Expression object, String name, Expression value) {
+    public Setter(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull TextRange setterTextRange,
+                  @Nullable Expression object, @NotNull String name, @NotNull Expression value) {
         super(element, textRange);
         this.setterTextRange = setterTextRange;
         this.object = object;
@@ -26,8 +27,8 @@ public class Setter extends Expression implements GettersSetters {
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && (object == null || object.getTextRange() != null) && value.getTextRange() != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override
@@ -37,7 +38,7 @@ public class Setter extends Expression implements GettersSetters {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(setterTextRange.getStartOffset(),
                                 value.getTextRange().getStartOffset()), group) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return name + " = ";
@@ -47,7 +48,7 @@ public class Setter extends Expression implements GettersSetters {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(value.getTextRange().getEndOffset(),
                             getTextRange().getEndOffset()), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return "";

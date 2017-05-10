@@ -6,20 +6,19 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Slice extends Function implements SlicingExpression {
-    public Slice(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Slice(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
         super(element, textRange, "slice", operands);
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && operands.stream().allMatch(e -> e.getTextRange() != null);
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override
@@ -33,7 +32,7 @@ public class Slice extends Function implements SlicingExpression {
                                     ? operands.get(1).getTextRange().getEndOffset()
                                     : operands.get(1).getTextRange().getStartOffset()
                 ), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return "[";
@@ -46,7 +45,7 @@ public class Slice extends Function implements SlicingExpression {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(operands.get(1).getTextRange().getStartOffset() + 1,
                             operands.get(1).getTextRange().getStartOffset() + 2), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return "";
@@ -57,7 +56,7 @@ public class Slice extends Function implements SlicingExpression {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(operands.get(1).getTextRange().getEndOffset(),
                             operands.get(2).getTextRange().getStartOffset()), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return ":";
@@ -70,7 +69,7 @@ public class Slice extends Function implements SlicingExpression {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(operands.get(2).getTextRange().getStartOffset() + 1,
                                 operands.get(2).getTextRange().getStartOffset() + 2), group) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return "";
@@ -83,7 +82,7 @@ public class Slice extends Function implements SlicingExpression {
                         operands.size() > 2
                         ? getTextRange().getEndOffset() - 1
                         : operands.get(1).getTextRange().getEndOffset(), getTextRange().getEndOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return operands.size() == 2 ? ":]" : "]";

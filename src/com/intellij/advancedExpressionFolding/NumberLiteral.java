@@ -1,19 +1,19 @@
 package com.intellij.advancedExpressionFolding;
 
-import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
 public class NumberLiteral extends Expression {
-    private Number number;
+    private @NotNull Number number;
 
-    public NumberLiteral(PsiElement element, TextRange textRange, Number number) {
+    public NumberLiteral(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Number number) {
         super(element, textRange);
         this.number = number;
     }
 
+    @NotNull
     public Number getNumber() {
         return number;
     }
@@ -34,12 +34,7 @@ public class NumberLiteral extends Expression {
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null;
-    }
-
-    @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
-        return FoldingDescriptor.EMPTY;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 }

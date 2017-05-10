@@ -98,11 +98,14 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
         return editor instanceof EditorEx ? (EditorEx)editor : null;
     }
 
-    protected void processRegion(@NotNull FoldRegion region, PsiDocumentManager documentManager, EditorEx editorEx) {
+    private void processRegion(@NotNull FoldRegion region, PsiDocumentManager documentManager, EditorEx editorEx) {
         FoldingGroup group = region.getGroup();
         if (group != null && group.toString().endsWith(HighlightingExpression.GROUP_POSTFIX)) {
             PsiFile psiFile = documentManager.getPsiFile(editorEx.getDocument());
-            PsiElement element = psiFile.findElementAt(region.getStartOffset());
+            PsiElement element = null;
+            if (psiFile != null) {
+                element = psiFile.findElementAt(region.getStartOffset());
+            }
             if (element != null) {
                 Expression expression = findHighlightingExpression(psiFile, region.getDocument(), region.getStartOffset());
                 if (expression != null) {
@@ -212,7 +215,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
             Expression expression;
             int count = 0;
             while (count++ < 10 && element != null) {
-                expression = AdvancedExpressionFoldingBuilder.getExpression(element, document, false);
+                expression = AdvancedExpressionFoldingBuilder.getNonSyntheticExpression(element, document);
                 if (expression instanceof HighlightingExpression) {
                     return expression;
                 }

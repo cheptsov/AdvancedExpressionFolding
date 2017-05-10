@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -13,14 +14,14 @@ import java.util.Collections;
 public class NotNullExpression extends Expression implements CheckExpression {
     private final Expression object;
 
-    public NotNullExpression(PsiElement element, TextRange textRange, Expression object) {
+    public NotNullExpression(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object) {
         super(element, textRange);
         this.object = object;
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && object.getTextRange() != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override

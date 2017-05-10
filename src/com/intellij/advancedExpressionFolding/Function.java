@@ -6,17 +6,16 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public abstract class Function extends Expression {
-    private final String name;
-    protected final List<Expression> operands;
+    private final @NotNull String name;
+    protected final @NotNull List<Expression> operands;
 
-    public Function(PsiElement element, TextRange textRange, String name, List<Expression> operands) {
+    public Function(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull String name, @NotNull List<Expression> operands) {
         super(element, textRange);
         this.name = name;
         this.operands = operands;
@@ -39,8 +38,7 @@ public abstract class Function extends Expression {
 
         Function function = (Function) o;
 
-        if (!name.equals(function.name)) return false;
-        return operands.equals(function.operands);
+        return name.equals(function.name) && operands.equals(function.operands);
     }
 
     @Override
@@ -51,11 +49,8 @@ public abstract class Function extends Expression {
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && (operands.size() == 1
-                || operands.size() == 2
-                    && operands.get(0).getTextRange().getStartOffset() < operands.get(1).getTextRange().getStartOffset())
-                && getTextRange().getStartOffset() < operands.get(0).getTextRange().getStartOffset();
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return (operands.size() == 1 || operands.size() == 2 && operands.get(0).getTextRange().getStartOffset() < operands.get(1).getTextRange().getStartOffset()) && getTextRange().getStartOffset() < operands.get(0).getTextRange().getStartOffset();
     }
 
     @Override
@@ -65,7 +60,7 @@ public abstract class Function extends Expression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(getTextRange().getStartOffset(),
                         operands.get(0).getTextRange().getStartOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return name + "(";
@@ -79,7 +74,7 @@ public abstract class Function extends Expression {
                     operands.get(1).getTextRange().getStartOffset());
             if (", ".equals(document.getText(commaOffset))) {
                 descriptors.add(new FoldingDescriptor(element.getNode(), commaOffset, group) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return ", ";
@@ -94,7 +89,7 @@ public abstract class Function extends Expression {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(operands.get(operands.size() - 1).getTextRange().getEndOffset(),
                             getTextRange().getEndOffset()), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return ")";

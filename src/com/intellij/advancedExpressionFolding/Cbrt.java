@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +23,7 @@ public class Cbrt extends Function implements ArithmeticExpression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(getTextRange().getStartOffset(),
                         operands.get(0).getTextRange().getStartOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return operands.get(0) instanceof NumberLiteral ||
@@ -35,7 +34,7 @@ public class Cbrt extends Function implements ArithmeticExpression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(operands.get(0).getTextRange().getEndOffset(),
                         getTextRange().getEndOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return operands.get(0) instanceof NumberLiteral ||

@@ -6,24 +6,23 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class Contains extends Expression implements CheckExpression {
-    private final Expression object;
-    private final Expression key;
+    private final @NotNull Expression object;
+    private final @NotNull Expression key;
 
-    public Contains(PsiElement element, TextRange textRange, Expression object, Expression key) {
+    public Contains(PsiElement element, TextRange textRange, @NotNull Expression object, @NotNull Expression key) {
         super(element, textRange);
         this.object = object;
         this.key = key;
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && object.getTextRange() != null && key.getTextRange() != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override
@@ -33,7 +32,7 @@ public class Contains extends Expression implements CheckExpression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(object.getTextRange().getEndOffset(),
                         key.getTextRange().getStartOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return "[";
@@ -42,7 +41,7 @@ public class Contains extends Expression implements CheckExpression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(key.getTextRange().getEndOffset(),
                         getTextRange().getEndOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return "]?";

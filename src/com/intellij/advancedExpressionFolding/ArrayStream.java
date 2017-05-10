@@ -6,22 +6,21 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class ArrayStream extends Expression implements StreamsExpression, HighlightingExpression {
-    private final Expression argument;
+    private final @NotNull Expression argument;
 
-    public ArrayStream(PsiElement element, TextRange textRange, Expression argument) {
+    public ArrayStream(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression argument) {
         super(element, textRange);
         this.argument = argument;
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null && argument != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override
@@ -33,7 +32,7 @@ public class ArrayStream extends Expression implements StreamsExpression, Highli
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(textRange.getStartOffset(),
                         argument.getTextRange().getStartOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return "";
@@ -42,7 +41,7 @@ public class ArrayStream extends Expression implements StreamsExpression, Highli
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(argument.getTextRange().getEndOffset(),
                         textRange.getEndOffset() + (noSpaces ? 1 : 0)), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return noSpaces ? "." : "";

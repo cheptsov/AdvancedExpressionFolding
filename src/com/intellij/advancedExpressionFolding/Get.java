@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Get extends Expression implements GetExpression {
-    private final Expression object;
-    private final Expression key;
-    private final Style style;
+    private final @NotNull Expression object;
+    private final @NotNull Expression key;
+    private final @NotNull Style style;
 
     public enum Style {
         NORMAL,
@@ -21,7 +21,7 @@ public class Get extends Expression implements GetExpression {
         LAST
     }
 
-    public Get(PsiElement element, TextRange textRange, Expression object, Expression key, Style style) {
+    public Get(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object, @NotNull Expression key, @NotNull Style style) {
         super(element, textRange);
         this.object = object;
         this.key = key;
@@ -29,8 +29,8 @@ public class Get extends Expression implements GetExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && object.getTextRange() != null && key.getTextRange() != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override

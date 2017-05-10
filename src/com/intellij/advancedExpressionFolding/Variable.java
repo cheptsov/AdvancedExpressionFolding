@@ -1,27 +1,27 @@
 package com.intellij.advancedExpressionFolding;
 
-import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
 public class Variable extends Expression {
-    protected String name;
+    protected @NotNull String name;
     protected boolean copy;
 
-    public Variable(PsiElement element, TextRange textRange, String name) {
+    public Variable(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull String name) {
         super(element, textRange);
         this.name = name;
         this.copy = false;
     }
 
-    public Variable(PsiElement element, TextRange textRange, String name, boolean copy) {
+    public Variable(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull String name, boolean copy) {
         super(element, textRange);
         this.name = name;
         this.copy = copy;
     }
 
+    @NotNull
     public String getName() {
         return name;
     }
@@ -42,13 +42,8 @@ public class Variable extends Expression {
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null;
-    }
-
-    @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
-        return FoldingDescriptor.EMPTY;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     public boolean isCopy() {

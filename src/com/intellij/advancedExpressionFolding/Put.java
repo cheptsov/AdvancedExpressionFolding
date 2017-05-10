@@ -6,17 +6,16 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class Put extends Expression implements GetExpression {
-    private final Expression object;
-    private final Expression key;
-    private final Expression value;
+    private final @NotNull Expression object;
+    private final @NotNull Expression key;
+    private final @NotNull Expression value;
 
-    public Put(PsiElement element, TextRange textRange, Expression object, Expression key, Expression value) {
+    public Put(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object, @NotNull Expression key, @NotNull Expression value) {
         super(element, textRange);
         this.object = object;
         this.key = key;
@@ -24,8 +23,8 @@ public class Put extends Expression implements GetExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && object.getTextRange() != null && key.getTextRange() != null && value.getTextRange() != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override
@@ -35,7 +34,7 @@ public class Put extends Expression implements GetExpression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(object.getTextRange().getEndOffset(),
                                 key.getTextRange().getStartOffset()), group) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return "[";
@@ -44,7 +43,7 @@ public class Put extends Expression implements GetExpression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(key.getTextRange().getEndOffset(),
                                 value.getTextRange().getStartOffset()), group) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return "] = ";
@@ -54,7 +53,7 @@ public class Put extends Expression implements GetExpression {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(value.getTextRange().getEndOffset(),
                             getTextRange().getEndOffset()), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return "";

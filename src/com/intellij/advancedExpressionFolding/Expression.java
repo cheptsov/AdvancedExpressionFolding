@@ -77,17 +77,17 @@ public abstract class Expression {
         }
     };
 
-    protected PsiElement element;
-    protected TextRange textRange;
+    protected @NotNull PsiElement element;
+    protected @NotNull TextRange textRange;
 
-    public Expression(PsiElement element, TextRange textRange) {
+    public Expression(@NotNull PsiElement element, @NotNull TextRange textRange) {
         this.element = element;
         this.textRange = textRange;
     }
 
     @Override
     public String toString() {
-        return element.getText();
+        return element.getText(); // TODO: Use document.getText(textRange)
     }
 
     private static Map<Character, Character> subscriptMapping = new HashMap<Character, Character>() {
@@ -137,6 +137,7 @@ public abstract class Expression {
     private static double _1_9 = 1.0 / 9.0;
     private static double _1_7 = 1.0 / 7.0;
 
+    @Nullable
     protected static String superscript(String str) {
         return map(str, superscriptMapping);
     }
@@ -163,63 +164,24 @@ public abstract class Expression {
         return a == b || Math.abs(a - b) < EPSILON;
     }
 
-    public boolean supportsFoldRegions(Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
         return false; // TODO no-format: This should be impossible
     }
 
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
-        throw new UnsupportedOperationException();
-    }
-
-    protected static String format(double value) {
-        if (equals(_1_4, value)) {
-            return "¼";
-        } else if (equals(_1_2, value)) {
-            return "½";
-        } else if (equals(_3_4, value)) {
-            return "¾";
-        } else if (equals(_1_3, value)) {
-            return "⅓";
-        } else if (equals(_2_3, value)) {
-            return "⅔";
-        } else if (equals(_1_5, value)) {
-            return "⅕";
-        } else if (equals(_2_5, value)) {
-            return "⅖";
-        } else if (equals(_3_5, value)) {
-            return "⅗";
-        } else if (equals(_4_5, value)) {
-            return "⅘";
-        } else if (equals(_1_6, value)) {
-            return "⅙";
-        } else if (equals(_5_6, value)) {
-            return "⅚";
-        } else if (equals(_1_8, value)) {
-            return "⅛";
-        } else if (equals(_3_8, value)) {
-            return "⅜";
-        } else if (equals(_5_8, value)) {
-            return "⅝";
-        } else if (equals(_7_8, value)) {
-            return "⅞";
-        } else if (equals(_1_10, value)) {
-            return "⅒";
-        } else if (equals(_1_9, value)) {
-            return "⅑";
-        } else if (equals(_1_7, value)) {
-            return "⅐";
-        } else
-            return null;
+        return FoldingDescriptor.EMPTY;
     }
 
     public boolean isCollapsedByDefault() {
         return true;
     }
 
+    @NotNull
     public TextRange getTextRange() {
         return textRange;
     }
 
+    @NotNull
     public PsiElement getElement() {
         return element;
     }

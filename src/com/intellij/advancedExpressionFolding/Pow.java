@@ -13,15 +13,14 @@ import java.util.Collections;
 import java.util.List;
 
 public class Pow extends Function implements ArithmeticExpression {
-    public Pow(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Pow(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
         super(element, textRange, "pow", operands);
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && operands.get(0).getTextRange() != null
-                && operands.get(0).getTextRange().getEndOffset() < getTextRange().getEndOffset() &&
-                superscript(operands.get(1).getElement().getText()) != null; // TODO no-format: Forbid non-literal/non-variable operands.get(1)
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return operands.get(0).getTextRange().getEndOffset() < getTextRange().getEndOffset()
+                && superscript(operands.get(1).getElement().getText()) != null; // TODO no-format: Forbid non-literal/non-variable operands.get(1)
     }
 
     @Override
@@ -32,7 +31,7 @@ public class Pow extends Function implements ArithmeticExpression {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(getTextRange().getStartOffset(),
                             operands.get(0).getTextRange().getStartOffset()), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return operands.get(0) instanceof Operation

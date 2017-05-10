@@ -6,40 +6,33 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
 public class ForEachIndexedStatement extends Expression implements RangeExpression {
-    private final TextRange declarationTextRange;
-    private final TextRange indexTextRange;
-    private final TextRange variableTextRange;
-    private final TextRange arrayTextRange;
-    private final String indexName;
-    private final String itemName;
-    private final String arrayName;
+    private final @NotNull TextRange declarationTextRange;
+    private final @NotNull TextRange indexTextRange;
+    private final @NotNull TextRange variableTextRange;
+    private final @NotNull TextRange arrayTextRange;
     private final boolean varSyntax;
     private final boolean isFinal;
 
-    public ForEachIndexedStatement(PsiElement element, TextRange textRange, TextRange declarationTextRange,
-                                   TextRange indexTextRange,
-                                   TextRange variableTextRange, TextRange arrayTextRange, String indexName,
-                                   String itemName, String arrayName, boolean varSyntax, boolean isFinal) {
+    public ForEachIndexedStatement(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull TextRange declarationTextRange,
+                                   @NotNull TextRange indexTextRange,
+                                   @NotNull TextRange variableTextRange, @NotNull TextRange arrayTextRange,
+                                   boolean varSyntax, boolean isFinal) {
         super(element, textRange);
         this.declarationTextRange = declarationTextRange;
         this.indexTextRange = indexTextRange;
         this.variableTextRange = variableTextRange;
         this.arrayTextRange = arrayTextRange;
-        this.indexName = indexName;
-        this.itemName = itemName;
-        this.arrayName = arrayName;
         this.varSyntax = varSyntax;
         this.isFinal = isFinal;
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null && declarationTextRange != null && variableTextRange != null && arrayTextRange != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override
@@ -52,7 +45,7 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
         if (varSyntax) {
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset(),
                     indexTextRange.getStartOffset()), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return prefix + (isFinal ? "val" : "var" ) + " (";
@@ -60,7 +53,7 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
             });
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(indexTextRange.getEndOffset(),
                     variableTextRange.getStartOffset() - 1), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return ",";
@@ -68,7 +61,7 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
             });
         } else {
             descriptors.add(new FoldingDescriptor(element.getNode(), prefixRange, group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return  prefix + "(";
@@ -76,7 +69,7 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
             });
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(indexTextRange.getEndOffset(),
                     declarationTextRange.getStartOffset()), group) {
-                @Nullable
+                @NotNull
                 @Override
                 public String getPlaceholderText() {
                     return ", ";
@@ -85,7 +78,7 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
         }
         descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(variableTextRange.getEndOffset(),
                 arrayTextRange.getStartOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return ") : ";
@@ -93,7 +86,7 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
         });
         descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(arrayTextRange.getEndOffset(),
                 declarationTextRange.getEndOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return ") {\n";

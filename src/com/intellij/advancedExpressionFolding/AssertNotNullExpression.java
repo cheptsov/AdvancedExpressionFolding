@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,8 +19,8 @@ public class AssertNotNullExpression extends Expression implements CheckExpressi
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && object.getTextRange() != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class AssertNotNullExpression extends Expression implements CheckExpressi
                 object.getTextRange().getEndOffset() < getTextRange().getEndOffset()
                         ? TextRange.create(object.getTextRange().getEndOffset(), getTextRange().getEndOffset())
                         : TextRange.create(getTextRange().getStartOffset(), object.getTextRange().getStartOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return "!!";

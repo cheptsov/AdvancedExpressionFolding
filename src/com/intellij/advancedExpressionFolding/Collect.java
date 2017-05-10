@@ -6,24 +6,23 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class Collect extends Expression implements StreamsExpression {
-    private final Expression qualifier;
-    private final TextRange collectorTextRange;
+    private final @NotNull Expression qualifier;
+    private final @NotNull TextRange collectorTextRange;
 
-    public Collect(PsiElement element, TextRange textRange, Expression qualifier, TextRange collectorTextRange) {
+    public Collect(PsiElement element, TextRange textRange, @NotNull Expression qualifier, @NotNull TextRange collectorTextRange) {
         super(element, textRange);
         this.qualifier = qualifier;
         this.collectorTextRange = collectorTextRange;
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return textRange != null && qualifier != null && collectorTextRange != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override
@@ -34,7 +33,7 @@ public class Collect extends Expression implements StreamsExpression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(textRange.getStartOffset() + offset,
                         collectorTextRange.getStartOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return ".";
@@ -43,7 +42,7 @@ public class Collect extends Expression implements StreamsExpression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(collectorTextRange.getEndOffset(),
                         textRange.getEndOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return "";

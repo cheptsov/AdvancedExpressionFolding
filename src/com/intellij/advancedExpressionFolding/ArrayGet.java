@@ -19,15 +19,15 @@ public class ArrayGet extends Expression implements GetExpression {
         LAST
     }
 
-    public ArrayGet(PsiElement element, TextRange textRange, Expression object, Style style) {
+    public ArrayGet(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object, @NotNull Style style) {
         super(element, textRange);
         this.object = object;
         this.style = style;
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && object.getTextRange() != null;
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return true;
     }
 
     @Override

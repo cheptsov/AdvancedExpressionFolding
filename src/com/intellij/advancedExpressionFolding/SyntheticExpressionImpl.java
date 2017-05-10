@@ -36,7 +36,7 @@ public class SyntheticExpressionImpl extends Expression implements SyntheticExpr
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
         return children.size() > 0 && children.stream().anyMatch(e -> e.supportsFoldRegions(document, false));
     }
 

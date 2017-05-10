@@ -6,20 +6,19 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Abs extends Function implements ArithmeticExpression {
-    public Abs(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Abs(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
         super(element, textRange, "abs", operands);
     }
 
     @Override
-    public boolean supportsFoldRegions(Document document, boolean quick) {
-        return getTextRange() != null && operands.get(0).getTextRange() != null && textRange.getStartOffset() < operands.get(0).getTextRange().getStartOffset();
+    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        return textRange.getStartOffset() < operands.get(0).getTextRange().getStartOffset();
     }
 
     @Override
@@ -29,7 +28,7 @@ public class Abs extends Function implements ArithmeticExpression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(getTextRange().getStartOffset(),
                         operands.get(0).getTextRange().getStartOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return "|";
@@ -38,7 +37,7 @@ public class Abs extends Function implements ArithmeticExpression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(operands.get(0).getTextRange().getEndOffset(),
                         getTextRange().getEndOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return "|";
