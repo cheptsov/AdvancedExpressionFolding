@@ -1594,23 +1594,25 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     public boolean isCollapsedByDefault(@NotNull ASTNode astNode) {
         try {
             PsiElement element = astNode.getPsi();
-            @Nullable Expression expression = getNonSyntheticExpression(element, PsiDocumentManager.getInstance(astNode.getPsi().getProject()).getDocument(astNode.getPsi().getContainingFile()));
-            AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
-            return expression != null && (settings.getState().isArithmeticExpressionsCollapse() && expression instanceof ArithmeticExpression
-                    || settings.getState().isComparingExpressionsCollapse() && expression instanceof ComparingExpression
-                    || settings.getState().isSlicingExpressionsCollapse() && expression instanceof SlicingExpression
-                    || settings.getState().isConcatenationExpressionsCollapse() && expression instanceof ConcatenationExpression
-                    || settings.getState().isRangeExpressionsCollapse() && expression instanceof RangeExpression
-                    || settings.getState().isGetExpressionsCollapse() && expression instanceof GetExpression
-                    || settings.getState().isCheckExpressionsCollapse() && expression instanceof CheckExpression
-                    || settings.getState().isCastExpressionsCollapse() && expression instanceof CastExpression
-                    || settings.getState().isVarExpressionsCollapse() && expression instanceof VariableDeclaration
-                    || settings.getState().isGetSetExpressionsCollapse() && expression instanceof GettersSetters
-            )
-                    && expression.isCollapsedByDefault();
+            @Nullable Document document = PsiDocumentManager.getInstance(astNode.getPsi().getProject()).getDocument(astNode.getPsi().getContainingFile());
+            if (document != null) {
+                @Nullable Expression expression = getNonSyntheticExpression(element, document);
+                AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+                return expression != null && (settings.getState().isArithmeticExpressionsCollapse() && expression instanceof ArithmeticExpression
+                            || settings.getState().isComparingExpressionsCollapse() && expression instanceof ComparingExpression
+                            || settings.getState().isSlicingExpressionsCollapse() && expression instanceof SlicingExpression
+                            || settings.getState().isConcatenationExpressionsCollapse() && expression instanceof ConcatenationExpression
+                            || settings.getState().isRangeExpressionsCollapse() && expression instanceof RangeExpression
+                            || settings.getState().isGetExpressionsCollapse() && expression instanceof GetExpression
+                            || settings.getState().isCheckExpressionsCollapse() && expression instanceof CheckExpression
+                            || settings.getState().isCastExpressionsCollapse() && expression instanceof CastExpression
+                            || settings.getState().isVarExpressionsCollapse() && expression instanceof VariableDeclaration
+                            || settings.getState().isGetSetExpressionsCollapse() && expression instanceof GettersSetters
+                    ) && expression.isCollapsedByDefault();
+            }
         } catch (IndexNotReadyException e) {
             return false;
         }
+        return false;
     }
-
 }
