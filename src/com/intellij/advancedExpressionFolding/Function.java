@@ -50,52 +50,58 @@ public abstract class Function extends Expression {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
-        return (operands.size() == 1 || operands.size() == 2 && operands.get(0).getTextRange().getStartOffset() < operands.get(1).getTextRange().getStartOffset()) && getTextRange().getStartOffset() < operands.get(0).getTextRange().getStartOffset();
+        // TODO: check if operands have text in between
+        return operands.size() > 0
+                && getTextRange().getStartOffset() < operands.get(0).getTextRange().getStartOffset()
+                && getTextRange().getEndOffset() > operands.get(operands.size() - 1).getTextRange().getStartOffset();
     }
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
-        ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(getClass().getName());
+        List<FoldingDescriptor> descriptors = new ArrayList<>();
+        int offset = getTextRange().getStartOffset();
         descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(getTextRange().getStartOffset(),
-                        operands.get(0).getTextRange().getStartOffset()), group) {
+                TextRange.create(offset, operands.get(0).getTextRange().getStartOffset()), group) {
             @NotNull
             @Override
             public String getPlaceholderText() {
                 return name + "(";
             }
         });
-        if (operands.get(0).supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document));
-        }
-        if (operands.size() == 2) {
-            TextRange commaOffset = TextRange.create(operands.get(0).getTextRange().getEndOffset(),
-                    operands.get(1).getTextRange().getStartOffset());
-            if (", ".equals(document.getText(commaOffset))) {
-                descriptors.add(new FoldingDescriptor(element.getNode(), commaOffset, group) {
-                    @NotNull
+        offset = operands.get(0).getTextRange().getEndOffset();
+        for (int i = 1; i < operands.size(); i++) {
+            TextRange r = TextRange.create(offset, operands.get(i).getTextRange().getStartOffset());
+            String p = ", ";
+            if (!document.getText(r).equals(p)) {
+                descriptors.add(new FoldingDescriptor(element.getNode(),
+                        r, group) {
                     @Override
                     public String getPlaceholderText() {
-                        return ", ";
+                        return p;
                     }
                 });
-                if (operands.get(1).supportsFoldRegions(document, false)) {
-                    Collections.addAll(descriptors, operands.get(1).buildFoldRegions(operands.get(1).getElement(), document));
-                }
+            }
+            offset = operands.get(i).getTextRange().getEndOffset();
+        }
+        descriptors.add(new FoldingDescriptor(element.getNode(),
+                TextRange.create(offset, getTextRange().getEndOffset()), group) {
+            @NotNull
+            @Override
+            public String getPlaceholderText() {
+                return ")";
+            }
+        });
+        for (Expression operand : operands) {
+            if (operand.supportsFoldRegions(document, false)) {
+                Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document));
             }
         }
-        if (operands.get(operands.size() - 1).getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
-            descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(operands.get(operands.size() - 1).getTextRange().getEndOffset(),
-                            getTextRange().getEndOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return ")";
-                }
-            });
-        }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
+    }
+
+    @NotNull
+    public List<Expression> getOperands() {
+        return operands;
     }
 }
