@@ -34,7 +34,7 @@ public class SetLiteral extends Function implements GetExpression {
             @NotNull
             @Override
             public String getPlaceholderText() {
-                return "Set.of(";
+                return "[";
             }
         });
         descriptors.add(new FoldingDescriptor(element.getNode(),
@@ -89,7 +89,7 @@ public class SetLiteral extends Function implements GetExpression {
             @NotNull
             @Override
             public String getPlaceholderText() {
-                return ")";
+                return "]";
             }
         });
         if (firstBracesRange.getEndOffset() < getTextRange().getEndOffset()) {
