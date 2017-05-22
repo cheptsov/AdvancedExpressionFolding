@@ -228,7 +228,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             && isReferenceTo(((PsiReferenceExpression) ((PsiArrayAccessExpression) initializer).getIndexExpression()), conditionVariable)
                                             && conditionROperand instanceof PsiReferenceExpression
                                             && ((PsiReferenceExpression) conditionROperand).getQualifierExpression() instanceof PsiReferenceExpression
-                                            && isReferenceTo((PsiReferenceExpression) ((PsiReferenceExpression) conditionROperand).getQualifierExpression(), ((PsiReferenceExpression) ((PsiArrayAccessExpression) initializer).getArrayExpression()).resolve())) {
+                                            && ((PsiArrayAccessExpression) initializer).getArrayExpression() instanceof PsiReferenceExpression
+                                            && isReferenceTo((PsiReferenceExpression) ((PsiReferenceExpression) conditionROperand).getQualifierExpression(),
+                                                ((PsiReferenceExpression) ((PsiArrayAccessExpression) initializer).getArrayExpression()).resolve())) {
+                                        // TODO: ((PsiArrayAccessExpression) initializer).getArrayExpression() can be a method call expression, e.g. getArgs()
                                         PsiExpression arrayExpression = ((PsiArrayAccessExpression) initializer)
                                                 .getArrayExpression();
                                         List<PsiElement> references = SyntaxTraverser.psiTraverser(element.getBody()).filter(e -> e instanceof PsiReferenceExpression
