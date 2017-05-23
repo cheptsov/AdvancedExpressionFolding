@@ -164,11 +164,12 @@ public abstract class Expression {
         return a == b || Math.abs(a - b) < EPSILON;
     }
 
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return false; // TODO no-format: This should be impossible
     }
 
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         return FoldingDescriptor.EMPTY;
     }
 

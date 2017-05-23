@@ -15,6 +15,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1067,7 +1069,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             Object constant = supportedConstants.get(identifier.get().getText());
             if (constant != null) {
                 if (isSupportedClass(element) && constant instanceof Number) {
-                    return new NumberLiteral(element, element.getTextRange(), null, (Number) constant, false);
+                    return new NumberLiteral(element, element.getTextRange(), element.getTextRange(), (Number) constant, true);
                 } else if (isSupportedClass(element) && constant instanceof String) {
                     return new Variable(element, element.getTextRange(), null, (String) constant, copy);
                 }
@@ -1179,8 +1181,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                                 return new Add(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
 
                                         }
+                                    } else {
+                                        return new Add(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
                                     }
-                                    break;
                                 case "remove":
                                     if (method.getParameterList().getParameters().length == 1
                                             && !method.getParameterList().getParameters()[0].getType().equals(PsiType.INT)) {
@@ -1611,6 +1614,12 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     case "java.lang.Double":
                         return new NumberLiteral(parent, parent.getTextRange(), argument.getTextRange(), Double.valueOf(value),
                                 !(argument.getValue() instanceof Number));
+                    case "java.math.BigDecimal":
+                        return new NumberLiteral(parent, parent.getTextRange(), argument.getTextRange(), new BigDecimal(value),
+                                !(argument.getValue() instanceof Number));
+                    case "java.math.BigInteger":
+                        return new NumberLiteral(parent, parent.getTextRange(), argument.getTextRange(), new BigInteger(value),
+                                !(argument.getValue() instanceof Number));
                     case "java.lang.StringBuilder":
                         return new StringLiteral(parent, parent.getTextRange(), value);
                     case "java.lang.String":
@@ -1628,9 +1637,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         List<FoldingDescriptor> allDescriptors = null;
         try {
             @Nullable Expression expression = getNonSyntheticExpression(element, document);
-            if (expression != null && expression.supportsFoldRegions(document, true)) {
+            if (expression != null && expression.supportsFoldRegions(document, null)) {
                 allDescriptors = new ArrayList<>();
-                FoldingDescriptor[] descriptors = expression.buildFoldRegions(expression.getElement(), document);
+                FoldingDescriptor[] descriptors = expression.buildFoldRegions(expression.getElement(), document, null);
                 Collections.addAll(allDescriptors, descriptors);
             }
             if (expression == null || !expression.getTextRange().equals(element.getTextRange())) {

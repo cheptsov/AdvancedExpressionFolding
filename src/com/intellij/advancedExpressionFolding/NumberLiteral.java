@@ -45,27 +45,29 @@ public class NumberLiteral extends Expression implements HighlightingExpression,
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
-        return numberTextRange != null && numberTextRange.getStartOffset() > textRange.getStartOffset()
-                && numberTextRange.getEndOffset() < textRange.getEndOffset();
-        // TODO: Support inclusive ranges
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
+        return numberTextRange != null && numberTextRange.getStartOffset() >= textRange.getStartOffset()
+                && numberTextRange.getEndOffset() <= textRange.getEndOffset();
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         //noinspection Duplicates
         if (numberTextRange != null) {
             FoldingGroup group = FoldingGroup
                     .newGroup(NumberLiteral.class.getName() + HighlightingExpression.GROUP_POSTFIX);
-            descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(textRange.getStartOffset(), numberTextRange.getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+            if (textRange.getStartOffset() < numberTextRange.getStartOffset()) {
+                descriptors.add(new FoldingDescriptor(element.getNode(),
+                        TextRange.create(textRange.getStartOffset(), numberTextRange.getStartOffset()), group) {
+                    @NotNull
+                    @Override
+                    public String getPlaceholderText() {
+                        return "";
+                    }
+                });
+            }
             if (convert) {
                 descriptors.add(new FoldingDescriptor(element.getNode(), numberTextRange, group) {
                     @NotNull
@@ -79,14 +81,16 @@ public class NumberLiteral extends Expression implements HighlightingExpression,
                     }
                 });
             }
-            descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(numberTextRange.getEndOffset(), textRange.getEndOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+            if (numberTextRange.getEndOffset() < textRange.getEndOffset()) {
+                descriptors.add(new FoldingDescriptor(element.getNode(),
+                        TextRange.create(numberTextRange.getEndOffset(), textRange.getEndOffset()), group) {
+                    @NotNull
+                    @Override
+                    public String getPlaceholderText() {
+                        return "";
+                    }
+                });
+            }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

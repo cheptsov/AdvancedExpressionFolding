@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +17,13 @@ public class Exp extends Function implements ArithmeticExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return superscript(operands.get(0).getElement().getText()) != null;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(Exp.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),

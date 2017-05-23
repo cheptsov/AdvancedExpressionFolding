@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class VariableDeclarationImpl extends Expression implements VariableDeclaration {
     private final boolean isFinal;
@@ -20,12 +21,13 @@ public class VariableDeclarationImpl extends Expression implements VariableDecla
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(VariableDeclarationImpl.class.getName());
         return new FoldingDescriptor[] {
                 new FoldingDescriptor(element.getNode(), textRange, group) {

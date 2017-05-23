@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,16 +37,17 @@ public class SyntheticExpressionImpl extends Expression implements SyntheticExpr
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
-        return children.size() > 0 && children.stream().anyMatch(e -> e.supportsFoldRegions(document, false));
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
+        return children.size() > 0 && children.stream().anyMatch(e -> e.supportsFoldRegions(document, this));
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         for (Expression child : children) {
-            if (child.supportsFoldRegions(document, false)) {
-                Collections.addAll(descriptors, child.buildFoldRegions(child.getElement(), document));
+            if (child.supportsFoldRegions(document, this)) {
+                Collections.addAll(descriptors, child.buildFoldRegions(child.getElement(), document, this));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

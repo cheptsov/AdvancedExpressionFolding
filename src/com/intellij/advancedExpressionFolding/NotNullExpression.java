@@ -20,13 +20,14 @@ public class NotNullExpression extends Expression implements CheckExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@org.jetbrains.annotations.NotNull PsiElement element,
-                                                @org.jetbrains.annotations.NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element,
+                                                @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(NotNullExpression.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
@@ -39,8 +40,8 @@ public class NotNullExpression extends Expression implements CheckExpression {
                 return "?";
             }
         });
-        if (object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
+        if (object.supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

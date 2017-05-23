@@ -27,12 +27,13 @@ public class Setter extends Expression implements GettersSetters {
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(Setter.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
@@ -55,11 +56,11 @@ public class Setter extends Expression implements GettersSetters {
                 }
             });
         }
-        if (object != null && object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
+        if (object != null && object.supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document, this));
         }
-        if (value.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, value.buildFoldRegions(value.getElement(), document));
+        if (value.supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, value.buildFoldRegions(value.getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

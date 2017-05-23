@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -18,7 +19,8 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return true;
     }
 
@@ -34,7 +36,7 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
     };
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(InterpolatedString.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         final String[] buf = {""};
@@ -156,8 +158,8 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
             }
         }
         for (Expression operand : operands) {
-            if (operand.supportsFoldRegions(document, false)) {
-                Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document));
+            if (operand.supportsFoldRegions(document, this)) {
+                Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document, this));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

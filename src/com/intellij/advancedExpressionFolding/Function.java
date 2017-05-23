@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,7 +50,8 @@ public abstract class Function extends Expression {
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         // TODO: check if operands have text in between
         return operands.size() > 0
                 && getTextRange().getStartOffset() < operands.get(0).getTextRange().getStartOffset()
@@ -57,7 +59,7 @@ public abstract class Function extends Expression {
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(getClass().getName());
         List<FoldingDescriptor> descriptors = new ArrayList<>();
         int offset = getTextRange().getStartOffset();
@@ -70,6 +72,7 @@ public abstract class Function extends Expression {
             }
         });
         offset = operands.get(0).getTextRange().getEndOffset();
+        //noinspection Duplicates
         for (int i = 1; i < operands.size(); i++) {
             TextRange r = TextRange.create(offset, operands.get(i).getTextRange().getStartOffset());
             String p = ", ";
@@ -93,8 +96,8 @@ public abstract class Function extends Expression {
             }
         });
         for (Expression operand : operands) {
-            if (operand.supportsFoldRegions(document, false)) {
-                Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document));
+            if (operand.supportsFoldRegions(document, this)) {
+                Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document, this));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

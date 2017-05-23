@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,12 +27,13 @@ public class ArrayGet extends Expression implements GetExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(ArrayGet.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
@@ -43,8 +45,8 @@ public class ArrayGet extends Expression implements GetExpression {
             }
         });
         // TODO: Generalize it
-        if (object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
+        if (object.supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

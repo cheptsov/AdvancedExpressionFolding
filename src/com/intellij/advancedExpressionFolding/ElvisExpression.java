@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +27,7 @@ public class ElvisExpression extends Expression implements CheckExpression {
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(ElvisExpression.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),
@@ -48,17 +49,18 @@ public class ElvisExpression extends Expression implements CheckExpression {
         });
         ShortElvisExpression.nullify(element, document, descriptors, group, elements,
                 !(elements.size() == 1 && elements.get(0).equals(thenExpression.getTextRange())));
-        if (thenExpression.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, thenExpression.buildFoldRegions(thenExpression.getElement(), document));
+        if (thenExpression.supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, thenExpression.buildFoldRegions(thenExpression.getElement(), document, this));
         }
-        if (elseExpression.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, elseExpression.buildFoldRegions(elseExpression.getElement(), document));
+        if (elseExpression.supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, elseExpression.buildFoldRegions(elseExpression.getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return true;
     }
 }

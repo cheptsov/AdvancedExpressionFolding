@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -21,7 +22,7 @@ public class ShortElvisExpression extends Expression implements CheckExpression 
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(ShortElvisExpression.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),
@@ -44,8 +45,8 @@ public class ShortElvisExpression extends Expression implements CheckExpression 
             });
         }
         nullify(element, document, descriptors, group, elements, true);
-        if (thenExpression.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, thenExpression.buildFoldRegions(thenExpression.getElement(), document));
+        if (thenExpression.supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, thenExpression.buildFoldRegions(thenExpression.getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
@@ -88,7 +89,8 @@ public class ShortElvisExpression extends Expression implements CheckExpression 
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return true;
     }
 }

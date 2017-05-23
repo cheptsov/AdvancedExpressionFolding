@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,12 +18,13 @@ public class Abs extends Function implements ArithmeticExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return textRange.getStartOffset() < operands.get(0).getTextRange().getStartOffset();
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(Abs.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),
@@ -43,8 +45,8 @@ public class Abs extends Function implements ArithmeticExpression {
                 return "|";
             }
         });
-        if (operands.get(0).supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document));
+        if (operands.get(0).supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

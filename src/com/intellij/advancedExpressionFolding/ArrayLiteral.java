@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,12 +21,13 @@ public class ArrayLiteral extends Expression implements GetExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return items.stream().allMatch(i -> true);
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(ArrayLiteral.class.getName());
         if (items.isEmpty()) {
             return new FoldingDescriptor[] {
@@ -58,8 +60,8 @@ public class ArrayLiteral extends Expression implements GetExpression {
                 }
             });
             for (Expression item : items) {
-                if (item.supportsFoldRegions(document, false)) {
-                    Collections.addAll(descriptors, item.buildFoldRegions(item.getElement(), document));
+                if (item.supportsFoldRegions(document, this)) {
+                    Collections.addAll(descriptors, item.buildFoldRegions(item.getElement(), document, this));
                 }
             }
             return descriptors.toArray(new FoldingDescriptor[0]);

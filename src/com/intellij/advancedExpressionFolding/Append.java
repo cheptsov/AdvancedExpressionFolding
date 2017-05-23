@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,8 +30,8 @@ public class Append extends Operation implements ConcatenationExpression {
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
-        FoldingDescriptor[] descriptors = super.buildFoldRegions(element, document);
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+        FoldingDescriptor[] descriptors = super.buildFoldRegions(element, document, this);
         if (operands.get(0) instanceof Variable && !((Variable)operands.get(0)).isCopy()) {
             FoldingDescriptor[] newDescriptors = Arrays.copyOf(descriptors, descriptors.length);
             for (int i = 0; i < newDescriptors.length; i++) {

@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,12 +25,13 @@ public class TypeCast extends Expression implements CastExpression, Highlighting
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         boolean dotAccess = document.getTextLength() > getTextRange().getEndOffset()
                 && document.getText(TextRange.create(getTextRange().getEndOffset(), getTextRange().getEndOffset() + 1)).equals(".");
         FoldingGroup group = FoldingGroup.newGroup(TypeCast.class.getName() + (dotAccess ? "" : GROUP_POSTFIX));
@@ -87,8 +89,8 @@ public class TypeCast extends Expression implements CastExpression, Highlighting
                 }
             });
         }
-        if (object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
+        if (object.supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

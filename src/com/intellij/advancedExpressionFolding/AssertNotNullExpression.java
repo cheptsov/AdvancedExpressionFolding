@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,13 +20,14 @@ public class AssertNotNullExpression extends Expression implements CheckExpressi
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return true;
     }
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@org.jetbrains.annotations.NotNull PsiElement element,
-                                                @org.jetbrains.annotations.NotNull Document document) {
+                                                @org.jetbrains.annotations.NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(AssertNotNullExpression.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
@@ -38,8 +40,8 @@ public class AssertNotNullExpression extends Expression implements CheckExpressi
                 return "!!";
             }
         });
-        if (object.supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document));
+        if (object.supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

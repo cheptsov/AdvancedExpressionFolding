@@ -50,7 +50,8 @@ public class Variable extends Expression implements HighlightingExpression, Arit
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return variableTextRange != null && variableTextRange.getStartOffset() > textRange.getStartOffset()
                 && variableTextRange.getEndOffset() < textRange.getEndOffset();
         // TODO: Support inclusive ranges
@@ -61,7 +62,7 @@ public class Variable extends Expression implements HighlightingExpression, Arit
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         //noinspection Duplicates
         if (variableTextRange != null) {

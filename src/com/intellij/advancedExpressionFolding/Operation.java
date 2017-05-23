@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,24 +39,37 @@ public abstract class Operation extends Expression {
         return operands;
     }
 
+    public int getPriority() {
+        return priority;
+    }
+
     @NotNull
     public String getCharacter() {
         return character;
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
+        if (equalOrLessPriority(0)) {
+            return false;
+        }
         for (int i = 1; i < operands.size(); i++) {
-            if (operands.get(i - 1).getTextRange().getEndOffset() >=
-                    operands.get(i).getTextRange().getStartOffset()) {
+            if (operands.get(i - 1).getTextRange().getEndOffset() >= operands.get(i).getTextRange().getStartOffset()
+                    || equalOrLessPriority(i)) {
                 return false;
             }
         }
         return true; // TODO no-format: ensure operands.supportFoldRegions
     }
 
+    private boolean equalOrLessPriority(int index) {
+        return operands.get(index) instanceof Operation
+                && ((Operation) operands.get(0)).getPriority() < priority;
+    }
+
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(getClass().getName());
         List<FoldingDescriptor> descriptors = new ArrayList<>();
         int offset = getTextRange().getStartOffset();
@@ -95,8 +109,8 @@ public abstract class Operation extends Expression {
             });
         }
         for (Expression operand : operands) {
-            if (operand.supportsFoldRegions(document, false)) {
-                Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document));
+            if (operand.supportsFoldRegions(document, this)) {
+                Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document, this));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

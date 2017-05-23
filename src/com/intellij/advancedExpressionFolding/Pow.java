@@ -18,13 +18,14 @@ public class Pow extends Function implements ArithmeticExpression {
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+    public boolean supportsFoldRegions(@NotNull Document document,
+                                       @Nullable Expression parent) {
         return operands.get(0).getTextRange().getEndOffset() < getTextRange().getEndOffset()
                 && superscript(operands.get(1).getElement().getText()) != null; // TODO no-format: Forbid non-literal/non-variable operands.get(1)
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(Pow.class.getName());
         if (getTextRange().getStartOffset() < operands.get(0).getTextRange().getStartOffset()) {
@@ -39,8 +40,8 @@ public class Pow extends Function implements ArithmeticExpression {
                 }
             });
         }
-        if (operands.get(0).supportsFoldRegions(document, false)) {
-            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document));
+        if (operands.get(0).supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document, this));
         }
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(operands.get(0).getTextRange().getEndOffset(),
