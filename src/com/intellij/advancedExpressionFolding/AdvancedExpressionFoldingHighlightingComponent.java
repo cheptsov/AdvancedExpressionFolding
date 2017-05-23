@@ -100,7 +100,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
 
     private void processRegion(@NotNull FoldRegion region, PsiDocumentManager documentManager, EditorEx editorEx) {
         FoldingGroup group = region.getGroup();
-        if (group != null && group.toString().endsWith(HighlightingExpression.GROUP_POSTFIX)) {
+        if (group != null && group.toString().endsWith(HighlightingExpression.GROUP_POSTFIX) && region.isValid()) {
             PsiFile psiFile = documentManager.getPsiFile(editorEx.getDocument());
             PsiElement element = null;
             if (psiFile != null) {
@@ -137,7 +137,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                                         try {
                                             Expression expr = findHighlightingExpression(psiFile, editorEx.getDocument(), mouseOffset);
                                             if (expr != null) {
-                                                if (expression.getElement().getTextRange().contains(mouseOffset) && !region.isExpanded()) {
+                                                if (expression.getElement().getTextRange().contains(mouseOffset) && !region.isExpanded() && region.isValid()) {
                                                     DocumentFragment range = createDocumentFragment(editorEx, region);
                                                     final Point p = SwingUtilities.convertPoint((Component) e.getMouseEvent().getSource(), e.getMouseEvent().getPoint(),
                                                             editorEx.getComponent().getRootPane().getLayeredPane());
