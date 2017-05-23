@@ -45,6 +45,12 @@ public abstract class Operation extends Expression {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
+        for (int i = 1; i < operands.size(); i++) {
+            if (operands.get(i - 1).getTextRange().getEndOffset() >=
+                    operands.get(i).getTextRange().getStartOffset()) {
+                return false;
+            }
+        }
         return true; // TODO no-format: ensure operands.supportFoldRegions
     }
 

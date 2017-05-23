@@ -204,7 +204,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     Optional<PsiElement> identifier = Stream.of(((PsiDeclarationStatement) initialization).getDeclaredElements()[0].getChildren())
                             .filter(c -> c instanceof PsiIdentifier).findAny();
                     if (identifier.isPresent()) {
-                        Variable variable = new Variable(identifier.get(), identifier.get().getTextRange(), identifier.get().getText());
+                        Variable variable = new Variable(identifier.get(), identifier.get().getTextRange(), null, identifier.get().getText());
                         //noinspection ConstantConditions
                         @NotNull Expression start = getAnyExpression(
                                 ((PsiVariable) ((PsiDeclarationStatement) initialization).getDeclaredElements()[0]).getInitializer(), document);
@@ -680,7 +680,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             if (supportedPrimitiveTypes.contains(element.getType().getCanonicalText())) {
                 Object value = element.getValue();
                 if (value instanceof Number) {
-                    return new NumberLiteral(element, element.getTextRange(), (Number) value);
+                    return new NumberLiteral(element, element.getTextRange(), null, (Number) value, false);
                 } else if (value instanceof String) {
                     return new StringLiteral(element, element.getTextRange(), (String) value);
                 } else if (value instanceof Character) {
@@ -766,8 +766,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         if ((a.getOperationSign().getText().equals("<") || a.getOperationSign().getText().equals("<="))
                 && (b.getOperationSign().getText().equals(">") || b.getOperationSign().getText().equals(">="))
                 && a.getROperand() != null
-                && b.getROperand() != null) {
-            //noinspection Duplicates
+                && b.getROperand() != null) //noinspection Duplicates
+        {
             @NotNull Expression e1 = getAnyExpression(a.getLOperand(), document);
             @NotNull Expression e2 = getAnyExpression(a.getROperand(), document);
             @NotNull Expression e3 = getAnyExpression(b.getLOperand(), document);
@@ -781,8 +781,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         if ((a.getOperationSign().getText().equals(">") || a.getOperationSign().getText().equals(">="))
                 && (b.getOperationSign().getText().equals("<") || b.getOperationSign().getText().equals("<="))
                 && a.getROperand() != null
-                && b.getROperand() != null) {
-            //noinspection Duplicates
+                && b.getROperand() != null) //noinspection Duplicates
+        {
             @NotNull Expression e1 = getAnyExpression(a.getLOperand(), document);
             @NotNull Expression e2 = getAnyExpression(a.getROperand(), document);
             @NotNull Expression e3 = getAnyExpression(b.getLOperand(), document);
@@ -979,7 +979,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 .contains(eraseGenerics(type.getCanonicalText()))) {
             if (element.getArgumentList() != null && element.getArgumentList().getExpressions().length == 1) {
                 if (element.getArgumentList().getExpressions()[0] instanceof PsiLiteralExpression) {
-                    return getConstructorExpression(element, element.getArgumentList().getExpressions()[0],
+                    return getConstructorExpression(element,
+                            (PsiLiteralExpression) element.getArgumentList().getExpressions()[0],
                             eraseGenerics(type.getCanonicalText()));
                 } else if (element.getArgumentList().getExpressions()[0] instanceof PsiReferenceExpression) {
                     return getReferenceExpression(
@@ -1066,9 +1067,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             Object constant = supportedConstants.get(identifier.get().getText());
             if (constant != null) {
                 if (isSupportedClass(element) && constant instanceof Number) {
-                    return new NumberLiteral(element, element.getTextRange(), (Number) constant);
+                    return new NumberLiteral(element, element.getTextRange(), null, (Number) constant, false);
                 } else if (isSupportedClass(element) && constant instanceof String) {
-                    return new Variable(element, element.getTextRange(), (String) constant, copy);
+                    return new Variable(element, element.getTextRange(), null, (String) constant, copy);
                 }
             } else {
                 Expression variable = getVariableExpression(element, copy);
@@ -1094,10 +1095,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 String name = variable.getName();
                 if (name != null) {
                     if (supportedClasses.contains(eraseGenerics(variable.getType().getCanonicalText()))) {
-                        return new Variable(element, element.getTextRange(), name, copy);
+                        return new Variable(element, element.getTextRange(), null, name, copy);
                     } else if (supportedPrimitiveTypes
                             .contains(eraseGenerics(variable.getType().getCanonicalText()))) {
-                        return new Variable(element, element.getTextRange(), name, copy);
+                        return new Variable(element, element.getTextRange(), null, name, copy);
                     }
                 }
             }
@@ -1358,8 +1359,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                                     return new Slice(element, element.getTextRange(),
                                                             Arrays.asList(qualifierExpression, p1, p2));
                                                 }
-                                            } else if (a2 instanceof PsiMethodCallExpression) {
-                                                //noinspection Duplicates
+                                            } else //noinspection Duplicates
+                                                if (a2 instanceof PsiMethodCallExpression) {
                                                 @NotNull PsiMethodCallExpression a2m = (PsiMethodCallExpression) a2;
                                                 @NotNull PsiReferenceExpression a2me = a2m.getMethodExpression();
                                                 Optional<PsiElement> a2i = Stream.of(a2me.getChildren())
@@ -1382,8 +1383,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             return new Slice(element, element.getTextRange(), Arrays.asList(qualifierExpression, a1Expression,
                                                     position));
                                         }
-                                    } else if (a2 instanceof PsiMethodCallExpression) {
-                                        //noinspection Duplicates
+                                    } else //noinspection Duplicates
+                                        if (a2 instanceof PsiMethodCallExpression) {
                                         @NotNull PsiMethodCallExpression a2m = (PsiMethodCallExpression) a2;
                                         @NotNull PsiReferenceExpression a2me = a2m.getMethodExpression();
                                         Optional<PsiElement> a2i = Stream.of(a2me.getChildren())
@@ -1403,10 +1404,15 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                         if (element.getArgumentList().getExpressions().length == 1) {
                             PsiExpression argument = element.getArgumentList().getExpressions()[0];
                             if (method.getName().equals("valueOf") && argument instanceof PsiLiteralExpression) {
-                                return getConstructorExpression(element, argument,
+                                return getConstructorExpression(element, (PsiLiteralExpression) argument,
                                         className);
                             } else if (method.getName().equals("valueOf") && argument instanceof PsiReferenceExpression) {
-                                return getReferenceExpression((PsiReferenceExpression) argument);
+                                Expression refExpr = getReferenceExpression((PsiReferenceExpression) argument);
+                                if (refExpr instanceof Variable) {
+                                    return new Variable(element, element.getTextRange(), refExpr.getTextRange(), ((Variable) refExpr).getName(), true);
+                                } else {
+                                    return null;
+                                }
                             } else {
                                 @NotNull Expression argumentExpression = getAnyExpression(argument, document);
                                 switch (method.getName()) {
@@ -1573,7 +1579,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     if (a2qe.equals(qualifierExpression)) {
                         return new NumberLiteral(parent,
                                 TextRange.create(a2b.getOperationSign().getTextRange().getStartOffset(),
-                                        a2b.getTextRange().getEndOffset()), -((NumberLiteral) s).getNumber().intValue());
+                                        a2b.getTextRange().getEndOffset()), null, -((NumberLiteral) s).getNumber().intValue(), false);
                     }
                 }
             }
@@ -1582,10 +1588,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     }
 
     @Nullable
-    private static Expression getConstructorExpression(@NotNull PsiElement parent, @NotNull PsiExpression argument, @NotNull String classQualifiedNameNoGenerics) {
-        Expression literalExpression = getLiteralExpression((PsiLiteralExpression) argument);
+    private static Expression getConstructorExpression(@NotNull PsiElement parent, @NotNull PsiLiteralExpression argument, @NotNull String classQualifiedNameNoGenerics) {
+        Expression literalExpression = getLiteralExpression(argument);
         if (literalExpression instanceof NumberLiteral) {
-            return literalExpression;
+            return new NumberLiteral(parent, parent.getTextRange(), literalExpression.getTextRange(), ((NumberLiteral) literalExpression).getNumber(), false);
         } else {
             try {
                 String value = argument.getText();
@@ -1594,13 +1600,17 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 }
                 switch (classQualifiedNameNoGenerics) {
                     case "java.lang.Long":
-                        return new NumberLiteral(parent, parent.getTextRange(), Long.valueOf(value));
+                        return new NumberLiteral(parent, parent.getTextRange(), argument.getTextRange(), Long.valueOf(value),
+                                !(argument.getValue() instanceof Number));
                     case "java.lang.Integer":
-                        return new NumberLiteral(parent, parent.getTextRange(), Integer.valueOf(value));
+                        return new NumberLiteral(parent, parent.getTextRange(), argument.getTextRange(), Integer.valueOf(value),
+                                !(argument.getValue() instanceof Number));
                     case "java.lang.Float":
-                        return new NumberLiteral(parent, parent.getTextRange(), Float.valueOf(value));
+                        return new NumberLiteral(parent, parent.getTextRange(), argument.getTextRange(), Float.valueOf(value),
+                                !(argument.getValue() instanceof Number));
                     case "java.lang.Double":
-                        return new NumberLiteral(parent, parent.getTextRange(), Double.valueOf(value));
+                        return new NumberLiteral(parent, parent.getTextRange(), argument.getTextRange(), Double.valueOf(value),
+                                !(argument.getValue() instanceof Number));
                     case "java.lang.StringBuilder":
                         return new StringLiteral(parent, parent.getTextRange(), value);
                     case "java.lang.String":

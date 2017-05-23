@@ -1,16 +1,27 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class NumberLiteral extends Expression {
+import java.util.ArrayList;
+
+import static sun.misc.FloatingDecimal.toJavaFormatString;
+
+public class NumberLiteral extends Expression implements HighlightingExpression, ArithmeticExpression {
     private @NotNull Number number;
+    private final boolean convert;
+    private @Nullable TextRange numberTextRange;
 
-    public NumberLiteral(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Number number) {
+    public NumberLiteral(@NotNull PsiElement element, @NotNull TextRange textRange, @Nullable TextRange numberTextRange, @NotNull Number number, boolean convert) {
         super(element, textRange);
+        this.numberTextRange = numberTextRange;
         this.number = number;
+        this.convert = convert;
     }
 
     @NotNull
@@ -35,6 +46,48 @@ public class NumberLiteral extends Expression {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document, boolean quick) {
-        return true;
+        return numberTextRange != null && numberTextRange.getStartOffset() > textRange.getStartOffset()
+                && numberTextRange.getEndOffset() < textRange.getEndOffset();
+        // TODO: Support inclusive ranges
+    }
+
+    @Override
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document) {
+        ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
+        //noinspection Duplicates
+        if (numberTextRange != null) {
+            FoldingGroup group = FoldingGroup
+                    .newGroup(NumberLiteral.class.getName() + HighlightingExpression.GROUP_POSTFIX);
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(textRange.getStartOffset(), numberTextRange.getStartOffset()), group) {
+                @NotNull
+                @Override
+                public String getPlaceholderText() {
+                    return "";
+                }
+            });
+            if (convert) {
+                descriptors.add(new FoldingDescriptor(element.getNode(), numberTextRange, group) {
+                    @NotNull
+                    @Override
+                    public String getPlaceholderText() {
+                        return number instanceof Float ?
+                                toJavaFormatString(number.floatValue()) + "f":
+                                number instanceof Double ?
+                                        toJavaFormatString(number.doubleValue()) :
+                                        number.toString();
+                    }
+                });
+            }
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(numberTextRange.getEndOffset(), textRange.getEndOffset()), group) {
+                @NotNull
+                @Override
+                public String getPlaceholderText() {
+                    return "";
+                }
+            });
+        }
+        return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 }
