@@ -38,22 +38,27 @@ public class SetLiteral extends Function implements GetExpression {
                 return "[";
             }
         });
-        descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(firstBracesRange.getStartOffset(), secondBracesRange.getStartOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "";
-            }
-        });
-        descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(secondBracesRange.getStartOffset(), operands.get(0).getTextRange().getStartOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "";
-            }
-        });
+        if (firstBracesRange.getStartOffset() < secondBracesRange.getStartOffset()) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(firstBracesRange.getStartOffset(), secondBracesRange.getStartOffset()), group) {
+                @NotNull
+                @Override
+                public String getPlaceholderText() {
+                    return "";
+                }
+            });
+        }
+        if (secondBracesRange.getStartOffset() < operands.get(0).getTextRange().getStartOffset()) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(secondBracesRange.getStartOffset(),
+                            operands.get(0).getTextRange().getStartOffset()), group) {
+                @NotNull
+                @Override
+                public String getPlaceholderText() {
+                    return "";
+                }
+            });
+        }
         offset = operands.get(0).getTextRange().getEndOffset();
         for (int i = 1; i < operands.size(); i++) {
             TextRange r = TextRange.create(offset, operands.get(i).getTextRange().getStartOffset());
@@ -77,14 +82,16 @@ public class SetLiteral extends Function implements GetExpression {
                 return "";
             }
         });
-        descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(secondBracesRange.getEndOffset(), firstBracesRange.getEndOffset() - 1), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "";
-            }
-        });
+        if (secondBracesRange.getEndOffset() < firstBracesRange.getEndOffset() - 1) {
+            descriptors.add(new FoldingDescriptor(element.getNode(),
+                    TextRange.create(secondBracesRange.getEndOffset(), firstBracesRange.getEndOffset() - 1), group) {
+                @NotNull
+                @Override
+                public String getPlaceholderText() {
+                    return "";
+                }
+            });
+        }
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(firstBracesRange.getEndOffset() - 1, firstBracesRange.getEndOffset()), group) {
             @NotNull
