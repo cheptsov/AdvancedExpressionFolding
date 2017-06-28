@@ -71,25 +71,29 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
     }
 
     protected void processEditors(FileEditor[] editors, PsiDocumentManager documentManager) {
-        for (FileEditor editor : editors) {
-            EditorEx editorEx = getEditorEx(editor);
-            if (editorEx != null) {
-                for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
-                    processRegion(region, documentManager, editorEx);
-                }
-                FoldingListener foldingListener = new FoldingListener() {
-                    @Override
-                    public void onFoldRegionStateChange(@NotNull FoldRegion region) {
+        try {
+            for (FileEditor editor : editors) {
+                EditorEx editorEx = getEditorEx(editor);
+                if (editorEx != null) {
+                    for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
                         processRegion(region, documentManager, editorEx);
                     }
+                    FoldingListener foldingListener = new FoldingListener() {
+                        @Override
+                        public void onFoldRegionStateChange(@NotNull FoldRegion region) {
+                            processRegion(region, documentManager, editorEx);
+                        }
 
-                    @Override
-                    public void onFoldProcessingEnd() {
+                        @Override
+                        public void onFoldProcessingEnd() {
 
-                    }
-                };
-                editorEx.getFoldingModel().addListener(foldingListener, editor);
+                        }
+                    };
+                    editorEx.getFoldingModel().addListener(foldingListener, editor);
+                }
             }
+        } catch (IndexNotReadyException e) {
+            // ignore
         }
     }
 
@@ -98,7 +102,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
         return editor instanceof EditorEx ? (EditorEx)editor : null;
     }
 
-    private void processRegion(@NotNull FoldRegion region, PsiDocumentManager documentManager, EditorEx editorEx) {
+    private void processRegion(@NotNull FoldRegion region, PsiDocumentManager documentManager, EditorEx editorEx) throws IndexNotReadyException {
         FoldingGroup group = region.getGroup();
         if (group != null && group.toString().endsWith(HighlightingExpression.GROUP_POSTFIX) && region.isValid()) {
             PsiFile psiFile = documentManager.getPsiFile(editorEx.getDocument());
@@ -209,7 +213,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
         return new DocumentFragment(editorEx.getDocument(), foldStart, oldEnd);
     }
 
-    private Expression findHighlightingExpression(PsiFile psiFile, Document document, int offset) {
+    private Expression findHighlightingExpression(PsiFile psiFile, Document document, int offset) throws IndexNotReadyException {
         PsiElement element = psiFile.findElementAt(offset);
         if (element != null) {
             Expression expression;

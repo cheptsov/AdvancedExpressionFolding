@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class StringLiteral extends Expression {
+public class StringLiteral extends Expression implements CharSequenceLiteral {
     private @NotNull String string;
 
     public StringLiteral(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull String string) {

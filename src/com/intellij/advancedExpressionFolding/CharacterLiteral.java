@@ -3,7 +3,7 @@ package com.intellij.advancedExpressionFolding;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 
-public class CharacterLiteral extends Expression {
+public class CharacterLiteral extends Expression implements CharSequenceLiteral {
     private Character character;
 
     public CharacterLiteral(PsiElement element, TextRange textRange, Character character) {

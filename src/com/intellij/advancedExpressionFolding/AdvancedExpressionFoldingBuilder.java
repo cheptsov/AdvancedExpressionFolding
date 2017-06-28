@@ -343,14 +343,17 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @SuppressWarnings("WeakerAccess")
     @NotNull
-    public static Expression getAnyExpression(@NotNull PsiElement element, @Nullable Document document) {
+    public static Expression getAnyExpression(@NotNull PsiElement element, @Nullable Document document) throws IndexNotReadyException {
         //noinspection ConstantConditions
         return getExpression(element, document, true);
     }
 
+    /**
+     * TODO: Think how we can prevent IndexNotReadyException (e.g. via "is dumb mode")
+     */
     @SuppressWarnings("WeakerAccess")
     @Nullable
-    public static Expression getNonSyntheticExpression(@NotNull PsiElement element, @Nullable Document document) {
+    public static Expression getNonSyntheticExpression(@NotNull PsiElement element, @Nullable Document document) throws IndexNotReadyException {
         //noinspection ConstantConditions
         return getExpression(element, document, false);
     }
