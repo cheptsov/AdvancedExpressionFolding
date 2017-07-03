@@ -31,6 +31,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,7 +41,6 @@ import java.util.Map;
 public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProjectComponent implements EditorMouseListener, EditorMouseMotionListener, FileEditorManagerListener {
 
     private static final TooltipGroup FOLDING_TOOLTIP_GROUP = new TooltipGroup("FOLDING_TOOLTIP_GROUP", 10);
-    private FileEditorManagerListener editorManagerListener;
     private Map<FoldRegion, RangeHighlighter> highlighters = new HashMap<>(); // TODO: Make sure there is no memory leak
     private TooltipController controller;
 
@@ -61,7 +61,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
         connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, this);
     }
 
-    protected void processEditors(FileEditor[] editors, PsiDocumentManager documentManager) {
+    private void processEditors(FileEditor[] editors, PsiDocumentManager documentManager) {
         try {
             for (FileEditor editor : editors) {
                 EditorEx editorEx = getEditorEx(editor);
@@ -93,37 +93,37 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
         return editor instanceof EditorEx ? (EditorEx)editor : null;
     }
 
-    private void processRegion(@NotNull FoldRegion region, PsiDocumentManager documentManager, EditorEx editorEx) throws IndexNotReadyException {
+    private void processRegion(@NotNull FoldRegion region, @NotNull PsiDocumentManager documentManager, @NotNull EditorEx editorEx) throws IndexNotReadyException {
         if (isHighlightingRegion(region)) {
-            PsiFile psiFile = documentManager.getPsiFile(editorEx.getDocument());
-            PsiElement element = null;
+            @Nullable PsiFile psiFile = documentManager.getPsiFile(editorEx.getDocument());
             if (psiFile != null) {
-                element = psiFile.findElementAt(region.getStartOffset());
-            }
-            if (element != null) {
-                Expression expression = findHighlightingExpression(psiFile, region.getDocument(), region.getStartOffset());
-                if (expression != null) {
-                    TextAttributes foldedTextAttributes = editorEx.getColorsScheme().getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES);
-                    if (foldedTextAttributes.getBackgroundColor() != null) {
-                        foldedTextAttributes.setForegroundColor(null);
-                    }
-                    foldedTextAttributes.setFontType(Font.PLAIN);
-                    if (!region.isExpanded()) {
-                        RangeHighlighter h = highlighters.remove(region);
-                        if (h != null) {
-                            editorEx.getMarkupModel().removeHighlighter(h);
+                @Nullable PsiElement element = psiFile.findElementAt(region.getStartOffset());
+                if (element != null) {
+                    @Nullable Expression expression = findHighlightingExpression(psiFile, region.getDocument(), region.getStartOffset());
+                    if (expression != null) {
+                        TextAttributes foldedTextAttributes = editorEx.getColorsScheme().getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES);
+                        if (foldedTextAttributes.getBackgroundColor() != null) {
+                            foldedTextAttributes.setForegroundColor(null);
                         }
-                        RangeHighlighterEx highlighter = (RangeHighlighterEx) editorEx.getMarkupModel().addRangeHighlighter(expression.getElement().getTextRange().getStartOffset(),
-                                expression.getElement().getTextRange().getEndOffset(), HighlighterLayer.WARNING - 1, foldedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
-                        highlighter.setAfterEndOfLine(false);
-                        highlighters.put(region, highlighter);
-                    } else {
-                        RangeHighlighter highlighter = highlighters.remove(region);
-                        if (highlighter != null) {
-                            editorEx.getMarkupModel().removeHighlighter(highlighter);
+                        foldedTextAttributes.setFontType(Font.PLAIN);
+                        if (!region.isExpanded()) {
+                            RangeHighlighter h = highlighters.remove(region);
+                            if (h != null) {
+                                editorEx.getMarkupModel().removeHighlighter(h);
+                            }
+                            RangeHighlighterEx highlighter = (RangeHighlighterEx) editorEx.getMarkupModel().addRangeHighlighter(expression.getElement().getTextRange().getStartOffset(),
+                                    expression.getElement().getTextRange().getEndOffset(), HighlighterLayer.WARNING - 1, foldedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
+                            highlighter.setAfterEndOfLine(false);
+                            highlighters.put(region, highlighter);
+                        } else {
+                            RangeHighlighter highlighter = highlighters.remove(region);
+                            if (highlighter != null) {
+                                editorEx.getMarkupModel().removeHighlighter(highlighter);
+                            }
                         }
                     }
                 }
+
             }
         }
     }
@@ -144,10 +144,10 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
         return new DocumentFragment(editorEx.getDocument(), foldStart, oldEnd);
     }
 
-    private Expression findHighlightingExpression(PsiFile psiFile, Document document, int offset) throws IndexNotReadyException {
-        PsiElement element = psiFile.findElementAt(offset);
+    private Expression findHighlightingExpression(@NotNull PsiFile psiFile, @NotNull Document document, int offset) throws IndexNotReadyException {
+        @Nullable PsiElement element = psiFile.findElementAt(offset);
         if (element != null) {
-            Expression expression;
+            @Nullable Expression expression;
             int count = 0;
             while (count++ < 10 && element != null) {
                 expression = AdvancedExpressionFoldingBuilder.getNonSyntheticExpression(element, document);
@@ -162,7 +162,6 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
 
     @Override
     public void projectClosed() {
-        FileEditorManager.getInstance(myProject).removeFileEditorManagerListener(editorManagerListener);
     }
 
     @Override
@@ -188,21 +187,27 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
     @Override
     public void mouseClicked(EditorMouseEvent e) {
         if (e.getArea() == EditorMouseEventArea.EDITING_AREA) {
-            EditorEx editorEx = e.getEditor() instanceof EditorEx ? ((EditorEx) e.getEditor()) : null;
-            VisualPosition visualPosition = editorEx.xyToVisualPosition(e.getMouseEvent().getPoint());
-            int offset = editorEx.logicalPositionToOffset(editorEx.visualToLogicalPosition(visualPosition));
-            try {
-                Expression expr = findHighlightingExpression(PsiDocumentManager.getInstance(myProject).getPsiFile(editorEx.getDocument()),
-                        editorEx.getDocument(), offset);
-                if (expr != null) {
-                    for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
-                        if (expr.getTextRange().getStartOffset() <= region.getStartOffset()
-                                && region.getEndOffset() <= expr.getTextRange().getEndOffset() && isHighlightingRegion(region) && !region.isExpanded()) {
-                            editorEx.getFoldingModel().runBatchFoldingOperation(() -> region.setExpanded(true));
+            @Nullable EditorEx editorEx = e.getEditor() instanceof EditorEx ? ((EditorEx) e.getEditor()) : null;
+            if (editorEx != null) {
+                @NotNull VisualPosition visualPosition = editorEx.xyToVisualPosition(e.getMouseEvent().getPoint());
+                int offset = editorEx.logicalPositionToOffset(editorEx.visualToLogicalPosition(visualPosition));
+                try {
+                    @Nullable PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(editorEx.getDocument());
+                    if (psiFile != null) {
+                        @Nullable Expression expression = findHighlightingExpression(psiFile, editorEx.getDocument(), offset);
+                        if (expression != null) {
+                            for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
+                                if (expression.getTextRange().getStartOffset() <= region.getStartOffset()
+                                        && region.getEndOffset() <= expression.getTextRange().getEndOffset()
+                                        && isHighlightingRegion(region)
+                                        && !region.isExpanded()) {
+                                    editorEx.getFoldingModel().runBatchFoldingOperation(() -> region.setExpanded(true));
+                                }
+                            }
                         }
                     }
+                } catch (IndexNotReadyException ignored) {
                 }
-            } catch (IndexNotReadyException ignored) {
             }
         }
     }
@@ -225,22 +230,26 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
     @Override
     public void mouseMoved(EditorMouseEvent e) {
         if (!DumbService.isDumb(myProject) && e.getArea() == EditorMouseEventArea.EDITING_AREA) {
-            EditorEx editorEx = e.getEditor() instanceof EditorEx ? ((EditorEx) e.getEditor()) : null;
+            @Nullable EditorEx editorEx = e.getEditor() instanceof EditorEx ? ((EditorEx) e.getEditor()) : null;
             if (editorEx != null) {
-                VisualPosition visualPosition = editorEx.xyToVisualPosition(e.getMouseEvent().getPoint());
+                @NotNull VisualPosition visualPosition = editorEx.xyToVisualPosition(e.getMouseEvent().getPoint());
                 int offset = editorEx.logicalPositionToOffset(editorEx.visualToLogicalPosition(visualPosition));
                 try {
-                    Expression expr = findHighlightingExpression(PsiDocumentManager.getInstance(myProject).getPsiFile(editorEx.getDocument()),
-                            editorEx.getDocument(), offset);
-                    if (expr != null) {
-                        for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
-                            if (expr.getTextRange().getStartOffset() <= region.getStartOffset()
-                                    && region.getEndOffset() <= expr.getTextRange().getEndOffset() && isHighlightingRegion(region) && !region.isExpanded()) {
-                                DocumentFragment range = createDocumentFragment(editorEx, region);
-                                final Point p = SwingUtilities.convertPoint((Component) e.getMouseEvent().getSource(), e.getMouseEvent().getPoint(),
-                                        editorEx.getComponent().getRootPane().getLayeredPane());
-                                controller.showTooltip(editorEx, p, new DocumentFragmentTooltipRenderer(range), false, FOLDING_TOOLTIP_GROUP);
-                                return;
+                    @Nullable PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(editorEx.getDocument());
+                    if (psiFile != null) {
+                        @Nullable Expression expression = findHighlightingExpression(psiFile, editorEx.getDocument(), offset);
+                        if (expression != null) {
+                            for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
+                                if (expression.getTextRange().getStartOffset() <= region.getStartOffset()
+                                        && region.getEndOffset() <= expression.getTextRange().getEndOffset()
+                                        && isHighlightingRegion(region)
+                                        && !region.isExpanded()) {
+                                    DocumentFragment range = createDocumentFragment(editorEx, region);
+                                    final Point p = SwingUtilities.convertPoint((Component) e.getMouseEvent().getSource(), e.getMouseEvent().getPoint(),
+                                            editorEx.getComponent().getRootPane().getLayeredPane());
+                                    controller.showTooltip(editorEx, p, new DocumentFragmentTooltipRenderer(range), false, FOLDING_TOOLTIP_GROUP);
+                                    return;
+                                }
                             }
                         }
                     }
