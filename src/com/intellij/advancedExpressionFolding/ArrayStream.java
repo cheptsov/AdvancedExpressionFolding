@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class ArrayStream extends Expression implements StreamsExpression, HighlightingExpression {
+public class ArrayStream extends Expression implements StreamsExpression {
     private final @NotNull Expression argument;
 
     public ArrayStream(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression argument) {
@@ -29,7 +29,7 @@ public class ArrayStream extends Expression implements StreamsExpression, Highli
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getEndOffset(), 1) + 1;
         final boolean noSpaces = offset == 1;
-        FoldingGroup group = FoldingGroup.newGroup(ArrayStream.class.getName() + (noSpaces ? "" : HighlightingExpression.GROUP_POSTFIX));
+        FoldingGroup group = FoldingGroup.newGroup(ArrayStream.class.getName() + (noSpaces ? "" : Expression.HIGHLIGHTED_GROUP_POSTFIX));
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(textRange.getStartOffset(),
@@ -53,5 +53,10 @@ public class ArrayStream extends Expression implements StreamsExpression, Highli
             Collections.addAll(descriptors, argument.buildFoldRegions(argument.getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
+    }
+
+    @Override
+    public boolean isHighlighted() {
+        return true;
     }
 }

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 import static sun.misc.FloatingDecimal.toJavaFormatString;
 
-public class NumberLiteral extends Expression implements HighlightingExpression, ArithmeticExpression {
+public class NumberLiteral extends Expression implements ArithmeticExpression {
     private @NotNull Number number;
     private final boolean convert;
     private @Nullable TextRange numberTextRange;
@@ -47,8 +47,7 @@ public class NumberLiteral extends Expression implements HighlightingExpression,
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
                                        @Nullable Expression parent) {
-        return numberTextRange != null && numberTextRange.getStartOffset() >= textRange.getStartOffset()
-                && numberTextRange.getEndOffset() <= textRange.getEndOffset();
+        return isHighlighted();
     }
 
     @Override
@@ -57,7 +56,7 @@ public class NumberLiteral extends Expression implements HighlightingExpression,
         //noinspection Duplicates
         if (numberTextRange != null) {
             FoldingGroup group = FoldingGroup
-                    .newGroup(NumberLiteral.class.getName() + HighlightingExpression.GROUP_POSTFIX);
+                    .newGroup(NumberLiteral.class.getName() + Expression.HIGHLIGHTED_GROUP_POSTFIX);
             if (textRange.getStartOffset() < numberTextRange.getStartOffset()) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(textRange.getStartOffset(), numberTextRange.getStartOffset()), group) {
@@ -93,5 +92,11 @@ public class NumberLiteral extends Expression implements HighlightingExpression,
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
+    }
+
+    @Override
+    public boolean isHighlighted() {
+        return numberTextRange != null && numberTextRange.getStartOffset() >= textRange.getStartOffset()
+                && numberTextRange.getEndOffset() <= textRange.getEndOffset();
     }
 }

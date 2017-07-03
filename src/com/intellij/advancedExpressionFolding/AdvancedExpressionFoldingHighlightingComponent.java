@@ -129,7 +129,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
     }
 
     private boolean isHighlightingRegion(@NotNull FoldRegion region) {
-        return region.getGroup() != null && region.getGroup().toString().endsWith(HighlightingExpression.GROUP_POSTFIX) && region.isValid();
+        return region.getGroup() != null && region.getGroup().toString().endsWith(Expression.HIGHLIGHTED_GROUP_POSTFIX) && region.isValid();
     }
 
     private DocumentFragment createDocumentFragment(EditorEx editorEx, FoldRegion fold) {
@@ -151,7 +151,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
             int count = 0;
             while (count++ < 10 && element != null) {
                 expression = AdvancedExpressionFoldingBuilder.getNonSyntheticExpression(element, document);
-                if (expression instanceof HighlightingExpression) {
+                if (expression != null && expression.isHighlighted()) {
                     return expression;
                 }
                 element = element.getParent();

@@ -10,17 +10,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class Variable extends Expression implements HighlightingExpression, ArithmeticExpression, ConcatenationExpression {
+public class Variable extends Expression implements ArithmeticExpression, ConcatenationExpression {
     private @NotNull String name;
     private boolean copy;
     private @Nullable TextRange variableTextRange;
-
-    public Variable(@NotNull PsiElement element, @NotNull TextRange textRange, @Nullable TextRange variableTextRange, @NotNull String name) {
-        super(element, textRange);
-        this.variableTextRange = variableTextRange;
-        this.name = name;
-        this.copy = false;
-    }
 
     public Variable(@NotNull PsiElement element, @NotNull TextRange textRange, @Nullable TextRange variableTextRange, @NotNull String name, boolean copy) {
         super(element, textRange);
@@ -52,9 +45,7 @@ public class Variable extends Expression implements HighlightingExpression, Arit
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
                                        @Nullable Expression parent) {
-        return variableTextRange != null && variableTextRange.getStartOffset() > textRange.getStartOffset()
-                && variableTextRange.getEndOffset() < textRange.getEndOffset();
-        // TODO: Support inclusive ranges
+        return isHighlighted();
     }
 
     public boolean isCopy() {
@@ -67,7 +58,7 @@ public class Variable extends Expression implements HighlightingExpression, Arit
         //noinspection Duplicates
         if (variableTextRange != null) {
             FoldingGroup group = FoldingGroup
-                    .newGroup(Variable.class.getName() + HighlightingExpression.GROUP_POSTFIX);
+                    .newGroup(Variable.class.getName() + Expression.HIGHLIGHTED_GROUP_POSTFIX);
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(textRange.getStartOffset(), variableTextRange.getStartOffset()), group) {
                 @NotNull
@@ -92,5 +83,12 @@ public class Variable extends Expression implements HighlightingExpression, Arit
     public boolean isCollapsedByDefault() {
         // TODO: Depend on the type (String or Number)
         return super.isCollapsedByDefault();
+    }
+
+    @Override
+    public boolean isHighlighted() {
+        return variableTextRange != null && variableTextRange.getStartOffset() > textRange.getStartOffset()
+                && variableTextRange.getEndOffset() < textRange.getEndOffset();
+        // TODO: Support inclusive ranges
     }
 }

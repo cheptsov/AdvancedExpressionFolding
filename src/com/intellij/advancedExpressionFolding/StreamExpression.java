@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class StreamExpression extends Expression implements StreamsExpression, HighlightingExpression {
+public class StreamExpression extends Expression implements StreamsExpression {
     public StreamExpression(@NotNull PsiElement element, @NotNull TextRange textRange) {
         super(element, textRange);
     }
@@ -27,7 +27,7 @@ public class StreamExpression extends Expression implements StreamsExpression, H
         return new FoldingDescriptor[] {
                 new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset() + startOffset,
                         textRange.getEndOffset() + (noSpaces ? 1 : 0)),
-                        FoldingGroup.newGroup(StreamExpression.class.getName() + (noSpaces ? "" : HighlightingExpression.GROUP_POSTFIX))) {
+                        FoldingGroup.newGroup(StreamExpression.class.getName() + (noSpaces ? "" : Expression.HIGHLIGHTED_GROUP_POSTFIX))) {
                     @NotNull
                     @Override
                     public String getPlaceholderText() {
@@ -35,5 +35,10 @@ public class StreamExpression extends Expression implements StreamsExpression, H
                     }
                 }
         };
+    }
+
+    @Override
+    public boolean isHighlighted() {
+        return true;
     }
 }

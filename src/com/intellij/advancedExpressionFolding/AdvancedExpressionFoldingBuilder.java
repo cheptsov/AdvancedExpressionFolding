@@ -206,7 +206,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     Optional<PsiElement> identifier = Stream.of(((PsiDeclarationStatement) initialization).getDeclaredElements()[0].getChildren())
                             .filter(c -> c instanceof PsiIdentifier).findAny();
                     if (identifier.isPresent()) {
-                        Variable variable = new Variable(identifier.get(), identifier.get().getTextRange(), null, identifier.get().getText());
+                        Variable variable = new Variable(identifier.get(), identifier.get().getTextRange(), null, identifier.get().getText(), false);
                         //noinspection ConstantConditions
                         @NotNull Expression start = getAnyExpression(
                                 ((PsiVariable) ((PsiDeclarationStatement) initialization).getDeclaredElements()[0]).getInitializer(), document);
@@ -1099,12 +1099,13 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 PsiVariable variable = (PsiVariable) e;
                 String name = variable.getName();
                 if (name != null) {
-                    if (supportedClasses.contains(eraseGenerics(variable.getType().getCanonicalText()))) {
+                    // TODO: Please make sure this fix works
+                    /*if (supportedClasses.contains(eraseGenerics(variable.getType().getCanonicalText()))) {
                         return new Variable(element, element.getTextRange(), null, name, copy);
                     } else if (supportedPrimitiveTypes
-                            .contains(eraseGenerics(variable.getType().getCanonicalText()))) {
+                            .contains(eraseGenerics(variable.getType().getCanonicalText()))) {*/
                         return new Variable(element, element.getTextRange(), null, name, copy);
-                    }
+                    /*}*/
                 }
             }
         }

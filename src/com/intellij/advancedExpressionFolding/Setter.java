@@ -37,30 +37,38 @@ public class Setter extends Expression implements GettersSetters {
         FoldingGroup group = FoldingGroup.newGroup(Setter.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
-                        TextRange.create(setterTextRange.getStartOffset(),
-                                value.getTextRange().getStartOffset()), group) {
+                TextRange.create(setterTextRange.getStartOffset(),
+                        value.getTextRange().getStartOffset()
+                                - (value.isLeftOverflow() ? 1 : 0)), group) {
+            @NotNull
+            @Override
+            public String getPlaceholderText() {
+                return name + " = ";
+            }
+        });
+        if (!value.isRightOverflow()) {
+            if (value.getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
+                descriptors.add(new FoldingDescriptor(element.getNode(),
+                        TextRange.create(value.getTextRange().getEndOffset(),
+                                getTextRange().getEndOffset()), group) {
                     @NotNull
                     @Override
                     public String getPlaceholderText() {
-                        return name + " = ";
+                        return "";
                     }
                 });
-        if (value.getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
-            descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(value.getTextRange().getEndOffset(),
-                            getTextRange().getEndOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+            }
         }
         if (object != null && object.supportsFoldRegions(document, this)) {
             Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document, this));
         }
         if (value.supportsFoldRegions(document, this)) {
-            Collections.addAll(descriptors, value.buildFoldRegions(value.getElement(), document, this));
+            if (value.isOverflow()) {
+                Collections.addAll(descriptors, value.buildFoldRegions(value.getElement(), document, this,
+                        group, "", ""));
+            } else {
+                Collections.addAll(descriptors, value.buildFoldRegions(value.getElement(), document, this));
+            }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

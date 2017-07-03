@@ -34,7 +34,7 @@ public class NotNullExpression extends Expression implements CheckExpression {
                 object.getTextRange().getEndOffset() < getTextRange().getEndOffset()
                         ? TextRange.create(object.getTextRange().getEndOffset(), getTextRange().getEndOffset())
                         : TextRange.create(getTextRange().getStartOffset(), object.getTextRange().getStartOffset()), group) {
-            @Nullable
+            @NotNull
             @Override
             public String getPlaceholderText() {
                 return "?";

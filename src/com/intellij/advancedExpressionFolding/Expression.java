@@ -2,6 +2,7 @@ package com.intellij.advancedExpressionFolding;
 
 import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +13,9 @@ import java.util.Map;
 
 public abstract class Expression {
     private final static double EPSILON = 0.00001;
+
+    static String HIGHLIGHTED_GROUP_POSTFIX = ":highlighting";
+
     private static Map<Character, Character> superscriptMapping = new HashMap<Character, Character>() {
         {
             put('0', '⁰');
@@ -173,6 +177,11 @@ public abstract class Expression {
         return FoldingDescriptor.EMPTY;
     }
 
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent,
+                                                @Nullable FoldingGroup overflowGroup, @Nullable String overflowLeftPlaceholder, @Nullable String overflowRightPlaceholder) {
+        return buildFoldRegions(element, document, parent);
+    }
+
     public boolean isCollapsedByDefault() {
         return true;
     }
@@ -185,5 +194,21 @@ public abstract class Expression {
     @NotNull
     public PsiElement getElement() {
         return element;
+    }
+
+    public boolean isOverflow() {
+        return isLeftOverflow() || isRightOverflow();
+    }
+
+    public boolean isLeftOverflow() {
+        return false;
+    }
+
+    public boolean isRightOverflow() {
+        return false;
+    }
+
+    public boolean isHighlighted() {
+        return false;
     }
 }

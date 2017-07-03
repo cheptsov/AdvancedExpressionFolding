@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class TypeCast extends Expression implements CastExpression, HighlightingExpression {
+public class TypeCast extends Expression implements CastExpression {
     private final @NotNull Expression object;
 
     public TypeCast(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object) {
@@ -34,7 +34,7 @@ public class TypeCast extends Expression implements CastExpression, Highlighting
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         boolean dotAccess = document.getTextLength() > getTextRange().getEndOffset()
                 && document.getText(TextRange.create(getTextRange().getEndOffset(), getTextRange().getEndOffset() + 1)).equals(".");
-        FoldingGroup group = FoldingGroup.newGroup(TypeCast.class.getName() + (dotAccess ? "" : GROUP_POSTFIX));
+        FoldingGroup group = FoldingGroup.newGroup(TypeCast.class.getName() + (dotAccess ? "" : Expression.HIGHLIGHTED_GROUP_POSTFIX));
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         if (object.getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
             if (dotAccess) {
@@ -93,5 +93,10 @@ public class TypeCast extends Expression implements CastExpression, Highlighting
             Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
+    }
+
+    @Override
+    public boolean isHighlighted() {
+        return true;
     }
 }
