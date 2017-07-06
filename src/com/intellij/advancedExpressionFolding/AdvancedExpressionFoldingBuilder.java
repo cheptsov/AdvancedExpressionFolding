@@ -864,6 +864,20 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             case "0":
                                                 return new Greater(element, element.getTextRange(), Arrays.asList(qualifier, argument));
                                         }
+                                    case "<=":
+                                        switch (literalExpression.getText()) {
+                                            case "-1":
+                                                return new Less(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                            case "0":
+                                                return new LessEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        }
+                                    case ">=":
+                                        switch (literalExpression.getText()) {
+                                            case "1":
+                                                return new Greater(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                            case "0":
+                                                return new GreaterEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        }
                                 }
                             }
                         }
