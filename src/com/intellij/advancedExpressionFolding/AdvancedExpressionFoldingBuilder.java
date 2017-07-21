@@ -465,10 +465,31 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 return expression;
             }
         }
+        if (element instanceof PsiCodeBlock) {
+            Expression expression = getCodeBlockExpression((PsiCodeBlock) element);
+            if (expression != null) {
+                return expression;
+            }
+        }
         if (synthetic) {
             ArrayList<Expression> children = new ArrayList<>();
             findChildExpressions(element, children, document);
             return new SyntheticExpressionImpl(element, element.getTextRange(), document.getText(element.getTextRange()), children);
+        }
+        return null;
+    }
+
+    private static Expression getCodeBlockExpression(PsiCodeBlock element) {
+        if (element.getParent() instanceof PsiBlockStatement
+                && (
+                (element.getParent().getParent() instanceof PsiIfStatement || element.getParent().getParent() instanceof PsiLoopStatement)
+                        && element.getRBrace() != null
+                        && element.getLBrace() != null
+                    )
+                || element.getParent() instanceof PsiSwitchStatement
+                || element.getParent() instanceof PsiTryStatement
+                || element.getParent() instanceof PsiCatchSection) {
+            return new ControlFlowCodeBlock(element, element.getTextRange());
         }
         return null;
     }
@@ -1646,7 +1667,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 FoldingDescriptor[] descriptors = expression.buildFoldRegions(expression.getElement(), document, null);
                 Collections.addAll(allDescriptors, descriptors);
             }
-            if (expression == null || !expression.getTextRange().equals(element.getTextRange())) {
+            if (expression == null || expression.isNested()) {
                 for (PsiElement child : element.getChildren()) {
                     FoldingDescriptor[] descriptors = buildFoldRegions(child, document, quick);
                     if (descriptors.length > 0) {
@@ -1688,6 +1709,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                             || settings.getState().isCastExpressionsCollapse() && expression instanceof CastExpression
                             || settings.getState().isVarExpressionsCollapse() && expression instanceof VariableDeclaration
                             || settings.getState().isGetSetExpressionsCollapse() && expression instanceof GettersSetters
+                            || settings.getState().isControlFlowBracesCollapse() && expression instanceof ControlFlowBraces
                     ) && expression.isCollapsedByDefault();
             }
         } catch (IndexNotReadyException e) {

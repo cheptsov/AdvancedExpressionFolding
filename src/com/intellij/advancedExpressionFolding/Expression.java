@@ -196,6 +196,10 @@ public abstract class Expression {
         return element;
     }
 
+    public boolean isNested() {
+        return !this.textRange.equals(element.getTextRange());
+    }
+
     public boolean isOverflow() {
         return isLeftOverflow() || isRightOverflow();
     }

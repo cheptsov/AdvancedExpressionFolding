@@ -33,6 +33,7 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         myState.CAST_EXPRESSIONS = state.CAST_EXPRESSIONS;
         myState.VAR_EXPRESSIONS = state.VAR_EXPRESSIONS;
         myState.GET_SET_EXPRESSIONS = state.GET_SET_EXPRESSIONS;
+        myState.CONTROL_FLOW_BRACES = state.CONTROL_FLOW_BRACES;
     }
 
     public static final class State {
@@ -46,6 +47,7 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         private boolean CAST_EXPRESSIONS = true;
         private boolean VAR_EXPRESSIONS = true;
         private boolean GET_SET_EXPRESSIONS = true;
+        private boolean CONTROL_FLOW_BRACES = false;
 
         public boolean isArithmeticExpressionsCollapse() {
             return ARITHMETIC_EXPRESSIONS;
@@ -85,6 +87,10 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
 
         public boolean isGetSetExpressionsCollapse() {
             return GET_SET_EXPRESSIONS;
+        }
+
+        public boolean isControlFlowBracesCollapse() {
+            return CONTROL_FLOW_BRACES;
         }
 
         public void setArithmeticExpressionsCollapse(boolean value) {
@@ -127,6 +133,8 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
             GET_SET_EXPRESSIONS = value;
         }
 
-
+        public void setControlFlowBracesCollapse(boolean value) {
+            CONTROL_FLOW_BRACES = value;
+        }
     }
 }
