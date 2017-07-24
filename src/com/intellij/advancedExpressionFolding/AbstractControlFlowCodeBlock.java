@@ -65,45 +65,43 @@ public abstract class AbstractControlFlowCodeBlock extends Expression {
                 }
                 if (thisStatement != null) {
                     int thisStatementIndent = indentHelper.getIndent(element.getProject(), JavaFileType.INSTANCE, thisStatement.getNode());
-                    {
-                        PsiElement before = PsiTreeUtil.prevLeaf(this.element.getRBrace(), true);
-                        PsiElement after = PsiTreeUtil.prevLeaf(this.element.getRBrace(), true);
-                        if (before instanceof PsiWhiteSpace && after instanceof PsiWhiteSpace) {
-                            smart = true;
-                            int startOffset = this.element.getRBrace().getTextRange().getStartOffset();
-                            boolean newLine = false;
-                            int endOffset = this.element.getRBrace().getTextRange().getEndOffset();
-                            while (endOffset < document.getTextLength()) {
-                                endOffset++;
-                                char c = document.getText(TextRange.create(endOffset - 1, endOffset)).charAt(0);
+                    PsiElement before = PsiTreeUtil.prevLeaf(this.element.getRBrace(), true);
+                    PsiElement after = PsiTreeUtil.prevLeaf(this.element.getRBrace(), true);
+                    if (before instanceof PsiWhiteSpace && after instanceof PsiWhiteSpace) {
+                        smart = true;
+                        int startOffset = this.element.getRBrace().getTextRange().getStartOffset();
+                        boolean newLine = false;
+                        int endOffset = this.element.getRBrace().getTextRange().getEndOffset();
+                        while (endOffset < document.getTextLength()) {
+                            endOffset++;
+                            char c = document.getText(TextRange.create(endOffset - 1, endOffset)).charAt(0);
+                            if (c != ' ' && c != '\t') {
+                                if (c != '\n') {
+                                    endOffset--;
+                                } else {
+                                    newLine = true;
+                                }
+                                break;
+                            }
+                        }
+                        if (newLine) {
+                            for (int i = 0; i < thisStatementIndent/* - parentStatementIndent*/; i++) {
+                                char c = document.getText(TextRange.create(startOffset - 1, startOffset)).charAt(0);
                                 if (c != ' ' && c != '\t') {
-                                    if (c != '\n') {
-                                        endOffset--;
-                                    } else {
-                                        newLine = true;
-                                    }
+                                    smart = false;
                                     break;
                                 }
+                                startOffset--;
                             }
-                            if (newLine) {
-                                for (int i = 0; i < thisStatementIndent/* - parentStatementIndent*/; i++) {
-                                    char c = document.getText(TextRange.create(startOffset - 1, startOffset)).charAt(0);
-                                    if (c != ' ' && c != '\t') {
-                                        smart = false;
-                                        break;
-                                    }
-                                    startOffset--;
+                        }
+                        if (smart) {
+                            descriptors.add(new FoldingDescriptor(element.getNode(),
+                                    TextRange.create(startOffset, endOffset), group) {
+                                @Override
+                                public String getPlaceholderText() {
+                                    return "";
                                 }
-                            }
-                            if (smart) {
-                                descriptors.add(new FoldingDescriptor(element.getNode(),
-                                        TextRange.create(startOffset, endOffset), group) {
-                                    @Override
-                                    public String getPlaceholderText() {
-                                        return "";
-                                    }
-                                });
-                            }
+                            });
                         }
                     }
                 }
