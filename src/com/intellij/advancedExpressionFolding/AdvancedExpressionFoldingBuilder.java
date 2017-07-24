@@ -480,16 +480,21 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     }
 
     private static Expression getCodeBlockExpression(PsiCodeBlock element) {
-        if (element.getParent() instanceof PsiBlockStatement
+        PsiElement parent = element.getParent();
+        if (parent instanceof PsiBlockStatement
                 && (
-                (element.getParent().getParent() instanceof PsiIfStatement || element.getParent().getParent() instanceof PsiLoopStatement)
+                (parent.getParent() instanceof PsiIfStatement || parent.getParent() instanceof PsiLoopStatement)
                         && element.getRBrace() != null
                         && element.getLBrace() != null
                     )
-                || element.getParent() instanceof PsiSwitchStatement
-                || element.getParent() instanceof PsiTryStatement
-                || element.getParent() instanceof PsiCatchSection) {
-            return new ControlFlowCodeBlock(element, element.getTextRange());
+                || parent instanceof PsiSwitchStatement
+                || parent instanceof PsiTryStatement
+                || parent instanceof PsiCatchSection) {
+            if (element.getStatements().length == 1 || parent instanceof PsiSwitchStatement) {
+                return new ControlFlowSingleStatementCodeBlockExpression(element, element.getTextRange());
+            } else {
+                return new ControlFlowMultiStatementCodeBlockExpression(element, element.getTextRange());
+            }
         }
         return null;
     }
@@ -1709,7 +1714,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                             || settings.getState().isCastExpressionsCollapse() && expression instanceof CastExpression
                             || settings.getState().isVarExpressionsCollapse() && expression instanceof VariableDeclaration
                             || settings.getState().isGetSetExpressionsCollapse() && expression instanceof GettersSetters
-                            || settings.getState().isControlFlowBracesCollapse() && expression instanceof ControlFlowBraces
+                            || settings.getState().isControlFlowSingleStatementCodeBlockCollapse() && expression instanceof ControlFlowSingleStatementCodeBlock
+                            || settings.getState().isControlFlowMultiStatementCodeBlockCollapse() && expression instanceof ControlFlowMultiStatementCodeBlock
                     ) && expression.isCollapsedByDefault();
             }
         } catch (IndexNotReadyException e) {

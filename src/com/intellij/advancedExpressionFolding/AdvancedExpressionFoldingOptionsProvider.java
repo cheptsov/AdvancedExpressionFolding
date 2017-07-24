@@ -14,6 +14,7 @@ public class AdvancedExpressionFoldingOptionsProvider extends com.intellij.opena
         checkBox("castExpressionsCollapse", "Type cast expressions");
         checkBox("varExpressionsCollapse", "Variable declarations");
         checkBox("getSetExpressionsCollapse", "Getters and setters");
-        checkBox("controlFlowBracesCollapse", "Control flow braces");
+        checkBox("controlFlowSingleStatementCodeBlockCollapse", "Control flow single-statement code block braces");
+        checkBox("controlFlowMultiStatementCodeBlockCollapse", "Control flow multi-statement code block braces");
     }
 }
