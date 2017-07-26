@@ -312,6 +312,12 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 }
             }
         }
+        if (element.getCondition() != null
+                && element.getLParenth() != null && element.getRParenth() != null) {
+            return new CompactControlFlowExpression(element,
+                    TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
+                            element.getRParenth().getTextRange().getEndOffset()));
+        }
         return null;
     }
 
@@ -369,6 +375,33 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         }
         if (element instanceof PsiIfStatement) {
             Expression expression = getIfExpression((PsiIfStatement) element, document);
+            if (expression != null) {
+                return expression;
+            }
+        }
+        if (element instanceof PsiWhileStatement) {
+            Expression expression = getWhileStatement((PsiWhileStatement) element, document);
+            if (expression != null) {
+                return expression;
+            }
+        }
+        if (element instanceof PsiJavaToken && ((PsiJavaToken) element).getTokenType() == JavaTokenType.SEMICOLON) {
+            return new SemicolonExpression(element, element.getTextRange());
+        }
+        if (element instanceof PsiCatchSection) {
+            Expression expression = getCatchStatement((PsiCatchSection) element, document);
+            if (expression != null) {
+                return expression;
+            }
+        }
+        if (element instanceof PsiDoWhileStatement) {
+            Expression expression = getDoWhileStatement((PsiDoWhileStatement) element, document);
+            if (expression != null) {
+                return expression;
+            }
+        }
+        if (element instanceof PsiSwitchStatement) {
+            Expression expression = getSwitchStatement((PsiSwitchStatement) element, document);
             if (expression != null) {
                 return expression;
             }
@@ -479,6 +512,46 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
+    private static Expression getWhileStatement(PsiWhileStatement element, Document document) {
+        if (element.getCondition() != null
+                && element.getLParenth() != null && element.getRParenth() != null) {
+            return new CompactControlFlowExpression(element,
+                    TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
+                            element.getRParenth().getTextRange().getEndOffset()));
+        }
+        return null;
+    }
+
+    private static Expression getDoWhileStatement(PsiDoWhileStatement element, Document document) {
+        if (element.getCondition() != null
+                && element.getLParenth() != null && element.getRParenth() != null) {
+            return new CompactControlFlowExpression(element,
+                    TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
+                            element.getRParenth().getTextRange().getEndOffset()));
+        }
+        return null;
+    }
+
+    private static Expression getSwitchStatement(PsiSwitchStatement element, Document document) {
+        if (element.getExpression() != null
+                && element.getLParenth() != null && element.getRParenth() != null) {
+            return new CompactControlFlowExpression(element,
+                    TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
+                            element.getRParenth().getTextRange().getEndOffset()));
+        }
+        return null;
+    }
+
+    private static Expression getCatchStatement(PsiCatchSection element, Document document) {
+        if (element.getParameter() != null
+                && element.getLParenth() != null && element.getRParenth() != null) {
+            return new CompactControlFlowExpression(element,
+                    TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
+                            element.getRParenth().getTextRange().getEndOffset()));
+        }
+        return null;
+    }
+
     private static Expression getCodeBlockExpression(PsiCodeBlock element) {
         PsiElement parent = element.getParent();
         if (parent instanceof PsiBlockStatement
@@ -554,6 +627,12 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     }
                 }
             }
+        }
+        if (element.getCondition() != null
+                && element.getLParenth() != null && element.getRParenth() != null) {
+            return new CompactControlFlowExpression(element,
+                    TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
+                            element.getRParenth().getTextRange().getEndOffset()));
         }
         return null;
     }
@@ -1695,6 +1774,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
+    // TODO: Collapse everything by default but use these settings when actually building the folding descriptors
     @SuppressWarnings("ConstantConditions")
     @Override
     public boolean isCollapsedByDefault(@NotNull ASTNode astNode) {
@@ -1716,6 +1796,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                             || settings.getState().isGetSetExpressionsCollapse() && expression instanceof GettersSetters
                             || settings.getState().isControlFlowSingleStatementCodeBlockCollapse() && expression instanceof ControlFlowSingleStatementCodeBlock
                             || settings.getState().isControlFlowMultiStatementCodeBlockCollapse() && expression instanceof ControlFlowMultiStatementCodeBlock
+                            || settings.getState().isCompactControlFlowSyntaxCollapse() && expression instanceof CompactControlFlow
+                            || settings.getState().isSemicolonsCollapse() && expression instanceof Semicolon
                     ) && expression.isCollapsedByDefault();
             }
         } catch (IndexNotReadyException e) {

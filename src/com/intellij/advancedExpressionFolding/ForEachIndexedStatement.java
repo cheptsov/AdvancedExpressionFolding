@@ -5,12 +5,15 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiForStatement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
 public class ForEachIndexedStatement extends Expression implements RangeExpression {
+    @NotNull
+    private final PsiForStatement element;
     private final @NotNull TextRange declarationTextRange;
     private final @NotNull TextRange indexTextRange;
     private final @NotNull TextRange variableTextRange;
@@ -18,11 +21,12 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
     private final boolean varSyntax;
     private final boolean isFinal;
 
-    public ForEachIndexedStatement(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull TextRange declarationTextRange,
+    public ForEachIndexedStatement(@NotNull PsiForStatement element, @NotNull TextRange textRange, @NotNull TextRange declarationTextRange,
                                    @NotNull TextRange indexTextRange,
                                    @NotNull TextRange variableTextRange, @NotNull TextRange arrayTextRange,
                                    boolean varSyntax, boolean isFinal) {
         super(element, textRange);
+        this.element = element;
         this.declarationTextRange = declarationTextRange;
         this.indexTextRange = indexTextRange;
         this.variableTextRange = variableTextRange;
@@ -44,13 +48,19 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
         TextRange prefixRange = TextRange.create(textRange.getStartOffset(),
                 textRange.getStartOffset() + 1);
         String prefix = document.getText(prefixRange);
+        // TODO: Refactor this mess
+        if (AdvancedExpressionFoldingSettings.getInstance().getState().isCompactControlFlowSyntaxCollapse() &&
+                prefix.equals("(")) {
+            prefix = "";
+        }
+        String finalPrefix = prefix;
         if (varSyntax) {
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset(),
                     indexTextRange.getStartOffset()), group) {
                 @NotNull
                 @Override
                 public String getPlaceholderText() {
-                    return prefix + (isFinal ? "val" : "var" ) + " (";
+                    return finalPrefix + (isFinal ? "val" : "var" ) + " (";
                 }
             });
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(indexTextRange.getEndOffset(),
@@ -66,7 +76,7 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
                 @NotNull
                 @Override
                 public String getPlaceholderText() {
-                    return  prefix + "(";
+                    return  finalPrefix + "(";
                 }
             });
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(indexTextRange.getEndOffset(),
@@ -83,7 +93,8 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
             @NotNull
             @Override
             public String getPlaceholderText() {
-                return ") : ";
+                return AdvancedExpressionFoldingSettings.getInstance().getState().isCompactControlFlowSyntaxCollapse() ?
+                 " : " : ") : ";
             }
         });
         descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(arrayTextRange.getEndOffset(),

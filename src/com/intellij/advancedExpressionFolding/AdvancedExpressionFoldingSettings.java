@@ -34,6 +34,8 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         myState.VAR_EXPRESSIONS = state.VAR_EXPRESSIONS;
         myState.GET_SET_EXPRESSIONS = state.GET_SET_EXPRESSIONS;
         myState.CONTROL_FLOW_MULTI_STATEMENT_CODE_BLOCK = state.CONTROL_FLOW_MULTI_STATEMENT_CODE_BLOCK;
+        myState.COMPACT_CONTROL_FLOW_SYNTAX = state.COMPACT_CONTROL_FLOW_SYNTAX;
+        myState.SEMICOLONS = state.SEMICOLONS;
     }
 
     public static final class State {
@@ -47,8 +49,10 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         private boolean CAST_EXPRESSIONS = true;
         private boolean VAR_EXPRESSIONS = true;
         private boolean GET_SET_EXPRESSIONS = true;
-        private boolean CONTROL_FLOW_SINGLE_STATEMENT_CODE_BLOCK = true;
+        private boolean CONTROL_FLOW_SINGLE_STATEMENT_CODE_BLOCK = false;
+        private boolean COMPACT_CONTROL_FLOW_SYNTAX = false;
         private boolean CONTROL_FLOW_MULTI_STATEMENT_CODE_BLOCK = false;
+        private boolean SEMICOLONS = false;
 
         public boolean isArithmeticExpressionsCollapse() {
             return ARITHMETIC_EXPRESSIONS;
@@ -98,6 +102,14 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
             return CONTROL_FLOW_SINGLE_STATEMENT_CODE_BLOCK;
         }
 
+        public boolean isCompactControlFlowSyntaxCollapse() {
+            return COMPACT_CONTROL_FLOW_SYNTAX;
+        }
+
+        public boolean isSemicolonsCollapse() {
+            return SEMICOLONS;
+        }
+
         public void setArithmeticExpressionsCollapse(boolean value) {
             ARITHMETIC_EXPRESSIONS = value;
         }
@@ -144,6 +156,14 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
 
         public void setControlFlowSingleStatementCodeBlockCollapse(boolean value) {
             CONTROL_FLOW_SINGLE_STATEMENT_CODE_BLOCK = value;
+        }
+
+        public void setCompactControlFlowSyntaxCollapse(boolean value) {
+            COMPACT_CONTROL_FLOW_SYNTAX = value;
+        }
+
+        public void setSemicolonsCollapse(boolean value) {
+            SEMICOLONS = value;
         }
     }
 }
