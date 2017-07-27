@@ -628,13 +628,13 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 }
             }
         }
-        if (element.getCondition() != null
+        /*if (element.getCondition() != null
                 && element.getLParenth() != null && element.getRParenth() != null) {
             return new CompactControlFlowExpression(element,
                     TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
                             element.getRParenth().getTextRange().getEndOffset()));
-        }
-        return null;
+        }*/
+        return new IfExpression(element, element.getTextRange());
     }
 
     @Nullable
@@ -1798,6 +1798,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                             || settings.getState().isControlFlowMultiStatementCodeBlockCollapse() && expression instanceof ControlFlowMultiStatementCodeBlock
                             || settings.getState().isCompactControlFlowSyntaxCollapse() && expression instanceof CompactControlFlow
                             || settings.getState().isSemicolonsCollapse() && expression instanceof Semicolon
+                            || expression instanceof CollapseByDefault
                     ) && expression.isCollapsedByDefault();
             }
         } catch (IndexNotReadyException e) {

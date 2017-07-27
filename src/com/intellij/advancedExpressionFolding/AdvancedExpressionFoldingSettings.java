@@ -36,6 +36,7 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         myState.CONTROL_FLOW_MULTI_STATEMENT_CODE_BLOCK = state.CONTROL_FLOW_MULTI_STATEMENT_CODE_BLOCK;
         myState.COMPACT_CONTROL_FLOW_SYNTAX = state.COMPACT_CONTROL_FLOW_SYNTAX;
         myState.SEMICOLONS = state.SEMICOLONS;
+        myState.ASSERTS = state.ASSERTS;
     }
 
     public static final class State {
@@ -53,6 +54,7 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         private boolean COMPACT_CONTROL_FLOW_SYNTAX = false;
         private boolean CONTROL_FLOW_MULTI_STATEMENT_CODE_BLOCK = false;
         private boolean SEMICOLONS = false;
+        private boolean ASSERTS = true;
 
         public boolean isArithmeticExpressionsCollapse() {
             return ARITHMETIC_EXPRESSIONS;
@@ -110,6 +112,10 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
             return SEMICOLONS;
         }
 
+        public boolean isAssertsCollapse() {
+            return ASSERTS;
+        }
+
         public void setArithmeticExpressionsCollapse(boolean value) {
             ARITHMETIC_EXPRESSIONS = value;
         }
@@ -164,6 +170,10 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
 
         public void setSemicolonsCollapse(boolean value) {
             SEMICOLONS = value;
+        }
+
+        public void setAssertsCollapse(boolean value) {
+            ASSERTS = value;
         }
     }
 }

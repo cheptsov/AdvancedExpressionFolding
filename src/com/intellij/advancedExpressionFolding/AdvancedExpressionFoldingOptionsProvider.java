@@ -15,8 +15,9 @@ public class AdvancedExpressionFoldingOptionsProvider extends com.intellij.opena
         checkBox("varExpressionsCollapse", "Variable declarations");
         checkBox("getSetExpressionsCollapse", "Getters and setters");
         checkBox("controlFlowSingleStatementCodeBlockCollapse", "Control flow single-statement code block braces");
-        checkBox("controlFlowMultiStatementCodeBlockCollapse", "Control flow multi-statement code block braces (similar to Python)");
+        checkBox("controlFlowMultiStatementCodeBlockCollapse", "Control flow multi-statement code block braces (Deprecated)");
         checkBox("compactControlFlowSyntaxCollapse", "Compact control flow condition syntax (similar to Go)");
         checkBox("semicolonsCollapse", "Semicolons");
+        checkBox("assertsCollapse", "Asserts");
     }
 }

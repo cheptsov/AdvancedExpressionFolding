@@ -1,5 +1,5 @@
 package com.intellij.advancedExpressionFolding;
 
 @Deprecated
-public interface Semicolon {
+public interface CollapseByDefault {
 }
