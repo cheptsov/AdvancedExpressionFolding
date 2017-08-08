@@ -56,6 +56,11 @@ public class IfExpression extends Expression implements CollapseByDefault {
     }
 
     @Override
+    public boolean isNested() {
+        return true;
+    }
+
+    @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
                                                 @Nullable Expression parent) {
         AdvancedExpressionFoldingSettings.State state = AdvancedExpressionFoldingSettings.getInstance().getState();
