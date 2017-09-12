@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Sinh extends Function implements ArithmeticExpression {
-    public Sinh(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Sinh(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "sinh", operands);
     }
 }

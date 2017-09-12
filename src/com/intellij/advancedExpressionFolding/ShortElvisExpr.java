@@ -10,32 +10,33 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ShortElvisExpression extends Expression implements CheckExpression {
-    private final @NotNull Expression thenExpression;
+public class ShortElvisExpr extends Expr implements CheckExpression {
+    private final @NotNull
+    Expr thenExpr;
     private final @NotNull List<TextRange> elements;
 
-    public ShortElvisExpression(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression thenExpression,
-                                @NotNull List<TextRange> elements) {
+    public ShortElvisExpr(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expr thenExpr,
+                          @NotNull List<TextRange> elements) {
         super(element, textRange);
-        this.thenExpression = thenExpression;
+        this.thenExpr = thenExpr;
         this.elements = elements;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
-        FoldingGroup group = FoldingGroup.newGroup(ShortElvisExpression.class.getName());
+        FoldingGroup group = FoldingGroup.newGroup(ShortElvisExpr.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(textRange.getStartOffset(), thenExpression.getTextRange().getStartOffset()),
+                TextRange.create(textRange.getStartOffset(), thenExpr.getTextRange().getStartOffset()),
                 group) {
             @Override
             public String getPlaceholderText() {
                 return "";
             }
         });
-        if (thenExpression.getTextRange().getEndOffset() < textRange.getEndOffset()) {
+        if (thenExpr.getTextRange().getEndOffset() < textRange.getEndOffset()) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(thenExpression.getTextRange().getEndOffset(),
+                    TextRange.create(thenExpr.getTextRange().getEndOffset(),
                             getTextRange().getEndOffset()),
                     group) {
                 @Override
@@ -45,8 +46,8 @@ public class ShortElvisExpression extends Expression implements CheckExpression 
             });
         }
         nullify(element, document, descriptors, group, elements, true);
-        if (thenExpression.supportsFoldRegions(document, this)) {
-            Collections.addAll(descriptors, thenExpression.buildFoldRegions(thenExpression.getElement(), document, this));
+        if (thenExpr.supportsFoldRegions(document, this)) {
+            Collections.addAll(descriptors, thenExpr.buildFoldRegions(thenExpr.getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
@@ -90,7 +91,7 @@ public class ShortElvisExpression extends Expression implements CheckExpression 
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 }

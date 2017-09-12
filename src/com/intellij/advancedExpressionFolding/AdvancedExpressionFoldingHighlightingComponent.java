@@ -99,8 +99,8 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
             if (psiFile != null) {
                 @Nullable PsiElement element = psiFile.findElementAt(region.getStartOffset());
                 if (element != null) {
-                    @Nullable Expression expression = findHighlightingExpression(psiFile, region.getDocument(), region.getStartOffset());
-                    if (expression != null) {
+                    @Nullable Expr expr = findHighlightingExpression(psiFile, region.getDocument(), region.getStartOffset());
+                    if (expr != null) {
                         TextAttributes foldedTextAttributes = editorEx.getColorsScheme().getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES);
                         if (foldedTextAttributes.getBackgroundColor() != null) {
                             foldedTextAttributes.setForegroundColor(null);
@@ -111,8 +111,9 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                             if (h != null) {
                                 editorEx.getMarkupModel().removeHighlighter(h);
                             }
-                            RangeHighlighterEx highlighter = (RangeHighlighterEx) editorEx.getMarkupModel().addRangeHighlighter(expression.getElement().getTextRange().getStartOffset(),
-                                    expression.getElement().getTextRange().getEndOffset(), HighlighterLayer.WARNING - 1, foldedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
+                            RangeHighlighterEx highlighter = (RangeHighlighterEx) editorEx.getMarkupModel().addRangeHighlighter(
+                                    expr.getElement().getTextRange().getStartOffset(),
+                                    expr.getElement().getTextRange().getEndOffset(), HighlighterLayer.WARNING - 1, foldedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
                             highlighter.setAfterEndOfLine(false);
                             highlighters.put(region, highlighter);
                         } else {
@@ -129,7 +130,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
     }
 
     private boolean isHighlightingRegion(@NotNull FoldRegion region) {
-        return region.getGroup() != null && region.getGroup().toString().endsWith(Expression.HIGHLIGHTED_GROUP_POSTFIX) && region.isValid();
+        return region.getGroup() != null && region.getGroup().toString().endsWith(Expr.HIGHLIGHTED_GROUP_POSTFIX) && region.isValid();
     }
 
     private DocumentFragment createDocumentFragment(EditorEx editorEx, FoldRegion fold) {
@@ -144,15 +145,15 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
         return new DocumentFragment(editorEx.getDocument(), foldStart, oldEnd);
     }
 
-    private Expression findHighlightingExpression(@NotNull PsiFile psiFile, @NotNull Document document, int offset) throws IndexNotReadyException {
+    private Expr findHighlightingExpression(@NotNull PsiFile psiFile, @NotNull Document document, int offset) throws IndexNotReadyException {
         @Nullable PsiElement element = psiFile.findElementAt(offset);
         if (element != null) {
-            @Nullable Expression expression;
+            @Nullable Expr expr;
             int count = 0;
             while (count++ < 10 && element != null) {
-                expression = AdvancedExpressionFoldingBuilder.getNonSyntheticExpression(element, document);
-                if (expression != null && expression.isHighlighted()) {
-                    return expression;
+                expr = AdvancedExpressionFoldingBuilder.getNonSyntheticExpression(element, document);
+                if (expr != null && expr.isHighlighted()) {
+                    return expr;
                 }
                 element = element.getParent();
             }
@@ -194,11 +195,11 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                 try {
                     @Nullable PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(editorEx.getDocument());
                     if (psiFile != null) {
-                        @Nullable Expression expression = findHighlightingExpression(psiFile, editorEx.getDocument(), offset);
-                        if (expression != null) {
+                        @Nullable Expr expr = findHighlightingExpression(psiFile, editorEx.getDocument(), offset);
+                        if (expr != null) {
                             for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
-                                if (expression.getTextRange().getStartOffset() <= region.getStartOffset()
-                                        && region.getEndOffset() <= expression.getTextRange().getEndOffset()
+                                if (expr.getTextRange().getStartOffset() <= region.getStartOffset()
+                                        && region.getEndOffset() <= expr.getTextRange().getEndOffset()
                                         && isHighlightingRegion(region)
                                         && !region.isExpanded()) {
                                     editorEx.getFoldingModel().runBatchFoldingOperation(() -> region.setExpanded(true));
@@ -237,11 +238,11 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                 try {
                     @Nullable PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(editorEx.getDocument());
                     if (psiFile != null) {
-                        @Nullable Expression expression = findHighlightingExpression(psiFile, editorEx.getDocument(), offset);
-                        if (expression != null) {
+                        @Nullable Expr expr = findHighlightingExpression(psiFile, editorEx.getDocument(), offset);
+                        if (expr != null) {
                             for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
-                                if (expression.getTextRange().getStartOffset() <= region.getStartOffset()
-                                        && region.getEndOffset() <= expression.getTextRange().getEndOffset()
+                                if (expr.getTextRange().getStartOffset() <= region.getStartOffset()
+                                        && region.getEndOffset() <= expr.getTextRange().getEndOffset()
                                         && isHighlightingRegion(region)
                                         && !region.isExpanded()) {
                                     DocumentFragment range = createDocumentFragment(editorEx, region);

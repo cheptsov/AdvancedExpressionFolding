@@ -12,18 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Exp extends Function implements ArithmeticExpression {
-    public Exp(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Exp(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "exp", operands);
     }
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return superscript(operands.get(0).getElement().getText()) != null;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(Exp.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),

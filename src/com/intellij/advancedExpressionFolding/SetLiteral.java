@@ -19,14 +19,14 @@ public class SetLiteral extends Function implements GetExpression {
     private final TextRange secondBracesRange;
 
     public SetLiteral(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull TextRange firstBracesRange,
-                      @NotNull TextRange secondBracesRange, @NotNull List<Expression> items) {
+                      @NotNull TextRange secondBracesRange, @NotNull List<Expr> items) {
         super(element, textRange, "Set.of", items);
         this.firstBracesRange = firstBracesRange;
         this.secondBracesRange = secondBracesRange;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         FoldingGroup group = FoldingGroup.newGroup(getClass().getName());
         List<FoldingDescriptor> descriptors = new ArrayList<>();
         int offset = getTextRange().getStartOffset();
@@ -110,7 +110,7 @@ public class SetLiteral extends Function implements GetExpression {
                 }
             });
         }
-        for (Expression operand : operands) {
+        for (Expr operand : operands) {
             if (operand.supportsFoldRegions(document, this)) {
                 Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document, this));
             }

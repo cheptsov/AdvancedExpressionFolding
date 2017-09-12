@@ -13,18 +13,18 @@ import java.util.Collections;
 import java.util.List;
 
 public class Abs extends Function implements ArithmeticExpression {
-    public Abs(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
+    public Abs(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expr> operands) {
         super(element, textRange, "abs", operands);
     }
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return textRange.getStartOffset() < operands.get(0).getTextRange().getStartOffset();
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(Abs.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),

@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class Operation extends Expression {
+public abstract class Operation extends Expr {
     protected @NotNull String character;
-    protected @NotNull List<Expression> operands;
+    protected @NotNull List<Expr> operands;
     private int priority;
 
-    public Operation(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull String character, int priority, @NotNull List<Expression> operands) {
+    public Operation(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull String character, int priority, @NotNull List<Expr> operands) {
         super(element, textRange);
         this.character = character;
         this.priority = priority;
@@ -26,7 +26,7 @@ public abstract class Operation extends Expression {
 
     @Override
     public boolean isCollapsedByDefault() {
-        for (Expression operand : operands) {
+        for (Expr operand : operands) {
             if (!operand.isCollapsedByDefault()) {
                 return false;
             }
@@ -35,7 +35,7 @@ public abstract class Operation extends Expression {
     }
 
     @NotNull
-    public List<Expression> getOperands() {
+    public List<Expr> getOperands() {
         return operands;
     }
 
@@ -50,7 +50,7 @@ public abstract class Operation extends Expression {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         if (equalOrLessPriority(0)) {
             return false;
         }
@@ -69,7 +69,7 @@ public abstract class Operation extends Expression {
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         FoldingGroup group = FoldingGroup.newGroup(getClass().getName());
         List<FoldingDescriptor> descriptors = new ArrayList<>();
         int offset = getTextRange().getStartOffset();
@@ -108,7 +108,7 @@ public abstract class Operation extends Expression {
                 }
             });
         }
-        for (Expression operand : operands) {
+        for (Expr operand : operands) {
             if (operand.supportsFoldRegions(document, this)) {
                 Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document, this));
             }

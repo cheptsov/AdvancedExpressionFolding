@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Log extends Function implements ArithmeticExpression {
-    public Log(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Log(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "ln", operands);
     }
 }

@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class ArrayGet extends Expression implements GetExpression {
-    private final Expression object;
+public class ArrayGet extends Expr implements GetExpression {
+    private final Expr object;
     private final Style style;
 
     public enum Style {
@@ -20,7 +20,7 @@ public class ArrayGet extends Expression implements GetExpression {
         LAST
     }
 
-    public ArrayGet(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object, @NotNull Style style) {
+    public ArrayGet(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expr object, @NotNull Style style) {
         super(element, textRange);
         this.object = object;
         this.style = style;
@@ -28,12 +28,12 @@ public class ArrayGet extends Expression implements GetExpression {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         FoldingGroup group = FoldingGroup.newGroup(ArrayGet.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),

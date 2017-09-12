@@ -13,12 +13,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class Cbrt extends Function implements ArithmeticExpression {
-    public Cbrt(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Cbrt(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "∛", operands);
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(Cbrt.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),

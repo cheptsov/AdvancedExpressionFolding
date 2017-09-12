@@ -13,19 +13,19 @@ import java.util.Collections;
 import java.util.List;
 
 public class Pow extends Function implements ArithmeticExpression {
-    public Pow(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
+    public Pow(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expr> operands) {
         super(element, textRange, "pow", operands);
     }
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return operands.get(0).getTextRange().getEndOffset() < getTextRange().getEndOffset()
                 && superscript(operands.get(1).getElement().getText()) != null; // TODO no-format: Forbid non-literal/non-variable operands.get(1)
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(Pow.class.getName());
         if (getTextRange().getStartOffset() < operands.get(0).getTextRange().getStartOffset()) {

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class Expression {
+public abstract class Expr {
     private final static double EPSILON = 0.00001;
 
     static String HIGHLIGHTED_GROUP_POSTFIX = ":highlighting";
@@ -84,7 +84,7 @@ public abstract class Expression {
     protected @NotNull PsiElement element;
     protected @NotNull TextRange textRange;
 
-    public Expression(@NotNull PsiElement element, @NotNull TextRange textRange) {
+    public Expr(@NotNull PsiElement element, @NotNull TextRange textRange) {
         this.element = element;
         this.textRange = textRange;
     }
@@ -169,15 +169,15 @@ public abstract class Expression {
     }
 
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return false; // TODO no-format: This should be impossible
     }
 
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         return FoldingDescriptor.EMPTY;
     }
 
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent,
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent,
                                                 @Nullable FoldingGroup overflowGroup, @Nullable String overflowLeftPlaceholder, @Nullable String overflowRightPlaceholder) {
         return buildFoldRegions(element, document, parent);
     }

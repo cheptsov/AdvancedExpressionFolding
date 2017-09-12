@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class GreaterEqual extends Operation {
-    public GreaterEqual(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public GreaterEqual(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "≥", 18, operands);
     }
 }

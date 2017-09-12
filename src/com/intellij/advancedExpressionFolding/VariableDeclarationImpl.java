@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class VariableDeclarationImpl extends Expression implements VariableDeclaration {
+public class VariableDeclarationImpl extends Expr implements VariableDeclaration {
     private final boolean isFinal;
 
     public VariableDeclarationImpl(@NotNull PsiElement element, @NotNull TextRange textRange, boolean isFinal) {
@@ -22,12 +22,12 @@ public class VariableDeclarationImpl extends Expression implements VariableDecla
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         FoldingGroup group = FoldingGroup.newGroup(VariableDeclarationImpl.class.getName());
         return new FoldingDescriptor[] {
                 new FoldingDescriptor(element.getNode(), textRange, group) {

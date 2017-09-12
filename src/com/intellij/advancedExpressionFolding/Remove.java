@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Remove extends Operation {
-    public Remove(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Remove(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "-=", 10, operands);
     }
 }

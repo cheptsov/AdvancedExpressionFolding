@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Asin extends Function implements ArithmeticExpression {
-    public Asin(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Asin(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "asin", operands);
     }
 }

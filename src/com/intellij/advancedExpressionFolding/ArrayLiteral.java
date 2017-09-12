@@ -12,22 +12,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ArrayLiteral extends Expression implements GetExpression {
-    private final List<Expression> items;
+public class ArrayLiteral extends Expr implements GetExpression {
+    private final List<Expr> items;
 
-    public ArrayLiteral(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> items) {
+    public ArrayLiteral(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expr> items) {
         super(element, textRange);
         this.items = items;
     }
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return items.stream().allMatch(i -> true);
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         FoldingGroup group = FoldingGroup.newGroup(ArrayLiteral.class.getName());
         if (items.isEmpty()) {
             return new FoldingDescriptor[] {
@@ -59,7 +59,7 @@ public class ArrayLiteral extends Expression implements GetExpression {
                     return "]";
                 }
             });
-            for (Expression item : items) {
+            for (Expr item : items) {
                 if (item.supportsFoldRegions(document, this)) {
                     Collections.addAll(descriptors, item.buildFoldRegions(item.getElement(), document, this));
                 }

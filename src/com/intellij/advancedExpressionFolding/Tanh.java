@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Tanh extends Function implements ArithmeticExpression {
-    public Tanh(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Tanh(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "tanh", operands);
     }
 }

@@ -11,11 +11,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Collect extends Expression implements StreamsExpression {
-    private final @NotNull Expression qualifier;
+public class Collect extends Expr implements StreamsExpression {
+    private final @NotNull
+    Expr qualifier;
     private final @NotNull TextRange collectorTextRange;
 
-    public Collect(PsiElement element, TextRange textRange, @NotNull Expression qualifier, @NotNull TextRange collectorTextRange) {
+    public Collect(PsiElement element, TextRange textRange, @NotNull Expr qualifier, @NotNull TextRange collectorTextRange) {
         super(element, textRange);
         this.qualifier = qualifier;
         this.collectorTextRange = collectorTextRange;
@@ -23,12 +24,12 @@ public class Collect extends Expression implements StreamsExpression {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         FoldingGroup group = FoldingGroup.newGroup(Collect.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getStartOffset(), -1);

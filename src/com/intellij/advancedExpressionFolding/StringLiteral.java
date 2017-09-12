@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class StringLiteral extends Expression implements CharSequenceLiteral {
+public class StringLiteral extends Expr implements CharSequenceLiteral {
     private @NotNull String string;
 
     public StringLiteral(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull String string) {
@@ -21,7 +21,7 @@ public class StringLiteral extends Expression implements CharSequenceLiteral {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 }

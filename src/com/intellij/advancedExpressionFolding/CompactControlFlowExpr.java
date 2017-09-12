@@ -10,22 +10,22 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class CompactControlFlowExpression extends Expression implements CompactControlFlow {
-    public CompactControlFlowExpression(@NotNull PsiElement element,
-                                        @NotNull TextRange textRange) {
+public class CompactControlFlowExpr extends Expr implements CompactControlFlow {
+    public CompactControlFlowExpr(@NotNull PsiElement element,
+                                  @NotNull TextRange textRange) {
         super(element, textRange);
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, @Nullable Expression parent) {
+    public boolean supportsFoldRegions(@NotNull Document document, @Nullable Expr parent) {
         return true;
     }
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
-                                                @Nullable Expression parent) {
+                                                @Nullable Expr parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
-        buildFoldRegions(element, FoldingGroup.newGroup(CompactControlFlowExpression.class.getName()), descriptors, textRange);
+        buildFoldRegions(element, FoldingGroup.newGroup(CompactControlFlowExpr.class.getName()), descriptors, textRange);
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 

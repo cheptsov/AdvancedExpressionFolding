@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 import static sun.misc.FloatingDecimal.toJavaFormatString;
 
-public class NumberLiteral extends Expression implements ArithmeticExpression {
+public class NumberLiteral extends Expr implements ArithmeticExpression {
     private @NotNull Number number;
     private final boolean convert;
     private @Nullable TextRange numberTextRange;
@@ -46,17 +46,17 @@ public class NumberLiteral extends Expression implements ArithmeticExpression {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return isHighlighted();
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         //noinspection Duplicates
         if (numberTextRange != null) {
             FoldingGroup group = FoldingGroup
-                    .newGroup(NumberLiteral.class.getName() + Expression.HIGHLIGHTED_GROUP_POSTFIX);
+                    .newGroup(NumberLiteral.class.getName() + Expr.HIGHLIGHTED_GROUP_POSTFIX);
             if (textRange.getStartOffset() < numberTextRange.getStartOffset()) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(textRange.getStartOffset(), numberTextRange.getStartOffset()), group) {

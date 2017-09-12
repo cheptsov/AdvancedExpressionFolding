@@ -11,30 +11,31 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class TypeCast extends Expression implements CastExpression {
-    private final @NotNull Expression object;
+public class TypeCast extends Expr implements CastExpression {
+    private final @NotNull
+    Expr object;
 
-    public TypeCast(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object) {
+    public TypeCast(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expr object) {
         super(element, textRange);
         this.object = object;
     }
 
     @NotNull
-    public Expression getObject() {
+    public Expr getObject() {
         return object;
     }
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         boolean dotAccess = document.getTextLength() > getTextRange().getEndOffset()
                 && document.getText(TextRange.create(getTextRange().getEndOffset(), getTextRange().getEndOffset() + 1)).equals(".");
-        FoldingGroup group = FoldingGroup.newGroup(TypeCast.class.getName() + (dotAccess ? "" : Expression.HIGHLIGHTED_GROUP_POSTFIX));
+        FoldingGroup group = FoldingGroup.newGroup(TypeCast.class.getName() + (dotAccess ? "" : Expr.HIGHLIGHTED_GROUP_POSTFIX));
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         if (object.getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
             if (dotAccess) {

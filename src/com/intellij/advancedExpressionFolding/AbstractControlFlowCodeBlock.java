@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public abstract class AbstractControlFlowCodeBlock extends Expression {
+public abstract class AbstractControlFlowCodeBlock extends Expr {
     @NotNull
     private final PsiCodeBlock element;
     private IndentHelper indentHelper;
@@ -30,14 +30,14 @@ public abstract class AbstractControlFlowCodeBlock extends Expression {
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, @Nullable Expression parent) {
+    public boolean supportsFoldRegions(@NotNull Document document, @Nullable Expr parent) {
         return element.getLBrace() != null
                 && element.getRBrace() != null;
     }
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
-                                                @Nullable Expression parent) {
+                                                @Nullable Expr parent) {
         FoldingGroup group = FoldingGroup.newGroup(AbstractControlFlowCodeBlock.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         if (this.element.getLBrace() != null) {

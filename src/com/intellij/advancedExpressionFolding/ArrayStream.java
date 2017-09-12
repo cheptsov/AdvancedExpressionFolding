@@ -11,25 +11,26 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class ArrayStream extends Expression implements StreamsExpression {
-    private final @NotNull Expression argument;
+public class ArrayStream extends Expr implements StreamsExpression {
+    private final @NotNull
+    Expr argument;
 
-    public ArrayStream(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression argument) {
+    public ArrayStream(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expr argument) {
         super(element, textRange);
         this.argument = argument;
     }
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getEndOffset(), 1) + 1;
         final boolean noSpaces = offset == 1;
-        FoldingGroup group = FoldingGroup.newGroup(ArrayStream.class.getName() + (noSpaces ? "" : Expression.HIGHLIGHTED_GROUP_POSTFIX));
+        FoldingGroup group = FoldingGroup.newGroup(ArrayStream.class.getName() + (noSpaces ? "" : Expr.HIGHLIGHTED_GROUP_POSTFIX));
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(textRange.getStartOffset(),

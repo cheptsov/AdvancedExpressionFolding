@@ -11,24 +11,24 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class AssertNotNullExpression extends Expression implements CheckExpression {
-    private final Expression object;
+public class AssertNotNullExpr extends Expr implements CheckExpression {
+    private final Expr object;
 
-    public AssertNotNullExpression(PsiElement element, TextRange textRange, Expression object) {
+    public AssertNotNullExpr(PsiElement element, TextRange textRange, Expr object) {
         super(element, textRange);
         this.object = object;
     }
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@org.jetbrains.annotations.NotNull PsiElement element,
-                                                @org.jetbrains.annotations.NotNull Document document, @Nullable Expression parent) {
-        FoldingGroup group = FoldingGroup.newGroup(AssertNotNullExpression.class.getName());
+                                                @org.jetbrains.annotations.NotNull Document document, @Nullable Expr parent) {
+        FoldingGroup group = FoldingGroup.newGroup(AssertNotNullExpr.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 object.getTextRange().getEndOffset() < getTextRange().getEndOffset()

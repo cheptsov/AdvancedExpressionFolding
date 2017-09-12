@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class LessEqual extends Operation implements ComparingExpression {
-    public LessEqual(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public LessEqual(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "≤", 18, operands);
     }
 }

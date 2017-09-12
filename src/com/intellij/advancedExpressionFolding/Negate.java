@@ -9,13 +9,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class Negate extends Function implements ArithmeticExpression {
-    public Negate(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Negate(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "negate", operands);
     }
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return false;
     }
 }

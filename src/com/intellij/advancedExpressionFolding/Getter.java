@@ -11,12 +11,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Getter extends Expression implements GettersSetters {
+public class Getter extends Expr implements GettersSetters {
     private @NotNull String name;
     private @NotNull TextRange getterTextRange;
-    private @Nullable Expression object;
+    private @Nullable
+    Expr object;
 
-    public Getter(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull TextRange getterTextRange, @Nullable Expression object, @NotNull String name) {
+    public Getter(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull TextRange getterTextRange, @Nullable Expr object, @NotNull String name) {
         super(element, textRange);
         this.getterTextRange = getterTextRange;
         this.object = object;
@@ -25,12 +26,12 @@ public class Getter extends Expression implements GettersSetters {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(
                 new FoldingDescriptor(element.getNode(), getterTextRange,

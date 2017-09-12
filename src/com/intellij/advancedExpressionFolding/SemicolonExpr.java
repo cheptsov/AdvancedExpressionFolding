@@ -8,21 +8,21 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SemicolonExpression extends Expression implements Semicolon {
-    public SemicolonExpression(PsiElement element, TextRange textRange) {
+public class SemicolonExpr extends Expr implements Semicolon {
+    public SemicolonExpr(PsiElement element, TextRange textRange) {
         super(element, textRange);
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, @Nullable Expression parent) {
+    public boolean supportsFoldRegions(@NotNull Document document, @Nullable Expr parent) {
         return true;
     }
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
-                                                @Nullable Expression parent) {
+                                                @Nullable Expr parent) {
         return new FoldingDescriptor[] {
-                new FoldingDescriptor(element.getNode(), textRange, FoldingGroup.newGroup(SemicolonExpression.class.getName())) {
+                new FoldingDescriptor(element.getNode(), textRange, FoldingGroup.newGroup(SemicolonExpr.class.getName())) {
                     @Nullable
                     @Override
                     public String getPlaceholderText() {

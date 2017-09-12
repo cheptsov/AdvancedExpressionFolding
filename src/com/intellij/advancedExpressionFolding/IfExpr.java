@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class IfExpression extends Expression implements CollapseByDefault {
+public class IfExpr extends Expr implements CollapseByDefault {
     private final PsiIfStatement element;
 
     private static final Set<String> supportedOperatorSigns = new HashSet<String>() {
@@ -26,7 +26,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
         }
     };
 
-    public IfExpression(PsiIfStatement element, TextRange textRange) {
+    public IfExpr(PsiIfStatement element, TextRange textRange) {
         super(element, textRange);
         this.element = element;
     }
@@ -50,7 +50,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
     }
 
     @Override
-    public boolean supportsFoldRegions(@NotNull Document document, @Nullable Expression parent) {
+    public boolean supportsFoldRegions(@NotNull Document document, @Nullable Expr parent) {
         AdvancedExpressionFoldingSettings.State state = AdvancedExpressionFoldingSettings.getInstance().getState();
         return isAssertExpression(state, element) || isCompactExpression(state, element);
     }
@@ -62,9 +62,9 @@ public class IfExpression extends Expression implements CollapseByDefault {
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
-                                                @Nullable Expression parent) {
+                                                @Nullable Expr parent) {
         AdvancedExpressionFoldingSettings.State state = AdvancedExpressionFoldingSettings.getInstance().getState();
-        FoldingGroup group = FoldingGroup.newGroup(IfExpression.class.getName());
+        FoldingGroup group = FoldingGroup.newGroup(IfExpr.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         if (isAssertExpression(state, this.element)) {
             PsiThrowStatement throwStatement =
@@ -254,7 +254,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                 }
             }
         } else if (isCompactExpression(state, this.element)) {
-            CompactControlFlowExpression.buildFoldRegions(element, group, descriptors,
+            CompactControlFlowExpr.buildFoldRegions(element, group, descriptors,
                     TextRange.create(this.element.getLParenth().getTextRange().getStartOffset(),
                             this.element.getRParenth().getTextRange().getEndOffset()));
         }

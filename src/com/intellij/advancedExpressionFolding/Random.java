@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Random extends Function implements ArithmeticExpression {
-    public Random(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Random(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "random", operands);
     }
 

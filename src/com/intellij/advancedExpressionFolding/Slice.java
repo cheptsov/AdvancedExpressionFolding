@@ -13,18 +13,18 @@ import java.util.Collections;
 import java.util.List;
 
 public class Slice extends Function implements SlicingExpression {
-    public Slice(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
+    public Slice(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expr> operands) {
         super(element, textRange, "slice", operands);
     }
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         FoldingGroup group = FoldingGroup.newGroup(Slice.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
@@ -90,7 +90,7 @@ public class Slice extends Function implements SlicingExpression {
                 return operands.size() == 2 ? ":]" : "]";
             }
         });
-        for (Expression operand : operands) {
+        for (Expr operand : operands) {
             if (operand.supportsFoldRegions(document, this)) {
                 Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document, this));
             }

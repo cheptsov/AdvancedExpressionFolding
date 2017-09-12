@@ -13,19 +13,22 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Range extends Expression implements RangeExpression {
+public class Range extends Expr implements RangeExpression {
     public static final String RANGE_COMMA_DELIMITER = ", ";
     public static final String RANGE_IN_SEPARATOR = "in";
 
-    private @NotNull Expression operand;
-    private @NotNull Expression startRange;
-    private @NotNull Expression endRange;
+    private @NotNull
+    Expr operand;
+    private @NotNull
+    Expr startRange;
+    private @NotNull
+    Expr endRange;
     String separator;
     private boolean startInclusive;
     private boolean endInclusive;
 
-    public Range(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression operand, @NotNull Expression startRange, boolean startInclusive,
-                 @NotNull Expression endRange, boolean endInclusive) {
+    public Range(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expr operand, @NotNull Expr startRange, boolean startInclusive,
+                 @NotNull Expr endRange, boolean endInclusive) {
         super(element, textRange);
         this.operand = operand;
         this.startRange = startRange;
@@ -70,17 +73,17 @@ public class Range extends Expression implements RangeExpression {
     }
 
     @NotNull
-    public Expression getStart() {
+    public Expr getStart() {
         return startRange;
     }
 
     @NotNull
-    public Expression getOperand() {
+    public Expr getOperand() {
         return operand;
     }
 
     @NotNull
-    public Expression getEnd() {
+    public Expr getEnd() {
         return endRange;
     }
 
@@ -96,14 +99,14 @@ public class Range extends Expression implements RangeExpression {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return getStart().getTextRange().getStartOffset() < getEnd().getTextRange().getStartOffset()
                 && (getEnd().getTextRange().getEndOffset() < getTextRange().getEndOffset()
                 || supportedOverlappedSymbols.contains(document.getText(TextRange.create(getEnd().getTextRange().getEndOffset(), getEnd().getTextRange().getEndOffset() + 1))));
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         FoldingGroup group = FoldingGroup.newGroup(getClass().getName());
         StringBuilder sb1 = new StringBuilder().append(" ").append(separator).append(" ");
         if (isStartInclusive()) {

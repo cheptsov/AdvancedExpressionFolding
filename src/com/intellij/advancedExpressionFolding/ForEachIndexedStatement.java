@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class ForEachIndexedStatement extends Expression implements RangeExpression {
+public class ForEachIndexedStatement extends Expr implements RangeExpression {
     @NotNull
     private final PsiForStatement element;
     private final @NotNull TextRange declarationTextRange;
@@ -37,12 +37,12 @@ public class ForEachIndexedStatement extends Expression implements RangeExpressi
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(ForEachIndexedStatement.class.getName());
         TextRange prefixRange = TextRange.create(textRange.getStartOffset(),

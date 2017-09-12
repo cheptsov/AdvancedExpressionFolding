@@ -10,12 +10,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class SyntheticExpressionImpl extends Expression implements SyntheticExpression {
+public class SyntheticExprImpl extends Expr implements SyntheticExpression {
     private final String text;
-    private final ArrayList<Expression> children;
+    private final ArrayList<Expr> children;
 
-    public SyntheticExpressionImpl(PsiElement element, TextRange textRange, String text,
-                                   ArrayList<Expression> children) {
+    public SyntheticExprImpl(PsiElement element, TextRange textRange, String text,
+                             ArrayList<Expr> children) {
         super(element, textRange);
         this.text = text;
         this.children = children;
@@ -26,7 +26,7 @@ public class SyntheticExpressionImpl extends Expression implements SyntheticExpr
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SyntheticExpressionImpl that = (SyntheticExpressionImpl) o;
+        SyntheticExprImpl that = (SyntheticExprImpl) o;
 
         return text.equals(that.text);
     }
@@ -38,14 +38,14 @@ public class SyntheticExpressionImpl extends Expression implements SyntheticExpr
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return children.size() > 0 && children.stream().anyMatch(e -> e.supportsFoldRegions(document, this));
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
-        for (Expression child : children) {
+        for (Expr child : children) {
             if (child.supportsFoldRegions(document, this)) {
                 Collections.addAll(descriptors, child.buildFoldRegions(child.getElement(), document, this));
             }

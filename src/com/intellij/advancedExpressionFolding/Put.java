@@ -11,12 +11,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Put extends Expression implements GetExpression {
-    private final @NotNull Expression object;
-    private final @NotNull Expression key;
-    private final @NotNull Expression value;
+public class Put extends Expr implements GetExpression {
+    private final @NotNull
+    Expr object;
+    private final @NotNull
+    Expr key;
+    private final @NotNull
+    Expr value;
 
-    public Put(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object, @NotNull Expression key, @NotNull Expression value) {
+    public Put(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expr object, @NotNull Expr key, @NotNull Expr value) {
         super(element, textRange);
         this.object = object;
         this.key = key;
@@ -25,12 +28,12 @@ public class Put extends Expression implements GetExpression {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         FoldingGroup group = FoldingGroup.newGroup(Put.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),

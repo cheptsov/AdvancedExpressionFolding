@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class Gcd extends Function implements ArithmeticExpression {
-    public Gcd(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public Gcd(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "gcd", operands);
     }
 }

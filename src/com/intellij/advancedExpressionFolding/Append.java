@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Append extends Operation implements ConcatenationExpression {
-    public Append(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
+    public Append(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expr> operands) {
         super(element, textRange, "+", 10, operands);
     }
 
@@ -20,7 +20,7 @@ public class Append extends Operation implements ConcatenationExpression {
         if (!super.isCollapsedByDefault()) {
             return false;
         }
-        for (Expression operand : operands) {
+        for (Expr operand : operands) {
             if (operand instanceof Add && ((Add) operand).getOperands().stream()
                     .anyMatch(o -> !(o instanceof StringLiteral))) {
                 return false;
@@ -30,7 +30,7 @@ public class Append extends Operation implements ConcatenationExpression {
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         FoldingDescriptor[] descriptors = super.buildFoldRegions(element, document, this);
         if (operands.get(0) instanceof Variable && !((Variable)operands.get(0)).isCopy()) {
             FoldingDescriptor[] newDescriptors = Arrays.copyOf(descriptors, descriptors.length);

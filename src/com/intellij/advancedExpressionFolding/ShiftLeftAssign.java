@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class ShiftLeftAssign extends Operation implements ArithmeticExpression {
-    public ShiftLeftAssign(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public ShiftLeftAssign(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "<<=", 300, operands);
     }
 }

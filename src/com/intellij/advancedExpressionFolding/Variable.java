@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class Variable extends Expression implements ArithmeticExpression, ConcatenationExpression {
+public class Variable extends Expr implements ArithmeticExpression, ConcatenationExpression {
     private @NotNull String name;
     private boolean copy;
     private @Nullable TextRange variableTextRange;
@@ -44,7 +44,7 @@ public class Variable extends Expression implements ArithmeticExpression, Concat
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return isHighlighted();
     }
 
@@ -53,12 +53,12 @@ public class Variable extends Expression implements ArithmeticExpression, Concat
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         //noinspection Duplicates
         if (variableTextRange != null) {
             FoldingGroup group = FoldingGroup
-                    .newGroup(Variable.class.getName() + Expression.HIGHLIGHTED_GROUP_POSTFIX);
+                    .newGroup(Variable.class.getName() + Expr.HIGHLIGHTED_GROUP_POSTFIX);
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(textRange.getStartOffset(), variableTextRange.getStartOffset()), group) {
                 @NotNull

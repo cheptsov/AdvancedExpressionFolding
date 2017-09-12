@@ -10,17 +10,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class InterpolatedString extends Expression implements ConcatenationExpression {
-    private final @NotNull List<Expression> operands;
+public class InterpolatedString extends Expr implements ConcatenationExpression {
+    private final @NotNull List<Expr> operands;
 
-    public InterpolatedString(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
+    public InterpolatedString(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expr> operands) {
         super(element, textRange);
         this.operands = operands;
     }
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
-                                       @Nullable Expression parent) {
+                                       @Nullable Expr parent) {
         return true;
     }
 
@@ -36,17 +36,17 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
     };
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent) {
         return buildFoldRegions(element, document, parent, null, null, null);
     }
 
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent,
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expr parent,
                                                 @Nullable FoldingGroup overflowGroup,
                                                 @Nullable String overflowLeftPlaceholder,
                                                 @Nullable String overflowRightPlaceholder) {
-        final Expression first = operands.get(0);
-        final Expression last = operands.get(operands.size() - 1);
-        FoldingGroup group = overflowGroup != null ? overflowGroup : FoldingGroup.newGroup(InterpolatedString.class.getName() + (isHighlighted() ? Expression.HIGHLIGHTED_GROUP_POSTFIX : ""));
+        final Expr first = operands.get(0);
+        final Expr last = operands.get(operands.size() - 1);
+        FoldingGroup group = overflowGroup != null ? overflowGroup : FoldingGroup.newGroup(InterpolatedString.class.getName() + (isHighlighted() ? Expr.HIGHLIGHTED_GROUP_POSTFIX : ""));
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         final String[] buf = {""};
         if (!(first instanceof CharSequenceLiteral)) {
@@ -124,7 +124,7 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
         if (!(last instanceof CharSequenceLiteral)
                 && document.getTextLength() > last.getTextRange().getEndOffset() + 1) {
             TextRange overflowRightRange = TextRange.create(last.getTextRange().getEndOffset(), last.getTextRange().getEndOffset() + 1);
-            Expression beforeLast = operands.get(operands.size() - 2);
+            Expr beforeLast = operands.get(operands.size() - 2);
             int s = beforeLast instanceof CharSequenceLiteral
                     ? beforeLast.getTextRange().getEndOffset() - 1
                     : beforeLast.getTextRange().getEndOffset();
@@ -181,7 +181,7 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
                 }
             });
         }
-        for (Expression operand : operands) {
+        for (Expr operand : operands) {
             if (operand.supportsFoldRegions(document, this)) {
                 Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document, this));
             }

@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class SubtractAssign extends Operation implements ArithmeticExpression {
-    public SubtractAssign(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public SubtractAssign(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, "-=", 300, operands);
     }
 }

@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import java.util.List;
 
 public class ShiftRight extends Operation implements ArithmeticExpression {
-    public ShiftRight(PsiElement element, TextRange textRange, List<Expression> operands) {
+    public ShiftRight(PsiElement element, TextRange textRange, List<Expr> operands) {
         super(element, textRange, ">>", 20, operands);
     }
 }
