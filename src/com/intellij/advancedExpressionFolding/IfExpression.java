@@ -13,8 +13,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class IfExpression extends Expression implements CollapseByDefault {
-    private final PsiIfStatement element;
-
     private static final Set<String> supportedOperatorSigns = new HashSet<String>() {
         {
             add("==");
@@ -25,6 +23,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
             add("<=");
         }
     };
+    private final PsiIfStatement element;
 
     public IfExpression(PsiIfStatement element, TextRange textRange) {
         super(element, textRange);
@@ -34,11 +33,13 @@ public class IfExpression extends Expression implements CollapseByDefault {
     public static boolean isCompactExpression(AdvancedExpressionFoldingSettings.State state, PsiIfStatement element) {
         return state.isCompactControlFlowSyntaxCollapse()
                 && element.getRParenth() != null
-                && element.getLParenth() != null;
+                && element.getLParenth() != null
+                && element.getCondition() != null;
     }
 
     public static boolean isAssertExpression(AdvancedExpressionFoldingSettings.State state, PsiIfStatement element) {
-        return state.isAssertsCollapse()
+        // TODO: Find another way to avoid colliding "control flow single statement" and "assert"
+        return state.isAssertsCollapse() && !state.isControlFlowSingleStatementCodeBlockCollapse()
                 && element.getCondition() instanceof PsiBinaryExpression
                 && supportedOperatorSigns.contains(((PsiBinaryExpression) element.getCondition()).getOperationSign().getText())
                 && element.getElseBranch() == null
@@ -66,197 +67,204 @@ public class IfExpression extends Expression implements CollapseByDefault {
         AdvancedExpressionFoldingSettings.State state = AdvancedExpressionFoldingSettings.getInstance().getState();
         FoldingGroup group = FoldingGroup.newGroup(IfExpression.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
-        if (isAssertExpression(state, this.element)) {
-            PsiThrowStatement throwStatement =
-                    this.element.getThenBranch() instanceof PsiBlockStatement
-                            &&
-                            ((PsiBlockStatement) this.element.getThenBranch()).getCodeBlock().getStatements().length ==
-                                    1
-                            ? ((PsiThrowStatement) ((PsiBlockStatement) this.element.getThenBranch()).getCodeBlock()
-                            .getStatements()[0]) : ((PsiThrowStatement) this.element.getThenBranch());
-            boolean trailingSpace = document.getText(TextRange.create(
-                    this.element.getLParenth().getTextRange().getStartOffset() - 1,
-                    this.element.getLParenth().getTextRange().getStartOffset()
-            )).equals(" ");
-            if (trailingSpace) {
-                descriptors.add(new FoldingDescriptor(element.getNode(),
-                        TextRange.create(this.element.getTextRange().getStartOffset(),
-                                this.element.getLParenth().getTextRange().getStartOffset() - 1), group) {
-                    @Nullable
-                    @Override
-                    public String getPlaceholderText() {
-                        return "assert";
+        if (this.element.getLParenth() != null && this.element.getRParenth() != null) {
+            if (isAssertExpression(state, this.element)) {
+                @Nullable PsiThrowStatement throwStatement =
+                        this.element.getThenBranch() instanceof PsiBlockStatement
+                                &&
+                                ((PsiBlockStatement) this.element.getThenBranch()).getCodeBlock().getStatements().length ==
+                                        1
+                                ? ((PsiThrowStatement) ((PsiBlockStatement) this.element.getThenBranch()).getCodeBlock()
+                                .getStatements()[0]) : ((PsiThrowStatement) this.element.getThenBranch());
+                if (this.element.getCondition() != null && throwStatement != null) {
+                    boolean trailingSpace = document.getText(TextRange.create(
+                            this.element.getLParenth().getTextRange().getStartOffset() - 1,
+                            this.element.getLParenth().getTextRange().getStartOffset()
+                    )).equals(" ");
+                    if (trailingSpace) {
+                        descriptors.add(new FoldingDescriptor(element.getNode(),
+                                TextRange.create(this.element.getTextRange().getStartOffset(),
+                                        this.element.getLParenth().getTextRange().getStartOffset() - 1), group) {
+                            @Nullable
+                            @Override
+                            public String getPlaceholderText() {
+                                return "assert";
+                            }
+                        });
+                        descriptors.add(new FoldingDescriptor(element.getNode(),
+                                TextRange.create(this.element.getLParenth().getTextRange().getStartOffset(),
+                                        this.element.getCondition().getTextRange().getStartOffset()), group) {
+                            @Nullable
+                            @Override
+                            public String getPlaceholderText() {
+                                return "";
+                            }
+                        });
+                    } else {
+                        descriptors.add(new FoldingDescriptor(element.getNode(),
+                                TextRange.create(this.element.getTextRange().getStartOffset(),
+                                        this.element.getCondition().getTextRange().getStartOffset()), group) {
+                            @Nullable
+                            @Override
+                            public String getPlaceholderText() {
+                                return "assert ";
+                            }
+                        });
                     }
-                });
-                descriptors.add(new FoldingDescriptor(element.getNode(),
+                    PsiBinaryExpression binaryExpression = ((PsiBinaryExpression) this.element.getCondition());
+                    descriptors.add(new FoldingDescriptor(element.getNode(),
+                            binaryExpression.getOperationSign().getTextRange(), group) {
+                        @Nullable
+                        @Override
+                        public String getPlaceholderText() {
+                            switch (binaryExpression.getOperationSign().getText()) {
+                                case "==":
+                                    return "!=";
+                                case "!=":
+                                    return "==";
+                                case ">":
+                                    return "<=";
+                                case "<":
+                                    return ">=";
+                                case ">=":
+                                    return "<";
+                                case "<=":
+                                    return ">";
+                                default:
+                                    throw new IllegalStateException("Unsupported operator: " + binaryExpression.getOperationSign().getText());
+                            }
+                        }
+                    });
+                    @Nullable PsiNewExpression newException = throwStatement.getException() instanceof PsiNewExpression
+                            ? ((PsiNewExpression) throwStatement.getException())
+                            : null;
+                    if (newException != null
+                            && newException.getArgumentList() != null
+                            && newException.getArgumentList().getExpressions().length > 0
+                            && newException.getArgumentList().getExpressions()[0] instanceof PsiLiteralExpression
+                            && newException.getArgumentList().getExpressions()[0].getType() != null
+                            && newException.getArgumentList().getExpressions()[0].getType().getCanonicalText().equals("java.lang.String")) {
+                        boolean spacesAroundColon = document.getText(TextRange.create(
+                                throwStatement.getTextRange().getStartOffset() - 3,
+                                throwStatement.getTextRange().getStartOffset()
+                        )).equals("   ");
+                        if (spacesAroundColon) {
+                            descriptors.add(new FoldingDescriptor(element.getNode(),
+                                    TextRange.create(this.element.getRParenth().getTextRange().getEndOffset() - 1,
+                                            throwStatement.getTextRange().getStartOffset() - 3), group) {
+                                @Nullable
+                                @Override
+                                public String getPlaceholderText() {
+                                    return "";
+                                }
+                            });
+                            descriptors.add(new FoldingDescriptor(element.getNode(),
+                                    TextRange.create(throwStatement.getTextRange().getStartOffset() - 2,
+                                            throwStatement.getTextRange().getStartOffset() - 1), group) {
+                                @Nullable
+                                @Override
+                                public String getPlaceholderText() {
+                                    return ":";
+                                }
+                            });
+                            descriptors.add(new FoldingDescriptor(element.getNode(),
+                                    TextRange.create(throwStatement.getTextRange().getStartOffset(),
+                                            newException.getArgumentList()
+                                                    .getExpressions()[0]
+                                                    .getTextRange().getStartOffset()), group) {
+                                @Nullable
+                                @Override
+                                public String getPlaceholderText() {
+                                    return "";
+                                }
+                            });
+                        } else {
+                            descriptors.add(new FoldingDescriptor(element.getNode(),
+                                    TextRange.create(this.element.getCondition().getTextRange().getEndOffset(),
+                                            newException.getArgumentList()
+                                                    .getExpressions()[0]
+                                                    .getTextRange().getStartOffset()), group) {
+                                @Nullable
+                                @Override
+                                public String getPlaceholderText() {
+                                    return " : ";
+                                }
+                            });
+                        }
+                        if (!state.isSemicolonsCollapse() && throwStatement.getText().endsWith(";")) {
+                            descriptors.add(new FoldingDescriptor(element.getNode(),
+                                    TextRange.create(newException.getArgumentList()
+                                                    .getExpressions()[0].getTextRange().getEndOffset(),
+                                            throwStatement.getTextRange().getEndOffset() - 1), group) {
+                                @Nullable
+                                @Override
+                                public String getPlaceholderText() {
+                                    return "";
+                                }
+                            });
+                            if (this.element.getTextRange().getEndOffset() > throwStatement.getTextRange().getEndOffset()) {
+                                descriptors.add(new FoldingDescriptor(element.getNode(),
+                                        TextRange.create(throwStatement.getTextRange().getEndOffset(),
+                                                this.element.getTextRange().getEndOffset()), group) {
+                                    @Nullable
+                                    @Override
+                                    public String getPlaceholderText() {
+                                        return "";
+                                    }
+                                });
+                            }
+                        } else {
+                            descriptors.add(new FoldingDescriptor(element.getNode(),
+                                    TextRange.create(newException.getArgumentList()
+                                                    .getExpressions()[0].getTextRange().getEndOffset(),
+                                            this.element.getTextRange().getEndOffset()), group) {
+                                @Nullable
+                                @Override
+                                public String getPlaceholderText() {
+                                    return state.isSemicolonsCollapse() ? "" : ";";
+                                }
+                            });
+                        }
+                    } else {
+                        if (!state.isSemicolonsCollapse() && throwStatement.getText().endsWith(";")) {
+                            descriptors.add(new FoldingDescriptor(element.getNode(),
+                                    TextRange.create(this.element.getCondition().getTextRange().getEndOffset(),
+                                            throwStatement.getTextRange().getEndOffset() - 1), group) {
+                                @Nullable
+                                @Override
+                                public String getPlaceholderText() {
+                                    return "";
+                                }
+                            });
+                            if (this.element.getTextRange().getEndOffset() > throwStatement.getTextRange().getEndOffset()) {
+                                descriptors.add(new FoldingDescriptor(element.getNode(),
+                                        TextRange.create(throwStatement.getTextRange().getEndOffset(),
+                                                this.element.getTextRange().getEndOffset()), group) {
+                                    @Nullable
+                                    @Override
+                                    public String getPlaceholderText() {
+                                        return "";
+                                    }
+                                });
+                            }
+                        } else {
+                            descriptors.add(new FoldingDescriptor(element.getNode(),
+                                    TextRange.create(this.element.getCondition().getTextRange().getEndOffset(),
+                                            this.element.getTextRange().getEndOffset()), group) {
+                                @Nullable
+                                @Override
+                                public String getPlaceholderText() {
+                                    return state.isSemicolonsCollapse() ? "" : ";";
+                                }
+                            });
+                        }
+                    }
+                }
+            } else if (isCompactExpression(state, this.element)) {
+                CompactControlFlowExpression.buildFoldRegions(element, group, descriptors,
                         TextRange.create(this.element.getLParenth().getTextRange().getStartOffset(),
-                                this.element.getCondition().getTextRange().getStartOffset()), group) {
-                    @Nullable
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
-            } else {
-                descriptors.add(new FoldingDescriptor(element.getNode(),
-                        TextRange.create(this.element.getTextRange().getStartOffset(),
-                                this.element.getCondition().getTextRange().getStartOffset()), group) {
-                    @Nullable
-                    @Override
-                    public String getPlaceholderText() {
-                        return "assert ";
-                    }
-                });
+                                this.element.getRParenth().getTextRange().getEndOffset()));
             }
-            PsiBinaryExpression binaryExpression = ((PsiBinaryExpression) this.element.getCondition());
-            descriptors.add(new FoldingDescriptor(element.getNode(),
-                    binaryExpression.getOperationSign().getTextRange(), group) {
-                @Nullable
-                @Override
-                public String getPlaceholderText() {
-                    switch (binaryExpression.getOperationSign().getText()) {
-                        case "==":
-                            return "!=";
-                        case "!=":
-                            return "==";
-                        case ">":
-                            return "<=";
-                        case "<":
-                            return ">=";
-                        case ">=":
-                            return "<";
-                        case "<=":
-                            return ">";
-                        default:
-                            throw new IllegalStateException("Unsupported operator: " + binaryExpression.getOperationSign().getText());
-                    }
-                }
-            });
-            if (throwStatement.getException() instanceof PsiNewExpression &&
-                    ((PsiNewExpression) throwStatement.getException()).getArgumentList().getExpressions().length > 0
-                    && ((PsiNewExpression) throwStatement.getException()).getArgumentList()
-                    .getExpressions()[0] instanceof PsiLiteralExpression
-                    && ((PsiNewExpression) throwStatement.getException()).getArgumentList()
-                    .getExpressions()[0].getType().getCanonicalText().equals("java.lang.String")) {
-                boolean spacesAroundColon = document.getText(TextRange.create(
-                        throwStatement.getTextRange().getStartOffset() - 3,
-                        throwStatement.getTextRange().getStartOffset()
-                )).equals("   ");
-                if (spacesAroundColon) {
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(this.element.getRParenth().getTextRange().getEndOffset() - 1,
-                                    throwStatement.getTextRange().getStartOffset() - 3), group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return "";
-                        }
-                    });
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(throwStatement.getTextRange().getStartOffset() - 2,
-                                    throwStatement.getTextRange().getStartOffset() - 1), group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return ":";
-                        }
-                    });
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(throwStatement.getTextRange().getStartOffset(),
-                                    ((PsiNewExpression) throwStatement.getException()).getArgumentList()
-                                            .getExpressions()[0]
-                                            .getTextRange().getStartOffset()), group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return "";
-                        }
-                    });
-                } else {
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(this.element.getCondition().getTextRange().getEndOffset(),
-                                    ((PsiNewExpression) throwStatement.getException()).getArgumentList()
-                                            .getExpressions()[0]
-                                            .getTextRange().getStartOffset()), group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return " : ";
-                        }
-                    });
-                }
-                if (!state.isSemicolonsCollapse() && throwStatement.getText().endsWith(";")) {
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(((PsiNewExpression) throwStatement.getException()).getArgumentList()
-                                            .getExpressions()[0].getTextRange().getEndOffset(),
-                                    throwStatement.getTextRange().getEndOffset() - 1), group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return "";
-                        }
-                    });
-                    if (this.element.getTextRange().getEndOffset() > throwStatement.getTextRange().getEndOffset()) {
-                        descriptors.add(new FoldingDescriptor(element.getNode(),
-                                TextRange.create(throwStatement.getTextRange().getEndOffset(),
-                                        this.element.getTextRange().getEndOffset()), group) {
-                            @Nullable
-                            @Override
-                            public String getPlaceholderText() {
-                                return "";
-                            }
-                        });
-                    }
-                } else {
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(((PsiNewExpression) throwStatement.getException()).getArgumentList()
-                                            .getExpressions()[0].getTextRange().getEndOffset(),
-                                    this.element.getTextRange().getEndOffset()), group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return state.isSemicolonsCollapse() ? "" : ";";
-                        }
-                    });
-                }
-            } else {
-                if (!state.isSemicolonsCollapse() && throwStatement.getText().endsWith(";")) {
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(this.element.getCondition().getTextRange().getEndOffset(),
-                                    throwStatement.getTextRange().getEndOffset() - 1), group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return "";
-                        }
-                    });
-                    if (this.element.getTextRange().getEndOffset() > throwStatement.getTextRange().getEndOffset()) {
-                        descriptors.add(new FoldingDescriptor(element.getNode(),
-                                TextRange.create(throwStatement.getTextRange().getEndOffset(),
-                                        this.element.getTextRange().getEndOffset()), group) {
-                            @Nullable
-                            @Override
-                            public String getPlaceholderText() {
-                                return "";
-                            }
-                        });
-                    }
-                } else {
-                    descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(this.element.getCondition().getTextRange().getEndOffset(),
-                                    this.element.getTextRange().getEndOffset()), group) {
-                        @Nullable
-                        @Override
-                        public String getPlaceholderText() {
-                            return state.isSemicolonsCollapse() ? "" : ";";
-                        }
-                    });
-                }
-            }
-        } else if (isCompactExpression(state, this.element)) {
-            CompactControlFlowExpression.buildFoldRegions(element, group, descriptors,
-                    TextRange.create(this.element.getLParenth().getTextRange().getStartOffset(),
-                            this.element.getRParenth().getTextRange().getEndOffset()));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }

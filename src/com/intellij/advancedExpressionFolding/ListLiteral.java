@@ -67,4 +67,8 @@ public class ListLiteral extends Expression implements GetExpression {
             return descriptors.toArray(new FoldingDescriptor[0]);
         }
     }
+
+    public List<Expression> getItems() {
+        return items;
+    }
 }

@@ -26,7 +26,7 @@ public class Put extends Expression implements GetExpression {
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
                                        @Nullable Expression parent) {
-        return true;
+        return this.object.getTextRange().getEndOffset() < this.key.getTextRange().getStartOffset(); // TODO: Check how this is possible
     }
 
     @Override

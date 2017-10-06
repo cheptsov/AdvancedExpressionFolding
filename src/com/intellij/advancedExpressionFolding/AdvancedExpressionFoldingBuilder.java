@@ -554,6 +554,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     private static Expression getCodeBlockExpression(PsiCodeBlock element) {
         PsiElement parent = element.getParent();
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
         if (parent instanceof PsiBlockStatement
                 && (
                 (parent.getParent() instanceof PsiIfStatement || parent.getParent() instanceof PsiLoopStatement)
@@ -564,9 +565,15 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 || parent instanceof PsiTryStatement
                 || parent instanceof PsiCatchSection) {
             if (element.getStatements().length == 1 || parent instanceof PsiSwitchStatement) {
-                return new ControlFlowSingleStatementCodeBlockExpression(element, element.getTextRange());
+                if (settings.getState().isControlFlowSingleStatementCodeBlockCollapse()
+                        && !settings.getState().isAssertsCollapse()) {
+                    // TODO: Find another way to avoid colliding "control flow single statement" and "assert"
+                    return new ControlFlowSingleStatementCodeBlockExpression(element, element.getTextRange());
+                }
             } else {
-                return new ControlFlowMultiStatementCodeBlockExpression(element, element.getTextRange());
+                if (settings.getState().isControlFlowMultiStatementCodeBlockCollapse()) {
+                    return new ControlFlowMultiStatementCodeBlockExpression(element, element.getTextRange());
+                }
             }
         }
         return null;
@@ -1083,21 +1090,27 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     }
 
     @Nullable
-    private static Expression getNewExpression(PsiNewExpression element, @Nullable Document document) {
+    private static Expression getNewExpression(PsiNewExpression element, @NotNull Document document) {
         @Nullable PsiType type = element.getType();
-        if (type != null && supportedClasses
-                .contains(eraseGenerics(type.getCanonicalText()))) {
+        @Nullable String erasedType = type != null ? eraseGenerics(type.getCanonicalText()) : null;
+        if (type != null && supportedClasses.contains(erasedType)) {
             if (element.getArgumentList() != null && element.getArgumentList().getExpressions().length == 1) {
                 if (element.getArgumentList().getExpressions()[0] instanceof PsiLiteralExpression) {
                     return getConstructorExpression(element,
                             (PsiLiteralExpression) element.getArgumentList().getExpressions()[0],
-                            eraseGenerics(type.getCanonicalText()));
+                            erasedType);
                 } else if (element.getArgumentList().getExpressions()[0] instanceof PsiReferenceExpression) {
                     return getReferenceExpression(
                             (PsiReferenceExpression) element.getArgumentList().getExpressions()[0], true);
+                } else if (erasedType.equals("java.util.ArrayList")
+                        && element.getArgumentList().getExpressions()[0] instanceof PsiMethodCallExpression) {
+                    Expression methodCallExpression = getMethodCallExpression(((PsiMethodCallExpression) element.getArgumentList().getExpressions()[0]), document);
+                    if (methodCallExpression instanceof ListLiteral) {
+                        return new ListLiteral(element, element.getTextRange(), ((ListLiteral) methodCallExpression).getItems());
+                    }
                 }
             } else if (element.getArgumentList() != null && element.getArgumentList().getExpressions().length == 0) {
-                switch (eraseGenerics(type.getCanonicalText())) {
+                switch (erasedType) {
                     case "java.lang.String":
                     case "java.lang.StringBuilder":
                         return new StringLiteral(element, element.getTextRange(), "");
@@ -1115,7 +1128,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         }
         @Nullable PsiAnonymousClass anonymousClass = element.getAnonymousClass();
         if (type != null && anonymousClass != null && anonymousClass.getLBrace() != null && anonymousClass.getRBrace() != null) {
-            if (eraseGenerics(type.getCanonicalText()).equals("java.util.HashSet")) {
+            if (erasedType.equals("java.util.HashSet")) {
                 if (anonymousClass.getInitializers().length == 1) {
                     @NotNull PsiStatement[] statements = anonymousClass.getInitializers()[0].getBody().getStatements();
                     if (statements.length > 0) {
