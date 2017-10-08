@@ -99,4 +99,9 @@ public class NumberLiteral extends Expression implements ArithmeticExpression {
         return numberTextRange != null && numberTextRange.getStartOffset() >= textRange.getStartOffset()
                 && numberTextRange.getEndOffset() <= textRange.getEndOffset();
     }
+
+    @Nullable
+    public TextRange getNumberTextRange() {
+        return numberTextRange;
+    }
 }

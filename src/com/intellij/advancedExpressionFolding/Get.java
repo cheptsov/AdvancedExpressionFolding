@@ -11,14 +11,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Get extends Expression implements GetExpression {
+public class Get extends Expression {
     private final @NotNull Expression object;
     private final @NotNull Expression key;
     private final @NotNull Style style;
 
     public enum Style {
         NORMAL,
-        FIRST,
+        /*FIRST,*/
         LAST
     }
 
@@ -62,7 +62,7 @@ public class Get extends Expression implements GetExpression {
                             key.getTextRange().getStartOffset() - 1), group) {
                 @Override
                 public String getPlaceholderText() {
-                    return "." + (style == Style.FIRST ? "first" : "last");
+                    return "." + (/*style == Style.FIRST ? "first" : */"last");
                 }
             });
             descriptors.add(new FoldingDescriptor(element.getNode(),

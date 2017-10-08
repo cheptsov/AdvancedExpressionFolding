@@ -99,6 +99,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("collect");
             add("stream");
             add("unmodifiableSet");
+            add("toString");
         }
     };
 
@@ -117,8 +118,6 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("java.lang.AbstractStringBuilder");
             add("java.util.List");
             add("java.util.ArrayList");
-            add("java.util.Map");
-            add("java.util.HashMap");
             add("java.util.Map");
             add("java.util.HashMap");
             add("java.util.Set");
@@ -367,7 +366,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     // 💩💩💩 Define the AdvancedExpressionFoldingProvider extension point
     @Contract("_, _, true -> !null")
     private static Expression buildExpression(@NotNull PsiElement element, @NotNull Document document, boolean synthetic) {
-        if (element instanceof PsiForStatement) {
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+        if (element instanceof PsiForStatement
+                && settings.getState().isRangeExpressionsCollapse()) {
             Expression expression = getForStatementExpression((PsiForStatement) element, document);
             if (expression != null) {
                 return expression;
@@ -380,28 +381,29 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             }
         }
         if (element instanceof PsiWhileStatement) {
-            Expression expression = getWhileStatement((PsiWhileStatement) element, document);
+            Expression expression = getWhileStatement((PsiWhileStatement) element);
             if (expression != null) {
                 return expression;
             }
         }
-        if (element instanceof PsiJavaToken && ((PsiJavaToken) element).getTokenType() == JavaTokenType.SEMICOLON) {
+        if (element instanceof PsiJavaToken && ((PsiJavaToken) element).getTokenType() == JavaTokenType.SEMICOLON
+                && settings.getState().isSemicolonsCollapse()) {
             return new SemicolonExpression(element, element.getTextRange());
         }
         if (element instanceof PsiCatchSection) {
-            Expression expression = getCatchStatement((PsiCatchSection) element, document);
+            Expression expression = getCatchStatement((PsiCatchSection) element);
             if (expression != null) {
                 return expression;
             }
         }
         if (element instanceof PsiDoWhileStatement) {
-            Expression expression = getDoWhileStatement((PsiDoWhileStatement) element, document);
+            Expression expression = getDoWhileStatement((PsiDoWhileStatement) element);
             if (expression != null) {
                 return expression;
             }
         }
         if (element instanceof PsiSwitchStatement) {
-            Expression expression = getSwitchStatement((PsiSwitchStatement) element, document);
+            Expression expression = getSwitchStatement((PsiSwitchStatement) element);
             if (expression != null) {
                 return expression;
             }
@@ -490,8 +492,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 return expression;
             }
         }
-        if (element instanceof PsiVariable &&
-                (element.getParent() instanceof PsiDeclarationStatement
+        if (settings.getState().isVarExpressionsCollapse()
+            && element instanceof PsiVariable
+                && (element.getParent() instanceof PsiDeclarationStatement
                         || element.getParent() instanceof PsiForeachStatement)) {
             Expression expression = getVariableDeclaration((PsiVariable) element);
             if (expression != null) {
@@ -512,7 +515,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private static Expression getWhileStatement(PsiWhileStatement element, Document document) {
+    private static Expression getWhileStatement(PsiWhileStatement element) {
         if (element.getCondition() != null
                 && element.getLParenth() != null && element.getRParenth() != null) {
             return new CompactControlFlowExpression(element,
@@ -522,7 +525,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private static Expression getDoWhileStatement(PsiDoWhileStatement element, Document document) {
+    private static Expression getDoWhileStatement(PsiDoWhileStatement element) {
         if (element.getCondition() != null
                 && element.getLParenth() != null && element.getRParenth() != null) {
             return new CompactControlFlowExpression(element,
@@ -532,7 +535,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private static Expression getSwitchStatement(PsiSwitchStatement element, Document document) {
+    private static Expression getSwitchStatement(PsiSwitchStatement element) {
         if (element.getExpression() != null
                 && element.getLParenth() != null && element.getRParenth() != null) {
             return new CompactControlFlowExpression(element,
@@ -542,7 +545,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    private static Expression getCatchStatement(PsiCatchSection element, Document document) {
+    private static Expression getCatchStatement(PsiCatchSection element) {
         if (element.getParameter() != null
                 && element.getLParenth() != null && element.getRParenth() != null) {
             return new CompactControlFlowExpression(element,
@@ -584,15 +587,15 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         @Nullable PsiExpression index = element.getIndexExpression();
         if (!(element.getParent() instanceof PsiAssignmentExpression
                 && ((PsiAssignmentExpressionImpl) element.getParent()).getLExpression() == element) && index != null) {
-            @Nullable Expression indexExpression = getNonSyntheticExpression(index, document);
+            /*@Nullable Expression indexExpression = getNonSyntheticExpression(index, document);*/
             @NotNull Expression arrayExpression = getAnyExpression(element.getArrayExpression(), document);
-            if (indexExpression instanceof NumberLiteral && ((NumberLiteral) indexExpression).getNumber().equals(0)) {
+            /*if (indexExpression instanceof NumberLiteral && ((NumberLiteral) indexExpression).getNumber().equals(0)) {
                 return new ArrayGet(element, element.getTextRange(), arrayExpression, ArrayGet.Style.FIRST);
-            } else if (index instanceof PsiBinaryExpression) {
+            } else */if (index instanceof PsiBinaryExpression) {
                 PsiBinaryExpression a2b = (PsiBinaryExpression) index;
                 NumberLiteral position = getSlicePosition(element, arrayExpression, a2b, document);
                 if (position != null && position.getNumber().equals(-1)) {
-                    return new ArrayGet(element, element.getTextRange(), arrayExpression, ArrayGet.Style.LAST);
+                    return new ArrayGet(element, element.getTextRange(), arrayExpression/*, ArrayGet.Style.LAST*/);
                 }
             }
         }
@@ -863,7 +866,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 string = true;
             }
         }
-        if (add && operands != null && string) {
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+        if (add && operands != null && string && settings.getState().isConcatenationExpressionsCollapse()) {
             return new InterpolatedString(element, element.getTextRange(), Arrays.asList(operands));
         } else if (add && operands != null) {
             return new Add(element, element.getTextRange(), Arrays.asList(operands)); // TODO: Support other operations as well
@@ -1250,9 +1254,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 PsiField field = (PsiField) e;
                 PsiClass psiClass = field.getContainingClass();
                 if (psiClass != null && psiClass.getQualifiedName() != null) {
-                    if (supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()))) {
-                        return true;
-                    }
+                    return supportedClasses.contains(eraseGenerics(psiClass.getQualifiedName()));
                 }
             }
         }
@@ -1356,21 +1358,25 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                 case "equals":
                                     return new Equal(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
                                 case "append":
-                                    if (qualifierExpression instanceof Append) {
-                                        List<Expression> operands = new ArrayList<>();
-                                        operands.addAll(((Append) qualifierExpression).getOperands());
-                                        operands.add(argumentExpression);
-                                        return new Append(element, element.getTextRange(),
-                                                operands);
-                                    } else {
-                                        if (qualifierExpression instanceof StringLiteral
-                                                && ((StringLiteral) qualifierExpression).getString().isEmpty()) {
+                                    AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+                                    if (settings.getState().isConcatenationExpressionsCollapse()) {
+                                        if (qualifierExpression instanceof Append) {
+                                            List<Expression> operands = new ArrayList<>(((Append) qualifierExpression).getOperands());
+                                            operands.add(argumentExpression);
                                             return new Append(element, element.getTextRange(),
-                                                    Collections.singletonList(argumentExpression));
+                                                    operands);
                                         } else {
-                                            return new Append(element, element.getTextRange(),
-                                                    Arrays.asList(qualifierExpression, argumentExpression));
+                                            if (qualifierExpression instanceof StringLiteral
+                                                    && ((StringLiteral) qualifierExpression).getString().isEmpty()) {
+                                                return new Append(element, element.getTextRange(),
+                                                        Collections.singletonList(argumentExpression));
+                                            } else {
+                                                return new Append(element, element.getTextRange(),
+                                                        Arrays.asList(qualifierExpression, argumentExpression));
+                                            }
                                         }
+                                    } else {
+                                        break;
                                     }
                                 /*case "contains":
                                 case "containsKey":
@@ -1380,8 +1386,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             argumentExpression, Get.Style.NORMAL);
                                 case "get":
                                     if (argumentExpression instanceof NumberLiteral && ((NumberLiteral) argumentExpression).getNumber().equals(0)) {
-                                        return new Get(element, element.getTextRange(), qualifierExpression,
-                                                argumentExpression, Get.Style.FIRST);
+                                        /*return new Get(element, element.getTextRange(), qualifierExpression,
+                                                argumentExpression, Get.Style.FIRST)*/;
+                                        return null;
                                     } else if (argument instanceof PsiBinaryExpression) {
                                         PsiBinaryExpression a2b = (PsiBinaryExpression) argument;
                                         NumberLiteral position = getSlicePosition(element, qualifierExpression, a2b, document);
@@ -1452,6 +1459,24 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                     if (element.getParent() instanceof PsiReferenceExpression && ((PsiReferenceExpression) element.getParent()).getQualifierExpression() == element) {
                                         return new StreamExpression(element, TextRange.create(identifier.get().getTextRange().getStartOffset(),
                                                 element.getTextRange().getEndOffset()));
+                                    } else {
+                                        break;
+                                    }
+                                case "toString": // TODO: Generalize for literals and variables
+                                    if (qualifierExpression instanceof Append) {
+                                        Append append = (Append) qualifierExpression;
+                                        return new Append(element, element.getTextRange(), append.getOperands());
+                                    } else if (qualifierExpression instanceof StringLiteral) {
+                                        StringLiteral stringLiteral = (StringLiteral) qualifierExpression;
+                                        return new StringLiteral(element, element.getTextRange(), stringLiteral.getString());
+                                    } else if (qualifierExpression instanceof NumberLiteral) {
+                                        NumberLiteral numberLiteral = (NumberLiteral) qualifierExpression;
+                                        return new NumberLiteral(element, element.getTextRange(), numberLiteral.getNumberTextRange(), numberLiteral.getNumber(), true);
+                                    } else if (qualifierExpression instanceof Variable) {
+                                        Variable variable = (Variable) qualifierExpression;
+                                        return new Variable(element, element.getTextRange(), variable.getTextRange(), variable.getName(), true);
+                                    } else {
+                                        break;
                                     }
                             }
                         } else if (element.getArgumentList().getExpressions().length == 2) {
@@ -1796,23 +1821,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             @Nullable Document document = PsiDocumentManager.getInstance(astNode.getPsi().getProject()).getDocument(astNode.getPsi().getContainingFile());
             if (document != null) {
                 @Nullable Expression expression = getNonSyntheticExpression(element, document);
-                AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
-                return expression != null && (settings.getState().isArithmeticExpressionsCollapse() && expression instanceof ArithmeticExpression
-                            || settings.getState().isComparingExpressionsCollapse() && expression instanceof ComparingExpression
-                            || settings.getState().isSlicingExpressionsCollapse() && expression instanceof SlicingExpression
-                            || settings.getState().isConcatenationExpressionsCollapse() && expression instanceof ConcatenationExpression
-                            || settings.getState().isRangeExpressionsCollapse() && expression instanceof RangeExpression
-                            || settings.getState().isGetExpressionsCollapse() && expression instanceof GetExpression
-                            || settings.getState().isCheckExpressionsCollapse() && expression instanceof CheckExpression
-                            || settings.getState().isCastExpressionsCollapse() && expression instanceof CastExpression
-                            || settings.getState().isVarExpressionsCollapse() && expression instanceof VariableDeclaration
-                            || settings.getState().isGetSetExpressionsCollapse() && expression instanceof GettersSetters
-                            || settings.getState().isControlFlowSingleStatementCodeBlockCollapse() && expression instanceof ControlFlowSingleStatementCodeBlock
-                            || settings.getState().isControlFlowMultiStatementCodeBlockCollapse() && expression instanceof ControlFlowMultiStatementCodeBlock
-                            || settings.getState().isCompactControlFlowSyntaxCollapse() && expression instanceof CompactControlFlow
-                            || settings.getState().isSemicolonsCollapse() && expression instanceof Semicolon
-                            || expression instanceof CollapseByDefault
-                    ) && expression.isCollapsedByDefault();
+                return expression != null && expression.isCollapsedByDefault();
             }
         } catch (IndexNotReadyException e) {
             return false;

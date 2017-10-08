@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Range extends Expression implements RangeExpression {
+public class Range extends Expression {
     public static final String RANGE_COMMA_DELIMITER = ", ";
     public static final String RANGE_IN_SEPARATOR = "in";
 

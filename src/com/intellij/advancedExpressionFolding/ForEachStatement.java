@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class ForEachStatement extends Expression implements RangeExpression {
+public class ForEachStatement extends Expression {
     @NotNull
     private final PsiForStatement element;
     private final @NotNull TextRange declarationTextRange;

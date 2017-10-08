@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class Variable extends Expression implements ArithmeticExpression, ConcatenationExpression {
+public class Variable extends Expression implements ArithmeticExpression {
     private @NotNull String name;
     private boolean copy;
     private @Nullable TextRange variableTextRange;
@@ -59,22 +59,26 @@ public class Variable extends Expression implements ArithmeticExpression, Concat
         if (variableTextRange != null) {
             FoldingGroup group = FoldingGroup
                     .newGroup(Variable.class.getName() + Expression.HIGHLIGHTED_GROUP_POSTFIX);
-            descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(textRange.getStartOffset(), variableTextRange.getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
-            descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(variableTextRange.getEndOffset(), textRange.getEndOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+            if (textRange.getStartOffset() < variableTextRange.getStartOffset()) {
+                descriptors.add(new FoldingDescriptor(element.getNode(),
+                        TextRange.create(textRange.getStartOffset(), variableTextRange.getStartOffset()), group) {
+                    @NotNull
+                    @Override
+                    public String getPlaceholderText() {
+                        return "";
+                    }
+                });
+            }
+            if (variableTextRange.getEndOffset() < textRange.getEndOffset()) {
+                descriptors.add(new FoldingDescriptor(element.getNode(),
+                        TextRange.create(variableTextRange.getEndOffset(), textRange.getEndOffset()), group) {
+                    @NotNull
+                    @Override
+                    public String getPlaceholderText() {
+                        return "";
+                    }
+                });
+            }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
@@ -87,8 +91,14 @@ public class Variable extends Expression implements ArithmeticExpression, Concat
 
     @Override
     public boolean isHighlighted() {
-        return variableTextRange != null && variableTextRange.getStartOffset() > textRange.getStartOffset()
-                && variableTextRange.getEndOffset() < textRange.getEndOffset();
+        return variableTextRange != null &&
+                (variableTextRange.getStartOffset() > textRange.getStartOffset()
+                || variableTextRange.getEndOffset() < textRange.getEndOffset());
         // TODO: Support inclusive ranges
+    }
+
+    @Nullable
+    public TextRange getVariableTextRange() {
+        return variableTextRange;
     }
 }

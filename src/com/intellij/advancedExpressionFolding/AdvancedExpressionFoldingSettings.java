@@ -175,5 +175,23 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         public void setAssertsCollapse(boolean value) {
             ASSERTS = value;
         }
+
+        public void disableAll() {
+            this.setVarExpressionsCollapse(false);
+            this.setArithmeticExpressionsCollapse(false);
+            this.setAssertsCollapse(false);
+            this.setCastExpressionsCollapse(false);
+            this.setCheckExpressionsCollapse(false);
+            this.setCompactControlFlowSyntaxCollapse(false);
+            this.setComparingExpressionsCollapse(false);
+            this.setConcatenationExpressionsCollapse(false);
+            this.setControlFlowMultiStatementCodeBlockCollapse(false);
+            this.setControlFlowSingleStatementCodeBlockCollapse(false);
+            this.setGetExpressionsCollapse(false);
+            this.setGetSetExpressionsCollapse(false);
+            this.setRangeExpressionsCollapse(false);
+            this.setSemicolonsCollapse(false);
+            this.setSlicingExpressionsCollapse(false);
+        }
     }
 }

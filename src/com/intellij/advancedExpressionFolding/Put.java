@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Put extends Expression implements GetExpression {
+public class Put extends Expression {
     private final @NotNull Expression object;
     private final @NotNull Expression key;
     private final @NotNull Expression value;

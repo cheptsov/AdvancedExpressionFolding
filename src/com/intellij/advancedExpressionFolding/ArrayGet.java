@@ -11,19 +11,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class ArrayGet extends Expression implements GetExpression {
+public class ArrayGet extends Expression {
     private final Expression object;
-    private final Style style;
+    /*private final Style style;
 
     public enum Style {
         FIRST,
         LAST
-    }
+    }*/
 
-    public ArrayGet(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object, @NotNull Style style) {
+    public ArrayGet(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object/*, @NotNull Style style*/) {
         super(element, textRange);
         this.object = object;
-        this.style = style;
+        /*this.style = style;*/
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ArrayGet extends Expression implements GetExpression {
                         textRange.getEndOffset()), group) {
             @Override
             public String getPlaceholderText() {
-                return "." + (style == Style.FIRST ? "first()" : "last()");
+                return "." + /*(style == Style.FIRST ? "first()" : */"last()"/*)*/;
             }
         });
         // TODO: Generalize it

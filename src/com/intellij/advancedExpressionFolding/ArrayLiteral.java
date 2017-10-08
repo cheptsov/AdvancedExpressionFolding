@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ArrayLiteral extends Expression implements GetExpression {
+public class ArrayLiteral extends Expression {
     private final List<Expression> items;
 
     public ArrayLiteral(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> items) {

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class AddAssignForCollection extends Operation implements ConcatenationExpression {
+public class AddAssignForCollection extends Operation {
     public AddAssignForCollection(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
         super(element, textRange, "+=", 300, operands);
     }

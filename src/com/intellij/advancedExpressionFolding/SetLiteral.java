@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SetLiteral extends Function implements GetExpression {
+public class SetLiteral extends Function {
     @NotNull
     private final TextRange firstBracesRange;
     @NotNull

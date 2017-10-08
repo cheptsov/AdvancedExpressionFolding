@@ -22,25 +22,69 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
                 "   public T get(int p) { return null; }\n" +
                 "   public int size() { return 0; }\n" +
                 "}");
+        myFixture.addClass("package java.lang;\n" +
+                "\n" +
+                "public class String {\n" +
+                "    public java.lang.String toString() {\n" +
+                "        return null;\n" +
+                "    }\n" +
+                "}");
+        myFixture.addClass("package java.lang;\n" +
+                "\n" +
+                "public class StringBuilder {\n" +
+                "    public StringBuilder() {\n" +
+                "    }\n" +
+                "\n" +
+                "    public StringBuilder(Object object) {\n" +
+                "    }\n" +
+                "\n" +
+                "    public StringBuilder append(Object object) {\n" +
+                "        return this;\n" +
+                "    }\n" +
+                "    \n" +
+                "    public java.lang.String toString() {\n" +
+                "        return null;\n" +
+                "    }\n" +
+                "}");
+        disableAllFoldings();
     }
 
-    public void doTest() {
-        myFixture.testFolding(getTestDataPath() + "/" + getTestName(false) + ".java");
+    public void doFoldingTest() {
+        myFixture.testFoldingWithCollapseStatus(getTestDataPath() + "/" + getTestName(false) + ".java");
     }
 
-    public void testAbs() throws Exception {
-        doTest();
+    public void testAbs() {
+        doFoldingTest();
     }
 
-    public void testElvis() throws Exception {
-        doTest();
+    public void testElvis() {
+        doFoldingTest();
     }
 
-    public void testGet() throws Exception {
-        doTest();
+    public void testGet() {
+        doFoldingTest();
     }
 
-    public void testFor() throws Exception {
-        doTest();
+    public void testFor() {
+        doFoldingTest();
+    }
+
+    public void testStringBuilderTestData() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().setConcatenationExpressionsCollapse(true);
+        doFoldingTest();
+    }
+
+    public void testInterpolatedStringTestData() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().setConcatenationExpressionsCollapse(true);
+        doFoldingTest();
+    }
+
+    public void testCollectionTestData() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().setGetSetExpressionsCollapse(true);
+        doFoldingTest();
+    }
+
+    private void disableAllFoldings() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().disableAll();
     }
 }

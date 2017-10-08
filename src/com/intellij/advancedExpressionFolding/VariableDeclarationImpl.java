@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class VariableDeclarationImpl extends Expression implements VariableDeclaration {
+public class VariableDeclarationImpl extends Expression {
     private final boolean isFinal;
 
     public VariableDeclarationImpl(@NotNull PsiElement element, @NotNull TextRange textRange, boolean isFinal) {

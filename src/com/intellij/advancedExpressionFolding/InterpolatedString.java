@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class InterpolatedString extends Expression implements ConcatenationExpression {
+public class InterpolatedString extends Expression {
     private final @NotNull List<Expression> operands;
 
     public InterpolatedString(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
@@ -102,22 +102,22 @@ public class InterpolatedString extends Expression implements ConcatenationExpre
                     ? operands.get(i + 1).getTextRange().getStartOffset() + 1
                     : operands.get(i + 1).getTextRange().getStartOffset();
             int fI = i;
+            StringBuilder sI = new StringBuilder().append(buf[0]);
+            if (!(operands.get(fI + 1) instanceof CharSequenceLiteral)) {
+                sI.append("$");
+            }
+            if (!(operands.get(fI + 1) instanceof Variable) && !(operands.get(fI + 1) instanceof CharSequenceLiteral)) {
+                sI.append("{");
+                buf[0] = "}";
+            } else {
+                buf[0] = "";
+            }
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(s, e), group) {
                 @NotNull
                 @Override
                 public String getPlaceholderText() {
-                    StringBuilder sb = new StringBuilder().append(buf[0]);
-                    if (!(operands.get(fI + 1) instanceof CharSequenceLiteral)) {
-                        sb.append("$");
-                    }
-                    if (!(operands.get(fI + 1) instanceof Variable) && !(operands.get(fI + 1) instanceof CharSequenceLiteral)) {
-                        sb.append("{");
-                        buf[0] = "}";
-                    } else {
-                        buf[0] = "";
-                    }
-                    return sb.toString();
+                    return sI.toString();
                 }
             });
         }
