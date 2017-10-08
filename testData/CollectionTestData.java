@@ -34,5 +34,7 @@ public class CollectionTestData {
             }
         });
         System.out.println(copyOfSet);
+        String[] strings = new String[] {"one", "two"};
+        System.out.println(Arrays.toString(strings));
     }</fold>
 }
