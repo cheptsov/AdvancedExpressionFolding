@@ -99,6 +99,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("collect");
             add("stream");
             add("unmodifiableSet");
+            add("unmodifiableList");
             add("toString");
         }
     };
@@ -1096,8 +1097,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     @Nullable
     private static Expression getNewExpression(PsiNewExpression element, @NotNull Document document) {
         @Nullable PsiType type = element.getType();
+
         @Nullable String erasedType = type != null ? eraseGenerics(type.getCanonicalText()) : null;
         if (type != null && supportedClasses.contains(erasedType)) {
+            AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
             if (element.getArgumentList() != null && element.getArgumentList().getExpressions().length == 1) {
                 if (element.getArgumentList().getExpressions()[0] instanceof PsiLiteralExpression) {
                     return getConstructorExpression(element,
@@ -1109,7 +1112,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 } else if (erasedType.equals("java.util.ArrayList")
                         && element.getArgumentList().getExpressions()[0] instanceof PsiMethodCallExpression) {
                     Expression methodCallExpression = getMethodCallExpression(((PsiMethodCallExpression) element.getArgumentList().getExpressions()[0]), document);
-                    if (methodCallExpression instanceof ListLiteral) {
+                    if (methodCallExpression instanceof ListLiteral && settings.getState().isConcatenationExpressionsCollapse()) {
                         return new ListLiteral(element, element.getTextRange(), ((ListLiteral) methodCallExpression).getItems());
                     }
                 }
@@ -1119,7 +1122,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     case "java.lang.StringBuilder":
                         return new StringLiteral(element, element.getTextRange(), "");
                     case "java.util.ArrayList":
-                        return new ListLiteral(element, element.getTextRange(), Collections.emptyList());
+                        if (settings.getState().isConcatenationExpressionsCollapse()) {
+                            return new ListLiteral(element, element.getTextRange(), Collections.emptyList());
+                        } else {
+                            return null;
+                        }
                 }
             }
         }
@@ -1263,6 +1270,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @Nullable
     private static Expression getMethodCallExpression(PsiMethodCallExpression element, @NotNull Document document) {
+        @NotNull AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
         PsiReferenceExpression referenceExpression = element.getMethodExpression();
         Optional<PsiElement> identifier = Stream.of(referenceExpression.getChildren())
                 .filter(c -> c instanceof PsiIdentifier).findAny();
@@ -1281,10 +1289,12 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                             if (!methodName.equals("asList") ||
                                     element.getArgumentList().getExpressions().length != 1 ||
                                     !(element.getArgumentList().getExpressions()[0].getType() instanceof PsiArrayType)) {
-                                return new ListLiteral(element, element.getTextRange(),
-                                        Stream.of(element.getArgumentList().getExpressions())
-                                                .map(e -> getAnyExpression(e, document)).collect(
-                                                Collectors.toList()));
+                                if (settings.getState().isConcatenationExpressionsCollapse()) {
+                                    return new ListLiteral(element, element.getTextRange(),
+                                            Stream.of(element.getArgumentList().getExpressions())
+                                                    .map(e -> getAnyExpression(e, document)).collect(
+                                                    Collectors.toList()));
+                                }
                             }
                         } else if (element.getArgumentList().getExpressions().length == 1) {
                             @NotNull PsiExpression argument = element.getArgumentList().getExpressions()[0];
@@ -1300,7 +1310,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             case "java.util.Map":
                                             case "java.util.HashMap":
                                             case "java.util.Collection":
-                                                return new AddAssignForCollection(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                                if (settings.getState().isConcatenationExpressionsCollapse()) {
+                                                    return new AddAssignForCollection(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                                } else {
+                                                    return null;
+                                                }
                                             default:
                                                 return new Add(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
 
@@ -1358,7 +1372,6 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                 case "equals":
                                     return new Equal(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
                                 case "append":
-                                    AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
                                     if (settings.getState().isConcatenationExpressionsCollapse()) {
                                         if (qualifierExpression instanceof Append) {
                                             List<Expression> operands = new ArrayList<>(((Append) qualifierExpression).getOperands());
@@ -1616,6 +1629,14 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             return new SetLiteral(element, element.getTextRange(),
                                                     setLiteral.getFirstBracesRange(), setLiteral.getSecondBracesRange(),
                                                     setLiteral.getOperands());
+                                        } else {
+                                            break;
+                                        }
+                                    case "unmodifiableList":
+                                        if (argumentExpression instanceof ListLiteral && settings.getState().isConcatenationExpressionsCollapse()) {
+                                            ListLiteral setLiteral = (ListLiteral) argumentExpression;
+                                            return new ListLiteral(element, element.getTextRange(),
+                                                    setLiteral.getItems());
                                         } else {
                                             break;
                                         }
