@@ -67,9 +67,13 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
         doFoldingTest();
     }
 
-    public void testCollectionTestData() {
-        // TODO Make settings more granular
+    public void testConcatenationTestData() {
         AdvancedExpressionFoldingSettings.getInstance().getState().setConcatenationExpressionsCollapse(true);
+        doFoldingTest();
+    }
+
+    public void testGetSetPutTestData() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().setGetExpressionsCollapse(true);
         doFoldingTest();
     }
 
