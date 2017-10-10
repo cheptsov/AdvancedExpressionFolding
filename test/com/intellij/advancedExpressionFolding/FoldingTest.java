@@ -1,23 +1,38 @@
 package com.intellij.advancedExpressionFolding;
 
-import com.intellij.openapi.roots.LanguageLevelProjectExtension;
-import com.intellij.pom.java.LanguageLevel;
+import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.impl.JavaSdkImpl;
 import com.intellij.testFramework.LightProjectDescriptor;
+import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.jetbrains.annotations.NotNull;
 
 public class FoldingTest extends LightCodeInsightFixtureTestCase {
-    @Override
-    protected String getTestDataPath() {
-        return "testData";
-    }
+
+    public static final DefaultLightProjectDescriptor TEST_JDK = new DefaultLightProjectDescriptor() {
+        public Sdk getSdk() {
+            return ((JavaSdkImpl) JavaSdk.getInstance())
+                    .createMockJdk("Test JDK", System.getProperty("java.home"), true);
+        }
+    };
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         disableAllFoldings();
     }
-    
+
+    @Override
+    protected String getTestDataPath() {
+        return "testData";
+    }
+
+    @NotNull
+    protected LightProjectDescriptor getProjectDescriptor() {
+        return TEST_JDK;
+    }
+
     public void doFoldingTest() {
         myFixture.testFoldingWithCollapseStatus(getTestDataPath() + "/" + getTestName(false) + ".java");
     }

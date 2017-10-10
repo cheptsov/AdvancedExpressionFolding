@@ -13,7 +13,7 @@
     <option name="MAIN_CLASS_NAME" value="com.intellij.advancedExpressionFolding.FoldingTest" />
     <option name="METHOD_NAME" value="testInterpolatedStringTestData" />
     <option name="TEST_OBJECT" value="method" />
-    <option name="VM_PARAMETERS" value="-ea -Didea.home.path=../intellij-community" />
+    <option name="VM_PARAMETERS" value="-ea" />
     <option name="PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="file://$MODULE_DIR$" />
     <option name="ENV_VARIABLES" />
