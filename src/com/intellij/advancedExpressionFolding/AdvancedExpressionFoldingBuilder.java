@@ -409,7 +409,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 return expression;
             }
         }
-        if (element instanceof PsiArrayAccessExpression) {
+        if (element instanceof PsiArrayAccessExpression && settings.getState().isGetExpressionsCollapse()) {
             Expression expression = getArrayAccessExpression((PsiArrayAccessExpression) element, document);
             if (expression != null) {
                 return expression;
@@ -1424,16 +1424,20 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                     }
                                 case "subList":
                                 case "substring":
-                                    if (argument instanceof PsiBinaryExpression) {
-                                        NumberLiteral position = getSlicePosition(element,
-                                                qualifierExpression, (PsiBinaryExpression) argument, document);
-                                        if (position != null) {
-                                            return new Slice(element, element.getTextRange(),
-                                                    Arrays.asList(qualifierExpression, position));
+                                    if (settings.getState().isSlicingExpressionsCollapse()) {
+                                        if (argument instanceof PsiBinaryExpression) {
+                                            NumberLiteral position = getSlicePosition(element,
+                                                    qualifierExpression, (PsiBinaryExpression) argument, document);
+                                            if (position != null) {
+                                                return new Slice(element, element.getTextRange(),
+                                                        Arrays.asList(qualifierExpression, position));
+                                            }
                                         }
+                                        return new Slice(element, element.getTextRange(),
+                                                Arrays.asList(qualifierExpression, argumentExpression));
+                                    } else {
+                                        break;
                                     }
-                                    return new Slice(element, element.getTextRange(),
-                                            Arrays.asList(qualifierExpression, argumentExpression));
                                 case "addAll":
                                     if (settings.getState().isConcatenationExpressionsCollapse()) {
                                         return new AddAssignForCollection(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
@@ -1453,19 +1457,26 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         if (q instanceof PsiReferenceExpression && Objects.equals(((PsiReferenceExpression) q).getReferenceName(), "Collectors")) {
                                                 Optional<PsiElement> i = Arrays.stream(((PsiMethodCallExpression) argument).getMethodExpression().getChildren()).filter(c -> c instanceof PsiIdentifier && c.getText().startsWith("to")).findAny();
                                                 if (i.isPresent()) {
-                                                    return new Collect(element, TextRange.create(identifier.get().getTextRange().getStartOffset(),
-                                                            element.getTextRange().getEndOffset()), qualifierExpression,
-                                                            TextRange.create(i.get().getTextRange().getStartOffset(),
-                                                                    argument.getTextRange().getEndOffset()));
+                                                    if (settings.getState().isConcatenationExpressionsCollapse()) {
+                                                        return new Collect(element, TextRange.create(identifier.get().getTextRange().getStartOffset(),
+                                                                element.getTextRange().getEndOffset()), qualifierExpression,
+                                                                TextRange.create(i.get().getTextRange().getStartOffset(),
+                                                                        argument.getTextRange().getEndOffset()));
+                                                    } else {
+                                                        break;
+                                                    }
                                                 }
                                             }
                                     }
                                 case "stream":
                                     if (element.getParent() instanceof PsiReferenceExpression &&
                                             ((PsiReferenceExpression) element.getParent()).getQualifierExpression() == element) {
-                                        return new ArrayStream(element, TextRange.create(
-                                                element.getTextRange().getStartOffset(), element.getTextRange().getEndOffset()
-                                        ), argumentExpression);
+                                        if (settings.getState().isConcatenationExpressionsCollapse()) {
+                                            return new ArrayStream(element, TextRange.create(
+                                                    element.getTextRange().getStartOffset(), element.getTextRange().getEndOffset()), argumentExpression);
+                                        } else {
+                                            break;
+                                        }
                                     }
                             }
                         } else if (element.getArgumentList().getExpressions().length == 0) {
@@ -1487,7 +1498,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                     return new NotNullExpression(element.getTextRange(),
                                             qualifierExpression);*/
                                 case "stream":
-                                    if (element.getParent() instanceof PsiReferenceExpression && ((PsiReferenceExpression) element.getParent()).getQualifierExpression() == element) {
+                                    if (element.getParent() instanceof PsiReferenceExpression
+                                            && ((PsiReferenceExpression) element.getParent()).getQualifierExpression() == element
+                                            && settings.getState().isConcatenationExpressionsCollapse()) {
                                         return new StreamExpression(element, TextRange.create(identifier.get().getTextRange().getStartOffset(),
                                                 element.getTextRange().getEndOffset()));
                                     } else {
@@ -1528,20 +1541,45 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             a2Expression));
                                 case "substring":
                                 case "subList":
-                                    if (a1 instanceof PsiBinaryExpression) {
-                                        NumberLiteral p1 = getSlicePosition(element, qualifierExpression, (PsiBinaryExpression) a1, document);
-                                        if (p1 != null) {
-                                            if (a2Expression instanceof NumberLiteral) {
-                                                return new Slice(element, element.getTextRange(), Arrays.asList(qualifierExpression,
-                                                        p1, a2Expression));
-                                            } else if (a2 instanceof PsiBinaryExpression) {
-                                                NumberLiteral p2 = getSlicePosition(element, qualifierExpression, (PsiBinaryExpression) a2, document);
-                                                if (p2 != null) {
-                                                    return new Slice(element, element.getTextRange(),
-                                                            Arrays.asList(qualifierExpression, p1, p2));
-                                                }
-                                            } else //noinspection Duplicates
-                                                if (a2 instanceof PsiMethodCallExpression) {
+                                    if (settings.getState().isSlicingExpressionsCollapse()) {
+                                        if (a1 instanceof PsiBinaryExpression) {
+                                            NumberLiteral p1 = getSlicePosition(element, qualifierExpression, (PsiBinaryExpression) a1, document);
+                                            if (p1 != null) {
+                                                if (a2Expression instanceof NumberLiteral) {
+                                                    return new Slice(element, element.getTextRange(), Arrays.asList(qualifierExpression,
+                                                            p1, a2Expression));
+                                                } else if (a2 instanceof PsiBinaryExpression) {
+                                                    NumberLiteral p2 = getSlicePosition(element, qualifierExpression, (PsiBinaryExpression) a2, document);
+                                                    if (p2 != null) {
+                                                        return new Slice(element, element.getTextRange(),
+                                                                Arrays.asList(qualifierExpression, p1, p2));
+                                                    }
+                                                } else //noinspection Duplicates
+                                                    if (a2 instanceof PsiMethodCallExpression) {
+                                                        @NotNull PsiMethodCallExpression a2m = (PsiMethodCallExpression) a2;
+                                                        @NotNull PsiReferenceExpression a2me = a2m.getMethodExpression();
+                                                        Optional<PsiElement> a2i = Stream.of(a2me.getChildren())
+                                                                .filter(c -> c instanceof PsiIdentifier).findAny();
+                                                        @Nullable PsiExpression q = a2me.getQualifierExpression();
+                                                        if (a2i.isPresent() && q != null && (a2i.get().getText().equals("length") || a2i.get()
+                                                                .getText().equals("size"))) {
+                                                            @NotNull Expression a2qe = getAnyExpression(q, document);
+                                                            if (a2qe.equals(qualifierExpression)) {
+                                                                return new Slice(element, element.getTextRange(), Arrays.asList(qualifierExpression, p1));
+                                                            }
+                                                        }
+                                                    }
+                                            }
+                                        }
+                                        if (a2 instanceof PsiBinaryExpression) {
+                                            @NotNull PsiBinaryExpression a2b = (PsiBinaryExpression) a2;
+                                            @Nullable NumberLiteral position = getSlicePosition(element, qualifierExpression, a2b, document);
+                                            if (position != null) {
+                                                return new Slice(element, element.getTextRange(), Arrays.asList(qualifierExpression, a1Expression,
+                                                        position));
+                                            }
+                                        } else //noinspection Duplicates
+                                            if (a2 instanceof PsiMethodCallExpression) {
                                                 @NotNull PsiMethodCallExpression a2m = (PsiMethodCallExpression) a2;
                                                 @NotNull PsiReferenceExpression a2me = a2m.getMethodExpression();
                                                 Optional<PsiElement> a2i = Stream.of(a2me.getChildren())
@@ -1551,35 +1589,14 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                                         .getText().equals("size"))) {
                                                     @NotNull Expression a2qe = getAnyExpression(q, document);
                                                     if (a2qe.equals(qualifierExpression)) {
-                                                        return new Slice(element, element.getTextRange(), Arrays.asList(qualifierExpression, p1));
+                                                        return new Slice(element, element.getTextRange(), Arrays.asList(qualifierExpression, a1Expression));
                                                     }
                                                 }
                                             }
-                                        }
+                                        return new Slice(element, element.getTextRange(), Arrays.asList(qualifierExpression, a1Expression, a2Expression));
+                                    } else {
+                                        break;
                                     }
-                                    if (a2 instanceof PsiBinaryExpression) {
-                                        @NotNull PsiBinaryExpression a2b = (PsiBinaryExpression) a2;
-                                        @Nullable NumberLiteral position = getSlicePosition(element, qualifierExpression, a2b, document);
-                                        if (position != null) {
-                                            return new Slice(element, element.getTextRange(), Arrays.asList(qualifierExpression, a1Expression,
-                                                    position));
-                                        }
-                                    } else //noinspection Duplicates
-                                        if (a2 instanceof PsiMethodCallExpression) {
-                                        @NotNull PsiMethodCallExpression a2m = (PsiMethodCallExpression) a2;
-                                        @NotNull PsiReferenceExpression a2me = a2m.getMethodExpression();
-                                        Optional<PsiElement> a2i = Stream.of(a2me.getChildren())
-                                                .filter(c -> c instanceof PsiIdentifier).findAny();
-                                        @Nullable PsiExpression q = a2me.getQualifierExpression();
-                                        if (a2i.isPresent() && q != null && (a2i.get().getText().equals("length") || a2i.get()
-                                                .getText().equals("size"))) {
-                                            @NotNull Expression a2qe = getAnyExpression(q, document);
-                                            if (a2qe.equals(qualifierExpression)) {
-                                                return new Slice(element, element.getTextRange(), Arrays.asList(qualifierExpression, a1Expression));
-                                            }
-                                        }
-                                    }
-                                    return new Slice(element, element.getTextRange(), Arrays.asList(qualifierExpression, a1Expression, a2Expression));
                             }
                         }
                         if (element.getArgumentList().getExpressions().length == 1) {

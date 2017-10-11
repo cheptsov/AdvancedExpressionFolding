@@ -18,5 +18,9 @@ public class CollectionTestData {
         Set<String> copyOfSet = new HashSet<>();
         set<fold text=' += ' expand='false'>.addAll(</fold>copyOfSet<fold text='' expand='false'>)</fold>;
         System.out.println(copyOfSet);
+        List<String> streamToList = <fold text='' expand='false'>Arrays.stream(</fold>args<fold text='.' expand='false'>).</fold>map(String::toUpperCase)<fold text='.' expand='false'>.collect(Collectors.</fold>toList()<fold text='' expand='false'>)</fold>;
+        System.out.println(streamToList);
+        long count = streamToList<fold text='.' expand='false'>.stream().</fold>distinct().count();
+        System.out.println(count);
     }</fold>
 }

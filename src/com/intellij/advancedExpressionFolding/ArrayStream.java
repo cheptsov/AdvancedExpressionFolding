@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class ArrayStream extends Expression implements StreamsExpression {
+public class ArrayStream extends Expression {
     private final @NotNull Expression argument;
 
     public ArrayStream(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression argument) {

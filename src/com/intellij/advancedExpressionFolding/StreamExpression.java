@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class StreamExpression extends Expression implements StreamsExpression {
+public class StreamExpression extends Expression {
     public StreamExpression(@NotNull PsiElement element, @NotNull TextRange textRange) {
         super(element, textRange);
     }
