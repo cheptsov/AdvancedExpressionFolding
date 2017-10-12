@@ -34,6 +34,7 @@ public class Setter extends Expression implements GettersSetters {
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+        // TODO: Generalize this code with Append and Operation
         FoldingGroup group = FoldingGroup.newGroup(Setter.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
