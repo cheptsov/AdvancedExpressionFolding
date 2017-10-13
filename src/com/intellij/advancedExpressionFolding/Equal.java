@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement;
 
 import java.util.List;
 
-public class Equal extends Operation implements ComparingExpression {
+public class Equal extends Operation {
     public Equal(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, "≡", 18, operands);
     }

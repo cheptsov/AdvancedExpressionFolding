@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement;
 
 import java.util.List;
 
-public class Greater extends Operation implements ComparingExpression {
+public class Greater extends Operation {
     public Greater(PsiElement element, TextRange textRange, List<Expression> operands) {
         super(element, textRange, ">", 18, operands);
     }

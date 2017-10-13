@@ -11,6 +11,7 @@ import com.intellij.psi.impl.source.tree.java.PsiAssignmentExpressionImpl;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiModificationTracker;
+import org.codehaus.groovy.antlr.java.JavaTokenTypes;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -815,8 +816,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @Nullable
     private static Expression getPrefixExpression(@NotNull PsiPrefixExpression element, @NotNull Document document) {
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
         if (element.getOperand() != null) {
-            if (element.getOperationSign().getText().equals("!")) {
+            if (element.getOperationSign().getText().equals("!") && settings.getState().isComparingExpressionsCollapse()) {
                 @NotNull Expression operand = getAnyExpression(element.getOperand(), document);
                 if (operand instanceof Equal) {
                     return new NotEqual(element, element.getTextRange(), ((Equal) operand).getOperands());
@@ -921,17 +923,18 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @Nullable
     private static Expression getBinaryExpression(@NotNull PsiBinaryExpression element, @NotNull Document document) {
-        if (element.getLOperand() instanceof PsiMethodCallExpression
-                && element.getROperand() instanceof PsiLiteralExpression
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+        if ((element.getLOperand() instanceof PsiMethodCallExpression
+                && isLiteralOrNegatedLiteral(element.getROperand())
                 || element.getROperand() instanceof PsiMethodCallExpression &&
-                element.getLOperand() instanceof PsiLiteralExpression) {
+                isLiteralOrNegatedLiteral(element.getLOperand()))
+                && settings.getState().isComparingExpressionsCollapse()) {
             PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) (element
                     .getLOperand() instanceof PsiMethodCallExpression
                     ? element.getLOperand() : element.getROperand());
 
-            @Nullable PsiLiteralExpression literalExpression = (PsiLiteralExpression) (element
-                    .getLOperand() instanceof PsiLiteralExpression
-                    ? element.getLOperand() : element.getROperand());
+            @Nullable PsiExpression literalExpression = isLiteralOrNegatedLiteral(element.getLOperand())
+                    ? element.getLOperand() : element.getROperand();
             if (literalExpression != null && literalExpression.getText().equals("0")
                     || literalExpression != null && literalExpression.getText().equals("-1")
                     || literalExpression != null && literalExpression.getText().equals("1")) {
@@ -982,6 +985,16 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             case "0":
                                                 return new Greater(element, element.getTextRange(), Arrays.asList(qualifier, argument));
                                         }
+                                    case "<=":
+                                        switch (literalExpression.getText()) {
+                                            case "0":
+                                                return new LessEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        }
+                                    case ">=":
+                                        switch (literalExpression.getText()) {
+                                            case "0":
+                                                return new GreaterEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        }
                                 }
                             }
                         }
@@ -1020,6 +1033,13 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         }
 */
         return null;
+    }
+
+    private static boolean isLiteralOrNegatedLiteral(PsiElement element) {
+        return element instanceof PsiLiteralExpression
+                || element instanceof PsiPrefixExpression
+                && ((PsiPrefixExpression) element).getOperand() instanceof PsiLiteralExpression
+                && "-".equals(((PsiPrefixExpression) element).getOperationSign().getText());
     }
 
     @Nullable
@@ -1368,7 +1388,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                     return new ShiftRight(element, element.getTextRange(),
                                             Arrays.asList(qualifierExpression, argumentExpression));
                                 case "equals":
-                                    return new Equal(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                    if (settings.getState().isComparingExpressionsCollapse()) {
+                                        return new Equal(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                    } else {
+                                        break;
+                                    }
                                 case "append":
                                     if (settings.getState().isConcatenationExpressionsCollapse()) {
                                         if (qualifierExpression instanceof Append) {
@@ -1696,7 +1720,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         break;
                                     }
                                 case "equals":
-                                    return new Equal(element, element.getTextRange(), Arrays.asList(a1Expression, a2Expression));
+                                    if (settings.getState().isComparingExpressionsCollapse()) {
+                                        return new Equal(element, element.getTextRange(), Arrays.asList(a1Expression, a2Expression));
+                                    } else {
+                                        break;
+                                    }
                             }
                         } else if (element.getArgumentList().getExpressions().length == 0) {
                             switch (method.getName()) {

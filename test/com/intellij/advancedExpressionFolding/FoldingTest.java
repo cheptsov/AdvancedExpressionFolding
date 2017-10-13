@@ -88,6 +88,11 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
         doFoldingTest();
     }
 
+    public void testEqualsCompareTestData() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().setComparingExpressionsCollapse(true);
+        doFoldingTest();
+    }
+
     private void disableAllFoldings() {
         AdvancedExpressionFoldingSettings.getInstance().getState().disableAll();
     }
