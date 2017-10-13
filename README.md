@@ -1,6 +1,6 @@
 # Advanced Java Folding
 
-[![JetBrains team project](http://jb.gg/badges/team.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+[![JetBrains team project](http://jb.gg/badges/team.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) [![Plugin version](https://img.shields.io/jetbrains/plugin/d/9320-advanced-java-folding.svg)](https://plugins.jetbrains.com/plugin/9320-advanced-java-folding)
 
 Modern JVM languages such as Kotlin, Groovy, Scala and some others offer many language features that let you
 write code in a more concise and expressive manner. These features include type inference, properties,
