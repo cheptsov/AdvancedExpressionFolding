@@ -53,7 +53,8 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
         doFoldingTest();
     }
 
-    public void testFor() {
+    public void testForRangeTestData() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().setRangeExpressionsCollapse(true);
         doFoldingTest();
     }
 
