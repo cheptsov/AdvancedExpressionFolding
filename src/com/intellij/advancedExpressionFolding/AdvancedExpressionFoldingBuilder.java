@@ -737,7 +737,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @Nullable
     private static VariableDeclarationImpl getVariableDeclaration(@NotNull PsiVariable element) {
-        if (element.getName() != null && element.getTypeElement() != null
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+        if (settings.getState().isVarExpressionsCollapse()
+                && element.getName() != null
+                && element.getTypeElement() != null
                 && (element.getInitializer() != null || element.getParent() instanceof PsiForeachStatement)
                 && element.getTextRange().getStartOffset() < element.getTypeElement().getTextRange().getEndOffset()) {
             boolean isFinal = calculateIfFinal(element);
@@ -1727,29 +1730,31 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             }
 
         }
-        if (identifier.isPresent() && ((startsWith(identifier.get().getText(), "get") && identifier.get().getText().length() > 3)
-                || (identifier.get().getText().startsWith("is") && identifier.get().getText().length() > 2))
-                && element.getArgumentList().getExpressions().length == 0) {
-            return new Getter(element, element.getTextRange(), TextRange.create(identifier.get().getTextRange().getStartOffset(),
-                    element.getTextRange().getEndOffset()),
-                    qualifier != null
-                            ? getAnyExpression(qualifier, document)
-                            : null,
-                    guessPropertyName(identifier.get().getText()));
-        } else if (identifier.isPresent()
-                && identifier.get().getText().startsWith("set")
-                && identifier.get().getText().length() > 3
-                && Character.isUpperCase(identifier.get().getText().charAt(3))
-                && element.getArgumentList().getExpressions().length == 1
-                && element.getParent() instanceof PsiStatement
-                && (qualifier == null
-                || !(qualifier instanceof PsiMethodCallExpression)
-                || !(startsWith(((PsiMethodCallExpression) qualifier).getMethodExpression().getReferenceName(), "set")))) {
-            return new Setter(element, element.getTextRange(), TextRange.create(identifier.get().getTextRange().getStartOffset(),
-                    element.getTextRange().getEndOffset()),
-                    qualifier != null ? getAnyExpression(qualifier, document) : null,
-                    guessPropertyName(identifier.get().getText()),
-                    getAnyExpression(element.getArgumentList().getExpressions()[0], document));
+        if (settings.getState().isGetSetExpressionsCollapse()) {
+            if (identifier.isPresent() && ((startsWith(identifier.get().getText(), "get") && identifier.get().getText().length() > 3)
+                    || (identifier.get().getText().startsWith("is") && identifier.get().getText().length() > 2))
+                    && element.getArgumentList().getExpressions().length == 0) {
+                return new Getter(element, element.getTextRange(), TextRange.create(identifier.get().getTextRange().getStartOffset(),
+                        element.getTextRange().getEndOffset()),
+                        qualifier != null
+                                ? getAnyExpression(qualifier, document)
+                                : null,
+                        guessPropertyName(identifier.get().getText()));
+            } else if (identifier.isPresent()
+                    && identifier.get().getText().startsWith("set")
+                    && identifier.get().getText().length() > 3
+                    && Character.isUpperCase(identifier.get().getText().charAt(3))
+                    && element.getArgumentList().getExpressions().length == 1
+                    && element.getParent() instanceof PsiStatement
+                    && (qualifier == null
+                    || !(qualifier instanceof PsiMethodCallExpression)
+                    || !(startsWith(((PsiMethodCallExpression) qualifier).getMethodExpression().getReferenceName(), "set")))) {
+                return new Setter(element, element.getTextRange(), TextRange.create(identifier.get().getTextRange().getStartOffset(),
+                        element.getTextRange().getEndOffset()),
+                        qualifier != null ? getAnyExpression(qualifier, document) : null,
+                        guessPropertyName(identifier.get().getText()),
+                        getAnyExpression(element.getArgumentList().getExpressions()[0], document));
+            }
         }
         return null;
     }

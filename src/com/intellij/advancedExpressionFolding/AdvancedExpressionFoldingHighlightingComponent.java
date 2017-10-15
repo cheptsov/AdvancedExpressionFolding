@@ -241,6 +241,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                                         && region.getEndOffset() <= expression.getTextRange().getEndOffset()
                                         && isHighlightingRegion(region)
                                         && !region.isExpanded()) {
+                                    // TODO: Sometimes the popup doesn't show, see TypeCastTestData.java
                                     DocumentFragment range = createDocumentFragment(editorEx, region);
                                     final Point p = SwingUtilities.convertPoint((Component) e.getMouseEvent().getSource(), e.getMouseEvent().getPoint(),
                                             editorEx.getComponent().getRootPane().getLayeredPane());

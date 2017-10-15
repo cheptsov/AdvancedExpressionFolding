@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Setter extends Expression implements GettersSetters {
+public class Setter extends Expression {
     private final @NotNull TextRange setterTextRange;
     private final @Nullable Expression object;
     private final @NotNull String name;
