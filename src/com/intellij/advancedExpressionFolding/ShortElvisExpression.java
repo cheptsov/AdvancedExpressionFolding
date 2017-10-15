@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ShortElvisExpression extends Expression implements CheckExpression {
+public class ShortElvisExpression extends Expression {
     private final @NotNull Expression thenExpression;
     private final @NotNull List<TextRange> elements;
 

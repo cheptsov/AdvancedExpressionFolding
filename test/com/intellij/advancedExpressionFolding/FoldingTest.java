@@ -45,7 +45,8 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
         doFoldingTest();
     }
 
-    public void testElvis() {
+    public void testElvisTestData() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().setCheckExpressionsCollapse(true);
         doFoldingTest();
     }
 

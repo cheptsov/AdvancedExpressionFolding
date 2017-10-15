@@ -27,7 +27,7 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         myState.CONCATENATION_EXPRESSIONS = state.CONCATENATION_EXPRESSIONS;
         myState.SLICING_EXPRESSIONS = state.SLICING_EXPRESSIONS;
         myState.COMPARING_EXPRESSIONS = state.COMPARING_EXPRESSIONS;
-        myState.GET_EXPRESSIONS = state.COMPARING_EXPRESSIONS;
+        myState.GET_EXPRESSIONS = state.GET_EXPRESSIONS;
         myState.CHECK_EXPRESSIONS = state.CHECK_EXPRESSIONS;
         myState.RANGE_EXPRESSIONS = state.RANGE_EXPRESSIONS;
         myState.CAST_EXPRESSIONS = state.CAST_EXPRESSIONS;
@@ -85,7 +85,7 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         }
 
         public boolean isCastExpressionsCollapse() {
-            return CHECK_EXPRESSIONS;
+            return CAST_EXPRESSIONS;
         }
 
         public boolean isVarExpressionsCollapse() {
@@ -145,7 +145,7 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         }
 
         public void setCastExpressionsCollapse(boolean value) {
-            CHECK_EXPRESSIONS = value;
+            CAST_EXPRESSIONS = value;
         }
 
         public void setVarExpressionsCollapse(boolean value) {

@@ -608,7 +608,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @Nullable
     private static Expression getIfExpression(PsiIfStatement element, Document document) {
-        if (element.getCondition() instanceof PsiBinaryExpression) {
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+        if (settings.getState().isCheckExpressionsCollapse()
+                && element.getCondition() instanceof PsiBinaryExpression) {
             PsiBinaryExpression condition = (PsiBinaryExpression) element.getCondition();
             if (condition.getOperationSign().getText().equals("!=")
                     && element.getElseBranch() == null
@@ -676,7 +678,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @Nullable
     private static Expression getConditionalExpression(@NotNull PsiConditionalExpression element, @NotNull Document document) {
-        if (element.getCondition() instanceof PsiBinaryExpression) {
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+        if (settings.getState().isCheckExpressionsCollapse()
+                && element.getCondition() instanceof PsiBinaryExpression) {
             @NotNull PsiBinaryExpression condition = (PsiBinaryExpression) element.getCondition();
             if (condition.getOperationSign().getText().equals("!=")
                     && condition.getROperand() != null
@@ -1026,16 +1030,6 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             return getAndTwoBinaryExpressions(element,
                     ((PsiBinaryExpression) element.getLOperand()), ((PsiBinaryExpression) element.getROperand()), document);
         }
-/*
-        if ("!=".equals(element.getOperationSign().getText())
-                && element.getROperand() != null && element.getLOperand() != null
-                && (element.getLOperand().getType() == PsiType.NULL
-                        || element.getROperand().getType() == PsiType.NULL)) {
-            return new NotNullExpression(element.getTextRange(),
-                    getExpression(element.getLOperand().getType() == PsiType.NULL
-                            ? element.getROperand() : element.getLOperand(), document, true));
-        }
-*/
         return null;
     }
 
@@ -1417,9 +1411,6 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                     } else {
                                         break;
                                     }
-                                /*case "contains":
-                                case "containsKey":
-                                    return new Contains(element.getTextRange(), qualifierExpression, argumentExpression);*/
                                 case "charAt":
                                     if (settings.getState().isGetExpressionsCollapse()) {
                                         return new Get(element, element.getTextRange(), qualifierExpression,
@@ -1520,12 +1511,6 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                     return new Abs(element, element.getTextRange(), Collections.singletonList(qualifierExpression));
                                 case "signum":
                                     return new Signum(element, element.getTextRange(), Collections.singletonList(qualifierExpression));
-                                /*case "get":
-                                    return new AssertNotNullExpression(element.getTextRange(),
-                                            qualifierExpression);*/
-                                /*case "isPresent":
-                                    return new NotNullExpression(element.getTextRange(),
-                                            qualifierExpression);*/
                                 case "stream":
                                     if (element.getParent() instanceof PsiReferenceExpression
                                             && ((PsiReferenceExpression) element.getParent()).getQualifierExpression() == element

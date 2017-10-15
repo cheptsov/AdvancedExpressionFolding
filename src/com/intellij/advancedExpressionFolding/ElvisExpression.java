@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ElvisExpression extends Expression implements CheckExpression {
+public class ElvisExpression extends Expression {
     private final @NotNull Expression thenExpression;
     private final @NotNull Expression elseExpression;
     private final @NotNull List<TextRange> elements;
