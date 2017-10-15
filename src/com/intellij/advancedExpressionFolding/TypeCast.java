@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class TypeCast extends Expression implements CastExpression {
+public class TypeCast extends Expression {
     private final @NotNull Expression object;
 
     public TypeCast(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull Expression object) {
