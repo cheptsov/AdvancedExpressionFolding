@@ -41,16 +41,8 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
         myFixture.testHighlighting(getTestDataPath() + "/" + getTestName(false) + ".java");
     }
 
-    public void testAbs() {
-        doFoldingTest();
-    }
-
     public void testElvisTestData() {
         AdvancedExpressionFoldingSettings.getInstance().getState().setCheckExpressionsCollapse(true);
-        doFoldingTest();
-    }
-
-    public void testGet() {
         doFoldingTest();
     }
 
@@ -97,6 +89,16 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
 
     public void testTypeCastTestData() {
         AdvancedExpressionFoldingSettings.getInstance().getState().setCastExpressionsCollapse(true);
+        doFoldingTest();
+    }
+
+    public void testVarTestData() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().setVarExpressionsCollapse(true);
+        doFoldingTest();
+    }
+
+    public void testGetterSetterTestData() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().setGetSetExpressionsCollapse(true);
         doFoldingTest();
     }
 
