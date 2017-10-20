@@ -102,6 +102,23 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
         doFoldingTest();
     }
 
+    public void testControlFlowSingleStatementTestData() {
+        // TODO: Test with different indentation settings
+        AdvancedExpressionFoldingSettings.getInstance().getState().setControlFlowSingleStatementCodeBlockCollapse(true);
+        doFoldingTest();
+    }
+
+    public void testControlFlowMultiStatementTestData() {
+        // TODO: Test with different indentation settings
+        AdvancedExpressionFoldingSettings.getInstance().getState().setControlFlowMultiStatementCodeBlockCollapse(true);
+        doFoldingTest();
+    }
+
+    public void testCompactControlFlowTestData() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().setCompactControlFlowSyntaxCollapse(true);
+        doFoldingTest();
+    }
+
     private void disableAllFoldings() {
         AdvancedExpressionFoldingSettings.getInstance().getState().disableAll();
     }

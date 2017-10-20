@@ -11,7 +11,6 @@ import com.intellij.psi.impl.source.tree.java.PsiAssignmentExpressionImpl;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiModificationTracker;
-import org.codehaus.groovy.antlr.java.JavaTokenTypes;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -314,7 +313,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             }
         }
         if (element.getCondition() != null
-                && element.getLParenth() != null && element.getRParenth() != null) {
+                && element.getLParenth() != null && element.getRParenth() != null
+                && settings.getState().isCompactControlFlowSyntaxCollapse()) {
             return new CompactControlFlowExpression(element,
                     TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
                             element.getRParenth().getTextRange().getEndOffset()));
@@ -369,9 +369,14 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     @Contract("_, _, true -> !null")
     private static Expression buildExpression(@NotNull PsiElement element, @NotNull Document document, boolean synthetic) {
         AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
-        if (element instanceof PsiForStatement
-                && settings.getState().isRangeExpressionsCollapse()) {
+        if (element instanceof PsiForStatement) {
             Expression expression = getForStatementExpression((PsiForStatement) element, document);
+            if (expression != null) {
+                return expression;
+            }
+        }
+        if (element instanceof PsiForeachStatement) {
+            Expression expression = getForeachStatementExpression((PsiForeachStatement) element);
             if (expression != null) {
                 return expression;
             }
@@ -517,9 +522,22 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
+    private static Expression getForeachStatementExpression(PsiForeachStatement element) {
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
+        if (element.getIteratedValue() != null && element.getRParenth() != null &&
+                settings.getState().isCompactControlFlowSyntaxCollapse()) {
+            return new CompactControlFlowExpression(element,
+                    TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
+                            element.getRParenth().getTextRange().getEndOffset()));
+        }
+        return null;
+    }
+
     private static Expression getWhileStatement(PsiWhileStatement element) {
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
         if (element.getCondition() != null
-                && element.getLParenth() != null && element.getRParenth() != null) {
+                && element.getLParenth() != null && element.getRParenth() != null
+                && settings.getState().isCompactControlFlowSyntaxCollapse()) {
             return new CompactControlFlowExpression(element,
                     TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
                             element.getRParenth().getTextRange().getEndOffset()));
@@ -528,8 +546,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     }
 
     private static Expression getDoWhileStatement(PsiDoWhileStatement element) {
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
         if (element.getCondition() != null
-                && element.getLParenth() != null && element.getRParenth() != null) {
+                && element.getLParenth() != null && element.getRParenth() != null
+                && settings.getState().isCompactControlFlowSyntaxCollapse()) {
             return new CompactControlFlowExpression(element,
                     TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
                             element.getRParenth().getTextRange().getEndOffset()));
@@ -538,8 +558,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     }
 
     private static Expression getSwitchStatement(PsiSwitchStatement element) {
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
         if (element.getExpression() != null
-                && element.getLParenth() != null && element.getRParenth() != null) {
+                && element.getLParenth() != null && element.getRParenth() != null
+                && settings.getState().isCompactControlFlowSyntaxCollapse()) {
             return new CompactControlFlowExpression(element,
                     TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
                             element.getRParenth().getTextRange().getEndOffset()));
@@ -548,8 +570,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     }
 
     private static Expression getCatchStatement(PsiCatchSection element) {
+        AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
         if (element.getParameter() != null
-                && element.getLParenth() != null && element.getRParenth() != null) {
+                && element.getLParenth() != null && element.getRParenth() != null
+                && settings.getState().isCompactControlFlowSyntaxCollapse()) {
             return new CompactControlFlowExpression(element,
                     TextRange.create(element.getLParenth().getTextRange().getStartOffset(),
                             element.getRParenth().getTextRange().getEndOffset()));

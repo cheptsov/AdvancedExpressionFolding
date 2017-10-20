@@ -10,23 +10,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class CompactControlFlowExpression extends Expression implements CompactControlFlow {
+public class CompactControlFlowExpression extends Expression {
     public CompactControlFlowExpression(@NotNull PsiElement element,
                                         @NotNull TextRange textRange) {
         super(element, textRange);
-    }
-
-    @Override
-    public boolean supportsFoldRegions(@NotNull Document document, @Nullable Expression parent) {
-        return true;
-    }
-
-    @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
-                                                @Nullable Expression parent) {
-        ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
-        buildFoldRegions(element, FoldingGroup.newGroup(CompactControlFlowExpression.class.getName()), descriptors, textRange);
-        return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 
     public static void buildFoldRegions(@NotNull PsiElement element, FoldingGroup group,
@@ -47,5 +34,27 @@ public class CompactControlFlowExpression extends Expression implements CompactC
                 return "";
             }
         });
+    }
+
+    @Override
+    public boolean supportsFoldRegions(@NotNull Document document, @Nullable Expression parent) {
+        return true;
+    }
+
+    @Override
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
+                                                @Nullable Expression parent) {
+        ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
+        buildFoldRegions(element, FoldingGroup
+                        .newGroup(CompactControlFlowExpression.class.getName()
+                                + Expression.HIGHLIGHTED_GROUP_POSTFIX),
+                descriptors, textRange);
+        return descriptors.toArray(FoldingDescriptor.EMPTY);
+    }
+
+    @Override
+    public boolean isHighlighted() {
+        // TODO: Allow to highlight not the whole element but only its part, e.g. getHighlightedRegion()
+        return false;
     }
 }
