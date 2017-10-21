@@ -1685,7 +1685,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         return new Sin(element, element.getTextRange(), Collections.singletonList(argumentExpression));
                                     case "sinh":
                                         return new Sinh(element, element.getTextRange(), Collections.singletonList(argumentExpression));
-                                    case "Sqrt":
+                                    case "sqrt":
                                         return new Sqrt(element, element.getTextRange(), Collections.singletonList(argumentExpression));
                                     case "tan":
                                         return new Tan(element, element.getTextRange(), Collections.singletonList(argumentExpression));

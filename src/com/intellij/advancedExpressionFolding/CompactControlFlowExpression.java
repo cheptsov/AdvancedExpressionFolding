@@ -54,7 +54,6 @@ public class CompactControlFlowExpression extends Expression {
 
     @Override
     public boolean isHighlighted() {
-        // TODO: Allow to highlight not the whole element but only its part, e.g. getHighlightedRegion()
-        return false;
+        return true;
     }
 }

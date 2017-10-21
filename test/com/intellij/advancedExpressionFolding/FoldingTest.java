@@ -1,5 +1,6 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.JavaSdkImpl;
@@ -35,10 +36,6 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
 
     public void doFoldingTest() {
         myFixture.testFoldingWithCollapseStatus(getTestDataPath() + "/" + getTestName(false) + ".java");
-    }
-
-    public void doHighlightingTest() {
-        myFixture.testHighlighting(getTestDataPath() + "/" + getTestName(false) + ".java");
     }
 
     public void testElvisTestData() {
@@ -90,6 +87,16 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
     public void testTypeCastTestData() {
         AdvancedExpressionFoldingSettings.getInstance().getState().setCastExpressionsCollapse(true);
         doFoldingTest();
+        AdvancedExpressionFoldingHighlightingComponent highlightingComponent = getProject()
+                .getComponent(AdvancedExpressionFoldingHighlightingComponent.class);
+        highlightingComponent.fileOpened(FileEditorManager.getInstance(getProject()), myFixture.getFile().getVirtualFile());
+        // TODO: Test highlighting
+        /*List<RangeHighlighter> highlighters = highlightingComponent.getHighlighters().entrySet()
+                .stream().map(Map.Entry::getValue).sorted(
+                        Comparator.comparingInt(RangeMarker::getStartOffset)).distinct().collect(Collectors.toList());
+        String t1 = myFixture.getDocument(getFile())
+                .getText(TextRange.create(highlighters.get(0).getStartOffset(), highlighters.get(0).getEndOffset()));
+        System.out.println(t1);*/
     }
 
     public void testVarTestData() {
@@ -116,6 +123,11 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
 
     public void testCompactControlFlowTestData() {
         AdvancedExpressionFoldingSettings.getInstance().getState().setCompactControlFlowSyntaxCollapse(true);
+        doFoldingTest();
+    }
+
+    public void testSemicolonTestData() {
+        AdvancedExpressionFoldingSettings.getInstance().getState().setSemicolonsCollapse(true);
         doFoldingTest();
     }
 

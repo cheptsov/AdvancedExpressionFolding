@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class CollectionTestData {
+public class ConcatenationTestData {
     public static void main(String[] args) <fold text='{...}' expand='true'>{
         List<String> list = Arrays.asList(args);
         list<fold text=' += ' expand='false'>.add(</fold>"one"<fold text='' expand='false'>)</fold>;

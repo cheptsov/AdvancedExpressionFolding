@@ -65,7 +65,8 @@ public class IfExpression extends Expression implements CollapseByDefault {
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
                                                 @Nullable Expression parent) {
         AdvancedExpressionFoldingSettings.State state = AdvancedExpressionFoldingSettings.getInstance().getState();
-        FoldingGroup group = FoldingGroup.newGroup(IfExpression.class.getName());
+        FoldingGroup group = FoldingGroup.newGroup(IfExpression.class.getName()
+                + (!isAssertExpression(state, this.element) && isCompactExpression(state, this.element) ? Expression.HIGHLIGHTED_GROUP_POSTFIX : ""));
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         if (this.element.getLParenth() != null && this.element.getRParenth() != null) {
             if (isAssertExpression(state, this.element)) {
@@ -251,7 +252,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                             descriptors.add(new FoldingDescriptor(element.getNode(),
                                     TextRange.create(this.element.getCondition().getTextRange().getEndOffset(),
                                             this.element.getTextRange().getEndOffset()), group) {
-                                @Nullable
+                                @NotNull
                                 @Override
                                 public String getPlaceholderText() {
                                     return state.isSemicolonsCollapse() ? "" : ";";
@@ -267,5 +268,21 @@ public class IfExpression extends Expression implements CollapseByDefault {
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
+    }
+
+    @Override
+    public boolean isHighlighted() {
+        AdvancedExpressionFoldingSettings.State state = AdvancedExpressionFoldingSettings.getInstance().getState();
+        return !isAssertExpression(state, this.element) && isCompactExpression(state, this.element);
+    }
+
+    @Override
+    public TextRange getHighlightedTextRange() {
+        if (this.element.getLParenth() != null && this.element.getRParenth() != null) {
+            return TextRange.create(this.element.getLParenth().getTextRange().getStartOffset(),
+                    this.element.getRParenth().getTextRange().getEndOffset());
+        } else {
+            return super.getHighlightedTextRange();
+        }
     }
 }

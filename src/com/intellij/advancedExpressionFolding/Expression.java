@@ -28,7 +28,6 @@ public abstract class Expression {
             put('7', '⁷');
             put('8', '⁸');
             put('9', '⁹');
-            put('9', '⁹');
             put('(', '⁽');
             put(')', '⁾');
             put('+', '⁺');
@@ -214,5 +213,9 @@ public abstract class Expression {
 
     public boolean isHighlighted() {
         return false;
+    }
+
+    public TextRange getHighlightedTextRange() {
+        return getTextRange();
     }
 }

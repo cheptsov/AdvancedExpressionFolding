@@ -22,6 +22,7 @@ import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
@@ -108,8 +109,9 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                             if (h != null) {
                                 editorEx.getMarkupModel().removeHighlighter(h);
                             }
-                            RangeHighlighterEx highlighter = (RangeHighlighterEx) editorEx.getMarkupModel().addRangeHighlighter(expression.getElement().getTextRange().getStartOffset(),
-                                    expression.getElement().getTextRange().getEndOffset(), HighlighterLayer.WARNING - 1, foldedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
+                            TextRange htr = expression.getHighlightedTextRange();
+                            RangeHighlighterEx highlighter = (RangeHighlighterEx) editorEx.getMarkupModel().addRangeHighlighter(htr.getStartOffset(),
+                                    htr.getEndOffset(), HighlighterLayer.WARNING - 1, foldedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
                             highlighter.setAfterEndOfLine(false);
                             highlighters.put(region, highlighter);
                         } else {
@@ -278,5 +280,9 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
     @Override
     public void selectionChanged(@NotNull FileEditorManagerEvent fileEditorManagerEvent) {
 
+    }
+
+    public Map<FoldRegion, RangeHighlighter> getHighlighters() {
+        return highlighters;
     }
 }

@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SemicolonExpression extends Expression implements Semicolon {
+public class SemicolonExpression extends Expression {
     public SemicolonExpression(PsiElement element, TextRange textRange) {
         super(element, textRange);
     }
@@ -23,7 +23,7 @@ public class SemicolonExpression extends Expression implements Semicolon {
                                                 @Nullable Expression parent) {
         return new FoldingDescriptor[] {
                 new FoldingDescriptor(element.getNode(), textRange, FoldingGroup.newGroup(SemicolonExpression.class.getName())) {
-                    @Nullable
+                    @NotNull
                     @Override
                     public String getPlaceholderText() {
                         return "";
