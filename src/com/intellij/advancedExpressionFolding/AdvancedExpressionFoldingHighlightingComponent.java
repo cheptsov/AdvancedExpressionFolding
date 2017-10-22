@@ -35,6 +35,7 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO: Support multi-line range highlighters
 public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProjectComponent implements EditorMouseListener, EditorMouseMotionListener, FileEditorManagerListener {
 
     private static final TooltipGroup FOLDING_TOOLTIP_GROUP = new TooltipGroup("FOLDING_TOOLTIP_GROUP", 10);
