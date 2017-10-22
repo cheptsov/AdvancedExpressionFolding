@@ -394,7 +394,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             }
         }
         if (element instanceof PsiJavaToken && ((PsiJavaToken) element).getTokenType() == JavaTokenType.SEMICOLON
-                && settings.getState().isSemicolonsCollapse()) {
+                && settings.getState().isSemicolonsCollapse()
+                && !element.isWritable()) {
             return new SemicolonExpression(element, element.getTextRange());
         }
         if (element instanceof PsiCatchSection) {
@@ -475,7 +476,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 return expression;
             }
         }
-        if (element instanceof PsiParenthesizedExpression) {
+        if (element instanceof PsiParenthesizedExpression
+                && settings.getState().isCastExpressionsCollapse()) {
             if (((PsiParenthesizedExpression) element).getExpression() instanceof PsiTypeCastExpression) {
                 PsiTypeCastExpression e = (PsiTypeCastExpression) ((PsiParenthesizedExpression) element).getExpression();
                 if (e != null) {
@@ -493,7 +495,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 }
             }
         }
-        if (element instanceof PsiTypeCastExpression) {
+        if (element instanceof PsiTypeCastExpression
+                && settings.getState().isCastExpressionsCollapse()) {
             TypeCast expression = getTypeCastExpression((PsiTypeCastExpression) element, document);
             if (expression != null) {
                 return expression;
@@ -595,6 +598,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 || parent instanceof PsiCatchSection) {
             if (element.getStatements().length == 1 || parent instanceof PsiSwitchStatement) {
                 if (settings.getState().isControlFlowSingleStatementCodeBlockCollapse()
+                        && !element.isWritable()
                         &&
                         (!(parent.getParent() instanceof PsiIfStatement) ||
                                 !IfExpression.isAssertExpression(settings.getState(),
@@ -602,7 +606,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                     return new ControlFlowSingleStatementCodeBlockExpression(element, element.getTextRange());
                 }
             } else {
-                if (settings.getState().isControlFlowMultiStatementCodeBlockCollapse()) {
+                if (settings.getState().isControlFlowMultiStatementCodeBlockCollapse()
+                        && !element.isWritable()) {
                     return new ControlFlowMultiStatementCodeBlockExpression(element, element.getTextRange());
                 }
             }

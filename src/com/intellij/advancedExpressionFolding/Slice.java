@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Slice extends Function implements SlicingExpression {
+public class Slice extends Function {
     public Slice(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
         super(element, textRange, "slice", operands);
     }

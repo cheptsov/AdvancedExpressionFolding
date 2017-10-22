@@ -4,7 +4,7 @@ public class AdvancedExpressionFoldingOptionsProvider extends com.intellij.opena
     protected AdvancedExpressionFoldingOptionsProvider() {
         super(AdvancedExpressionFoldingSettings.getInstance().getState());
         AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
-        checkBox("arithmeticExpressionsCollapse", "Math, BigDecimal and BigInteger expressions (Deprecated)");
+        checkBox("arithmeticExpressionsCollapse", "Math, BigDecimal and BigInteger expressions (deprecated)");
         checkBox("concatenationExpressionsCollapse", "StringBuilder.append and Collection.add/remove expressions, interpolated Strings and Stream expressions");
         checkBox("slicingExpressionsCollapse", "List.subList and String.substring expressions");
         checkBox("comparingExpressionsCollapse", "Object.equals and Comparable.compareTo expressions");
@@ -14,10 +14,10 @@ public class AdvancedExpressionFoldingOptionsProvider extends com.intellij.opena
         checkBox("castExpressionsCollapse", "Type cast expressions");
         checkBox("varExpressionsCollapse", "Variable declarations");
         checkBox("getSetExpressionsCollapse", "Getters and setters");
-        checkBox("controlFlowSingleStatementCodeBlockCollapse", "Control flow single-statement code block braces");
-        checkBox("controlFlowMultiStatementCodeBlockCollapse", "Control flow multi-statement code block braces (Deprecated)");
-        checkBox("compactControlFlowSyntaxCollapse", "Compact control flow condition syntax (similar to Go)");
-        checkBox("semicolonsCollapse", "Semicolons");
+        checkBox("controlFlowSingleStatementCodeBlockCollapse", "Control flow single-statement code block braces (read-only files)");
+        checkBox("controlFlowMultiStatementCodeBlockCollapse", "Control flow multi-statement code block braces (read-only files, deprecated)");
+        checkBox("compactControlFlowSyntaxCollapse", "Compact control flow condition syntax");
+        checkBox("semicolonsCollapse", "Semicolons (read-only files)");
         checkBox("assertsCollapse", "Asserts");
     }
 }

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class SyntheticExpressionImpl extends Expression implements SyntheticExpression {
+public class SyntheticExpressionImpl extends Expression {
     private final String text;
     private final ArrayList<Expression> children;
 

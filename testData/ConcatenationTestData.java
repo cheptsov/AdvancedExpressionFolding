@@ -1,5 +1,5 @@
-import java.util.*;
-import java.util.stream.Collectors;
+import <fold text='...' expand='false'>java.util.*;
+import java.util.stream.Collectors;</fold>
 
 public class ConcatenationTestData {
     public static void main(String[] args) <fold text='{...}' expand='true'>{

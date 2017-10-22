@@ -51,9 +51,9 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         private boolean VAR_EXPRESSIONS = true;
         private boolean GET_SET_EXPRESSIONS = true;
         private boolean CONTROL_FLOW_SINGLE_STATEMENT_CODE_BLOCK = false;
-        private boolean COMPACT_CONTROL_FLOW_SYNTAX = false;
+        private boolean COMPACT_CONTROL_FLOW_SYNTAX = true;
         private boolean CONTROL_FLOW_MULTI_STATEMENT_CODE_BLOCK = false;
-        private boolean SEMICOLONS = false;
+        private boolean SEMICOLONS = true;
         private boolean ASSERTS = true;
 
         public boolean isArithmeticExpressionsCollapse() {
