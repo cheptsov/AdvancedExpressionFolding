@@ -201,12 +201,16 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                     if (psiFile != null) {
                         @Nullable Expression expression = findHighlightingExpression(psiFile, editorEx.getDocument(), offset);
                         if (expression != null) {
-                            for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
-                                if (expression.getTextRange().getStartOffset() <= region.getStartOffset()
-                                        && region.getEndOffset() <= expression.getTextRange().getEndOffset()
-                                        && isHighlightingRegion(region)
-                                        && !region.isExpanded()) {
-                                    editorEx.getFoldingModel().runBatchFoldingOperation(() -> region.setExpanded(true));
+                            TextRange htr = expression.getHighlightedTextRange();
+                            if (htr.contains(offset)) {
+                                for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
+                                    if (htr.getStartOffset() <= region.getStartOffset()
+                                            && region.getEndOffset() <= htr.getEndOffset()
+                                            && isHighlightingRegion(region)
+                                            && !region.isExpanded()) {
+                                        editorEx.getFoldingModel()
+                                                .runBatchFoldingOperation(() -> region.setExpanded(true));
+                                    }
                                 }
                             }
                         }
@@ -244,17 +248,23 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                     if (psiFile != null) {
                         @Nullable Expression expression = findHighlightingExpression(psiFile, editorEx.getDocument(), offset);
                         if (expression != null) {
-                            for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
-                                if (expression.getTextRange().getStartOffset() <= region.getStartOffset()
-                                        && region.getEndOffset() <= expression.getTextRange().getEndOffset()
-                                        && isHighlightingRegion(region)
-                                        && !region.isExpanded()) {
-                                    // TODO: Sometimes the popup doesn't show, see TypeCastTestData.java
-                                    DocumentFragment range = createDocumentFragment(editorEx, region);
-                                    final Point p = SwingUtilities.convertPoint((Component) e.getMouseEvent().getSource(), e.getMouseEvent().getPoint(),
-                                            editorEx.getComponent().getRootPane().getLayeredPane());
-                                    controller.showTooltip(editorEx, p, new DocumentFragmentTooltipRenderer(range), false, FOLDING_TOOLTIP_GROUP);
-                                    return;
+                            TextRange htr = expression.getHighlightedTextRange();
+                            if (htr.contains(offset)) {
+                                for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
+                                    if (htr.getStartOffset() <= region.getStartOffset()
+                                            && region.getEndOffset() <= htr.getEndOffset()
+                                            && isHighlightingRegion(region)
+                                            && !region.isExpanded()) {
+                                        // TODO: Sometimes the popup doesn't show, see TypeCastTestData.java
+                                        DocumentFragment range = createDocumentFragment(editorEx, region);
+                                        final Point p = SwingUtilities
+                                                .convertPoint((Component) e.getMouseEvent().getSource(),
+                                                        e.getMouseEvent().getPoint(),
+                                                        editorEx.getComponent().getRootPane().getLayeredPane());
+                                        controller.showTooltip(editorEx, p, new DocumentFragmentTooltipRenderer(range),
+                                                false, FOLDING_TOOLTIP_GROUP);
+                                        return;
+                                    }
                                 }
                             }
                         }
