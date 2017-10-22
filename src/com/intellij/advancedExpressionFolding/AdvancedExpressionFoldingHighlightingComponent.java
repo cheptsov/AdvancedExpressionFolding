@@ -16,7 +16,6 @@ import com.intellij.openapi.editor.ex.RangeHighlighterEx;
 import com.intellij.openapi.editor.impl.FoldingModelImpl;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
-import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.DumbService;
@@ -39,7 +38,7 @@ import java.util.Map;
 public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProjectComponent implements EditorMouseListener, EditorMouseMotionListener, FileEditorManagerListener {
 
     private static final TooltipGroup FOLDING_TOOLTIP_GROUP = new TooltipGroup("FOLDING_TOOLTIP_GROUP", 10);
-    private Map<FoldRegion, RangeHighlighter> highlighters = new HashMap<>(); // TODO: Make sure there is no memory leak
+    private Map<Editor, Map<Expression, RangeHighlighterEx>> highlighters = new HashMap<>();
     private TooltipController controller;
 
     protected AdvancedExpressionFoldingHighlightingComponent(Project project, EditorFactory editorFactory) {
@@ -64,6 +63,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
             for (FileEditor editor : editors) {
                 EditorEx editorEx = getEditorEx(editor);
                 if (editorEx != null) {
+                    highlighters.putIfAbsent(editorEx, new HashMap<>());
                     for (FoldRegion region : editorEx.getFoldingModel().getAllFoldRegions()) {
                         processRegion(region, documentManager, editorEx);
                     }
@@ -99,25 +99,21 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                 if (element != null) {
                     @Nullable Expression expression = findHighlightingExpression(psiFile, region.getDocument(), region.getStartOffset());
                     if (expression != null) {
-                        TextAttributes foldedTextAttributes = editorEx.getColorsScheme().getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES);
-                        if (foldedTextAttributes.getBackgroundColor() != null) {
-                            foldedTextAttributes.setForegroundColor(null);
-                        }
-                        foldedTextAttributes.setFontType(Font.PLAIN);
+                        Map<Expression, RangeHighlighterEx> m = highlighters.get(editorEx);
                         if (!region.isExpanded()) {
-                            RangeHighlighter h = highlighters.remove(region);
-                            if (h != null) {
-                                editorEx.getMarkupModel().removeHighlighter(h);
+                            TextAttributes highlightedTextAttributes = getHighlightedTextAttributes(editorEx);
+                            RangeHighlighterEx highlighter = m.get(expression);
+                            if (highlighter == null) {
+                                TextRange htr = expression.getHighlightedTextRange();
+                                highlighter = (RangeHighlighterEx) editorEx.getMarkupModel().addRangeHighlighter(htr.getStartOffset(),
+                                        htr.getEndOffset(), HighlighterLayer.WARNING - 1, highlightedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
+                                highlighter.setAfterEndOfLine(false);
+                                m.put(expression, highlighter);
                             }
-                            TextRange htr = expression.getHighlightedTextRange();
-                            RangeHighlighterEx highlighter = (RangeHighlighterEx) editorEx.getMarkupModel().addRangeHighlighter(htr.getStartOffset(),
-                                    htr.getEndOffset(), HighlighterLayer.WARNING - 1, foldedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
-                            highlighter.setAfterEndOfLine(false);
-                            highlighters.put(region, highlighter);
                         } else {
-                            RangeHighlighter highlighter = highlighters.remove(region);
-                            if (highlighter != null) {
-                                editorEx.getMarkupModel().removeHighlighter(highlighter);
+                            RangeHighlighterEx __highlighter = m.remove(expression);
+                            if (__highlighter != null) {
+                                editorEx.getMarkupModel().removeHighlighter(__highlighter);
                             }
                         }
                     }
@@ -125,6 +121,16 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
 
             }
         }
+    }
+
+    @NotNull
+    private TextAttributes getHighlightedTextAttributes(@NotNull EditorEx editorEx) {
+        TextAttributes foldedTextAttributes = editorEx.getColorsScheme().getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES);
+        if (foldedTextAttributes.getBackgroundColor() != null) {
+            foldedTextAttributes.setForegroundColor(null);
+        }
+        foldedTextAttributes.setFontType(Font.PLAIN);
+        return foldedTextAttributes;
     }
 
     private boolean isHighlightingRegion(@NotNull FoldRegion region) {
@@ -266,15 +272,26 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
     }
 
     @Override
-    public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+    public void fileOpened(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile file) {
         PsiDocumentManager documentManager = PsiDocumentManager.getInstance(myProject);
-        FileEditor[] editors = source.getEditors(file);
+        FileEditor[] editors = fileEditorManager.getEditors(file);
         processEditors(editors, documentManager);
     }
 
     @Override
     public void fileClosed(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
-
+        FileEditor[] editors = fileEditorManager.getEditors(virtualFile);
+        for (FileEditor editor : editors) {
+            EditorEx editorEx = getEditorEx(editor);
+            if (editorEx != null) {
+                Map<Expression, RangeHighlighterEx> m = highlighters.remove(editorEx);
+                if (m != null) {
+                    m.forEach((expression, highlighter) ->
+                            editorEx.getMarkupModel().removeHighlighter(highlighter)
+                    );
+                }
+            }
+        }
     }
 
     @Override
@@ -282,7 +299,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
 
     }
 
-    public Map<FoldRegion, RangeHighlighter> getHighlighters() {
-        return highlighters;
+    public Map<Expression, RangeHighlighterEx> getHighlighters(Editor editor) {
+        return highlighters.get(editor);
     }
 }

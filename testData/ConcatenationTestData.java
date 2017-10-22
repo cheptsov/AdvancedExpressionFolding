@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ConcatenationTestData {
     public static void main(String[] args) <fold text='{...}' expand='true'>{

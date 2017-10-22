@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
+// TODO: Make it work only for read-only files
 public abstract class AbstractControlFlowCodeBlock extends Expression {
     @NotNull
     private final PsiCodeBlock element;

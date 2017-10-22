@@ -595,8 +595,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 || parent instanceof PsiCatchSection) {
             if (element.getStatements().length == 1 || parent instanceof PsiSwitchStatement) {
                 if (settings.getState().isControlFlowSingleStatementCodeBlockCollapse()
-                        && !settings.getState().isAssertsCollapse()) {
-                    // TODO: Find another way to avoid colliding "control flow single statement" and "assert"
+                        &&
+                        (!(parent.getParent() instanceof PsiIfStatement) ||
+                                !IfExpression.isAssertExpression(settings.getState(),
+                                        (PsiIfStatement) parent.getParent()))) {
                     return new ControlFlowSingleStatementCodeBlockExpression(element, element.getTextRange());
                 }
             } else {

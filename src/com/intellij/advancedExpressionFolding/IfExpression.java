@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class IfExpression extends Expression implements CollapseByDefault {
+public class IfExpression extends Expression {
     private static final Set<String> supportedOperatorSigns = new HashSet<String>() {
         {
             add("==");
@@ -38,8 +38,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
     }
 
     public static boolean isAssertExpression(AdvancedExpressionFoldingSettings.State state, PsiIfStatement element) {
-        // TODO: Find another way to avoid colliding "control flow single statement" and "assert"
-        return state.isAssertsCollapse() && !state.isControlFlowSingleStatementCodeBlockCollapse()
+        return state.isAssertsCollapse()
                 && element.getCondition() instanceof PsiBinaryExpression
                 && supportedOperatorSigns.contains(((PsiBinaryExpression) element.getCondition()).getOperationSign().getText())
                 && element.getElseBranch() == null
@@ -86,7 +85,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                         descriptors.add(new FoldingDescriptor(element.getNode(),
                                 TextRange.create(this.element.getTextRange().getStartOffset(),
                                         this.element.getLParenth().getTextRange().getStartOffset() - 1), group) {
-                            @Nullable
+                            @NotNull
                             @Override
                             public String getPlaceholderText() {
                                 return "assert";
@@ -95,7 +94,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                         descriptors.add(new FoldingDescriptor(element.getNode(),
                                 TextRange.create(this.element.getLParenth().getTextRange().getStartOffset(),
                                         this.element.getCondition().getTextRange().getStartOffset()), group) {
-                            @Nullable
+                            @NotNull
                             @Override
                             public String getPlaceholderText() {
                                 return "";
@@ -105,7 +104,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                         descriptors.add(new FoldingDescriptor(element.getNode(),
                                 TextRange.create(this.element.getTextRange().getStartOffset(),
                                         this.element.getCondition().getTextRange().getStartOffset()), group) {
-                            @Nullable
+                            @NotNull
                             @Override
                             public String getPlaceholderText() {
                                 return "assert ";
@@ -115,7 +114,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                     PsiBinaryExpression binaryExpression = ((PsiBinaryExpression) this.element.getCondition());
                     descriptors.add(new FoldingDescriptor(element.getNode(),
                             binaryExpression.getOperationSign().getTextRange(), group) {
-                        @Nullable
+                        @NotNull
                         @Override
                         public String getPlaceholderText() {
                             switch (binaryExpression.getOperationSign().getText()) {
@@ -153,7 +152,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                             descriptors.add(new FoldingDescriptor(element.getNode(),
                                     TextRange.create(this.element.getRParenth().getTextRange().getEndOffset() - 1,
                                             throwStatement.getTextRange().getStartOffset() - 3), group) {
-                                @Nullable
+                                @NotNull
                                 @Override
                                 public String getPlaceholderText() {
                                     return "";
@@ -162,7 +161,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                             descriptors.add(new FoldingDescriptor(element.getNode(),
                                     TextRange.create(throwStatement.getTextRange().getStartOffset() - 2,
                                             throwStatement.getTextRange().getStartOffset() - 1), group) {
-                                @Nullable
+                                @NotNull
                                 @Override
                                 public String getPlaceholderText() {
                                     return ":";
@@ -173,7 +172,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                                             newException.getArgumentList()
                                                     .getExpressions()[0]
                                                     .getTextRange().getStartOffset()), group) {
-                                @Nullable
+                                @NotNull
                                 @Override
                                 public String getPlaceholderText() {
                                     return "";
@@ -185,7 +184,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                                             newException.getArgumentList()
                                                     .getExpressions()[0]
                                                     .getTextRange().getStartOffset()), group) {
-                                @Nullable
+                                @NotNull
                                 @Override
                                 public String getPlaceholderText() {
                                     return " : ";
@@ -197,7 +196,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                                     TextRange.create(newException.getArgumentList()
                                                     .getExpressions()[0].getTextRange().getEndOffset(),
                                             throwStatement.getTextRange().getEndOffset() - 1), group) {
-                                @Nullable
+                                @NotNull
                                 @Override
                                 public String getPlaceholderText() {
                                     return "";
@@ -207,7 +206,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                                 descriptors.add(new FoldingDescriptor(element.getNode(),
                                         TextRange.create(throwStatement.getTextRange().getEndOffset(),
                                                 this.element.getTextRange().getEndOffset()), group) {
-                                    @Nullable
+                                    @NotNull
                                     @Override
                                     public String getPlaceholderText() {
                                         return "";
@@ -219,7 +218,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                                     TextRange.create(newException.getArgumentList()
                                                     .getExpressions()[0].getTextRange().getEndOffset(),
                                             this.element.getTextRange().getEndOffset()), group) {
-                                @Nullable
+                                @NotNull
                                 @Override
                                 public String getPlaceholderText() {
                                     return state.isSemicolonsCollapse() ? "" : ";";
@@ -231,7 +230,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                             descriptors.add(new FoldingDescriptor(element.getNode(),
                                     TextRange.create(this.element.getCondition().getTextRange().getEndOffset(),
                                             throwStatement.getTextRange().getEndOffset() - 1), group) {
-                                @Nullable
+                                @NotNull
                                 @Override
                                 public String getPlaceholderText() {
                                     return "";
@@ -241,7 +240,7 @@ public class IfExpression extends Expression implements CollapseByDefault {
                                 descriptors.add(new FoldingDescriptor(element.getNode(),
                                         TextRange.create(throwStatement.getTextRange().getEndOffset(),
                                                 this.element.getTextRange().getEndOffset()), group) {
-                                    @Nullable
+                                    @NotNull
                                     @Override
                                     public String getPlaceholderText() {
                                         return "";

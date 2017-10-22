@@ -218,4 +218,22 @@ public abstract class Expression {
     public TextRange getHighlightedTextRange() {
         return getTextRange();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Expression that = (Expression) o;
+
+        if (!element.equals(that.element)) return false;
+        return textRange.equals(that.textRange);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = element.hashCode();
+        result = 31 * result + textRange.hashCode();
+        return result;
+    }
 }

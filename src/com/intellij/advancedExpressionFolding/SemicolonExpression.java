@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+// TODO: Make it work only for read-only files
 public class SemicolonExpression extends Expression {
     public SemicolonExpression(PsiElement element, TextRange textRange) {
         super(element, textRange);

@@ -1,5 +1,6 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.openapi.editor.ex.RangeHighlighterEx;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -8,6 +9,8 @@ import com.intellij.testFramework.LightProjectDescriptor;
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
 
 public class FoldingTest extends LightCodeInsightFixtureTestCase {
 
@@ -38,6 +41,18 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
         myFixture.testFoldingWithCollapseStatus(getTestDataPath() + "/" + getTestName(false) + ".java");
     }
 
+    @NotNull
+    protected List<Map.Entry<Expression, RangeHighlighterEx>> doAdvancedHighlighting() {
+        AdvancedExpressionFoldingHighlightingComponent highlightingComponent = getProject()
+                .getComponent(AdvancedExpressionFoldingHighlightingComponent.class);
+        highlightingComponent.fileOpened(FileEditorManager.getInstance(getProject()), myFixture.getFile().getVirtualFile());
+        ArrayList<Map.Entry<Expression, RangeHighlighterEx>> entries = new ArrayList<>(highlightingComponent
+                .getHighlighters(myFixture.getEditor())
+                .entrySet());
+        entries.sort(Comparator.comparingInt(o -> o.getValue().getStartOffset()));
+        return entries;
+    }
+
     public void testElvisTestData() {
         AdvancedExpressionFoldingSettings.getInstance().getState().setCheckExpressionsCollapse(true);
         doFoldingTest();
@@ -51,6 +66,12 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
     public void testStringBuilderTestData() {
         AdvancedExpressionFoldingSettings.getInstance().getState().setConcatenationExpressionsCollapse(true);
         doFoldingTest();
+        List<Map.Entry<Expression, RangeHighlighterEx>> entries = doAdvancedHighlighting();
+        assertEquals(2, entries.size());
+        assertEquals("new StringBuilder().append(\"[\")",
+                myFixture.getDocument(getFile()).getText(entries.get(0).getKey().getHighlightedTextRange()));
+        assertEquals("sb3.toString()",
+                myFixture.getDocument(getFile()).getText(entries.get(1).getKey().getHighlightedTextRange()));
     }
 
     public void testInterpolatedStringTestData() {
@@ -77,6 +98,14 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
         AdvancedExpressionFoldingSettings.getInstance().getState().setConcatenationExpressionsCollapse(true);
         AdvancedExpressionFoldingSettings.getInstance().getState().setGetSetExpressionsCollapse(true);
         doFoldingTest();
+        List<Map.Entry<Expression, RangeHighlighterEx>> entries = doAdvancedHighlighting();
+        assertEquals(3, entries.size());
+        assertEquals("new StringBuilder().append(args[0])",
+                myFixture.getDocument(getFile()).getText(entries.get(0).getKey().getHighlightedTextRange()));
+        assertEquals("sb1.toString()",
+                myFixture.getDocument(getFile()).getText(entries.get(1).getKey().getHighlightedTextRange()));
+        assertEquals("sb2.toString()",
+                myFixture.getDocument(getFile()).getText(entries.get(2).getKey().getHighlightedTextRange()));
     }
 
     public void testEqualsCompareTestData() {
@@ -87,16 +116,9 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
     public void testTypeCastTestData() {
         AdvancedExpressionFoldingSettings.getInstance().getState().setCastExpressionsCollapse(true);
         doFoldingTest();
-        AdvancedExpressionFoldingHighlightingComponent highlightingComponent = getProject()
-                .getComponent(AdvancedExpressionFoldingHighlightingComponent.class);
-        highlightingComponent.fileOpened(FileEditorManager.getInstance(getProject()), myFixture.getFile().getVirtualFile());
-        // TODO: Test highlighting
-        /*List<RangeHighlighter> highlighters = highlightingComponent.getHighlighters().entrySet()
-                .stream().map(Map.Entry::getValue).sorted(
-                        Comparator.comparingInt(RangeMarker::getStartOffset)).distinct().collect(Collectors.toList());
-        String t1 = myFixture.getDocument(getFile())
-                .getText(TextRange.create(highlighters.get(0).getStartOffset(), highlighters.get(0).getEndOffset()));
-        System.out.println(t1);*/
+        List<Map.Entry<Expression, RangeHighlighterEx>> entries = doAdvancedHighlighting();
+        assertEquals(1, entries.size());
+        assertEquals("((TypeCastTestData) ((TypeCastTestData) t.getObject()).getObject())", myFixture.getDocument(getFile()).getText(entries.get(0).getKey().getHighlightedTextRange()));
     }
 
     public void testVarTestData() {
@@ -124,6 +146,15 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
     public void testCompactControlFlowTestData() {
         AdvancedExpressionFoldingSettings.getInstance().getState().setCompactControlFlowSyntaxCollapse(true);
         doFoldingTest();
+        List<Map.Entry<Expression, RangeHighlighterEx>> entries = doAdvancedHighlighting();
+        assertEquals(7, entries.size());
+        assertEquals("(args.length > 0)", myFixture.getDocument(getFile()).getText(entries.get(0).getKey().getHighlightedTextRange()));
+        assertEquals("(String arg : args)", myFixture.getDocument(getFile()).getText(entries.get(1).getKey().getHighlightedTextRange()));
+        assertEquals("(int i = 0; i < args.length; i++)", myFixture.getDocument(getFile()).getText(entries.get(2).getKey().getHighlightedTextRange()));
+        assertEquals("(true)", myFixture.getDocument(getFile()).getText(entries.get(3).getKey().getHighlightedTextRange()));
+        assertEquals("(true)", myFixture.getDocument(getFile()).getText(entries.get(4).getKey().getHighlightedTextRange()));
+        assertEquals("(args.length)", myFixture.getDocument(getFile()).getText(entries.get(5).getKey().getHighlightedTextRange()));
+        assertEquals("(Exception e)", myFixture.getDocument(getFile()).getText(entries.get(6).getKey().getHighlightedTextRange()));
     }
 
     public void testSemicolonTestData() {
@@ -132,6 +163,7 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
     }
 
     private void disableAllFoldings() {
+        // TODO: Find a way to test all folding both together and separately
         AdvancedExpressionFoldingSettings.getInstance().getState().disableAll();
     }
 }
