@@ -93,7 +93,9 @@ public class Append extends Operation {
                     @NotNull
                     @Override
                     public String getPlaceholderText() {
-                        return finalI == 0 ? " += " : " + ";
+                        return (finalI == 0
+                                && (operands.get(0) instanceof Variable)
+                                && operands.get(0).getElement().getParent().toString().endsWith("append")) ? " += " : " + ";
                     }
                 });
             }
