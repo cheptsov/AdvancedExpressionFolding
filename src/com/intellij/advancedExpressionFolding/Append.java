@@ -15,8 +15,12 @@ import java.util.*;
  * TODO: merge multiple sb.append() into a single append(interpolatedString)
  */
 public class Append extends Operation {
-    public Append(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
+    private boolean assign;
+
+    public Append(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands,
+                  boolean assign) {
         super(element, textRange, "+", 10, operands);
+        this.assign = assign;
     }
 
     @Override
@@ -93,7 +97,7 @@ public class Append extends Operation {
                     @NotNull
                     @Override
                     public String getPlaceholderText() {
-                        return finalI == 0 ? " += " : " + ";
+                        return finalI == 0 && assign ? " += " : " + ";
                     }
                 });
             }

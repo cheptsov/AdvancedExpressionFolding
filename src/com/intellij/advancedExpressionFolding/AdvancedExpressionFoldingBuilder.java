@@ -1431,15 +1431,15 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             List<Expression> operands = new ArrayList<>(((Append) qualifierExpression).getOperands());
                                             operands.add(argumentExpression);
                                             return new Append(element, element.getTextRange(),
-                                                    operands);
+                                                    operands, element.getParent() instanceof PsiStatement);
                                         } else {
                                             if (qualifierExpression instanceof StringLiteral
                                                     && ((StringLiteral) qualifierExpression).getString().isEmpty()) {
                                                 return new Append(element, element.getTextRange(),
-                                                        Collections.singletonList(argumentExpression));
+                                                        Collections.singletonList(argumentExpression), element.getParent() instanceof PsiStatement);
                                             } else {
                                                 return new Append(element, element.getTextRange(),
-                                                        Arrays.asList(qualifierExpression, argumentExpression));
+                                                        Arrays.asList(qualifierExpression, argumentExpression), element.getParent() instanceof PsiStatement);
                                             }
                                         }
                                     } else {
@@ -1557,7 +1557,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                 case "toString": // TODO: Generalize for literals and variables
                                     if (qualifierExpression instanceof Append) {
                                         Append append = (Append) qualifierExpression;
-                                        return new Append(element, element.getTextRange(), append.getOperands());
+                                        return new Append(element, element.getTextRange(), append.getOperands(), element.getParent() instanceof PsiStatement);
                                     } else if (qualifierExpression instanceof StringLiteral) {
                                         StringLiteral stringLiteral = (StringLiteral) qualifierExpression;
                                         return new StringLiteral(element, element.getTextRange(), stringLiteral.getString());

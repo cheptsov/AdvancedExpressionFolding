@@ -8,7 +8,7 @@ public class StringBuilderAppend {
                 sb1<fold text=' += ' expand='false'>.append(</fold>","<fold text='' expand='false'>)</fold>;
             }
         }
-        System.out.println(sb1<fold text=' += ' expand='false'>.append(</fold>"]"<fold text='' expand='false'>).toString()</fold>);
+        System.out.println(sb1<fold text=' + ' expand='false'>.append(</fold>"]"<fold text='' expand='false'>).toString()</fold>);
 
         StringBuilder sb2 = <fold text='' expand='false'>new StringBuilder().append(</fold>"["<fold text='' expand='false'>)</fold>;
         for (int i = 0; i < args.length; i++) {
@@ -18,7 +18,7 @@ public class StringBuilderAppend {
                 sb2<fold text=' += ' expand='false'>.append(</fold>","<fold text='' expand='false'>)</fold>;
             }
         }
-        System.out.println(sb2<fold text=' += ' expand='false'>.append(</fold>"]"<fold text='' expand='false'>).toString()</fold>);
+        System.out.println(sb2<fold text=' + ' expand='false'>.append(</fold>"]"<fold text='' expand='false'>).toString()</fold>);
 
         StringBuilder sb3 = <fold text='""' expand='false'>new StringBuilder()</fold>;
         for (int i = 0; i < args.length; i++) {
