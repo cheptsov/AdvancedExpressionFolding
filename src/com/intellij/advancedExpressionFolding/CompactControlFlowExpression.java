@@ -38,7 +38,16 @@ public class CompactControlFlowExpression extends Expression {
 
     @Override
     public boolean supportsFoldRegions(@NotNull Document document, @Nullable Expression parent) {
-        return true;
+        return supportsFoldRegions(document, textRange);
+    }
+
+    public static boolean supportsFoldRegions(@NotNull Document document, TextRange textRange) {
+        return textRange.getStartOffset() > 0 && textRange.getEndOffset() < document.getTextLength() - 1
+                &&
+                InterpolatedString.OVERFLOW_CHARACTERS.contains(document.getText(
+                        TextRange.create(textRange.getStartOffset() - 1, textRange.getStartOffset())))
+                && InterpolatedString.OVERFLOW_CHARACTERS.contains(document.getText(
+                TextRange.create(textRange.getEndOffset(), textRange.getEndOffset() + 1)));
     }
 
     @Override

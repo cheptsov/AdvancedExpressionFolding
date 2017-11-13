@@ -25,5 +25,8 @@ public class CompactControlFlowTestData {
         } catch <fold text='' expand='false'>(</fold>Exception e<fold text='' expand='false'>)</fold> {
             e.printStackTrace();
         }
+        if (true){
+            System.out.println("...");
+        }
     }</fold>
 }

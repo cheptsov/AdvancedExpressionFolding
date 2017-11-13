@@ -261,9 +261,11 @@ public class IfExpression extends Expression {
                     }
                 }
             } else if (isCompactExpression(state, this.element)) {
-                CompactControlFlowExpression.buildFoldRegions(element, group, descriptors,
-                        TextRange.create(this.element.getLParenth().getTextRange().getStartOffset(),
-                                this.element.getRParenth().getTextRange().getEndOffset()));
+                TextRange textRange = TextRange.create(this.element.getLParenth().getTextRange().getStartOffset(),
+                        this.element.getRParenth().getTextRange().getEndOffset());
+                if (CompactControlFlowExpression.supportsFoldRegions(document, textRange)) {
+                    CompactControlFlowExpression.buildFoldRegions(element, group, descriptors, textRange);
+                }
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

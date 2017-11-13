@@ -24,7 +24,7 @@ public class InterpolatedString extends Expression {
         return true;
     }
 
-    private static Set<String> overflowSupportedChars = new HashSet<String>() {
+    public static Set<String> OVERFLOW_CHARACTERS = new HashSet<String>() {
         {
             add(".");
             add(";");
@@ -52,7 +52,7 @@ public class InterpolatedString extends Expression {
         if (!(first instanceof CharSequenceLiteral)) {
             TextRange overflowLeftRange = TextRange.create(first.getTextRange().getStartOffset() - 1, first.getTextRange().getStartOffset());
             String overflowLeftText = document.getText(overflowLeftRange);
-            if (overflowSupportedChars.contains(overflowLeftText)) {
+            if (OVERFLOW_CHARACTERS.contains(overflowLeftText)) {
                 final String overflowText = overflowLeftPlaceholder != null ? overflowLeftPlaceholder : overflowLeftText;
                 if (first instanceof Variable) {
                     descriptors.add(new FoldingDescriptor(element.getNode(), overflowLeftRange, group) {
@@ -130,7 +130,7 @@ public class InterpolatedString extends Expression {
                     : beforeLast.getTextRange().getEndOffset();
             int e = last.getTextRange().getStartOffset();
             String overflowRightText = document.getText(overflowRightRange);
-            if (overflowSupportedChars.contains(overflowRightText)) {
+            if (OVERFLOW_CHARACTERS.contains(overflowRightText)) {
                 final String overflowText = overflowRightPlaceholder != null ? overflowRightPlaceholder : overflowRightText;
                 if (last instanceof Variable) {
                     descriptors.add(new FoldingDescriptor(element.getNode(),

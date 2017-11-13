@@ -32,12 +32,14 @@ public class ForStatement extends Range {
         if (AdvancedExpressionFoldingSettings.getInstance().getState().isCompactControlFlowSyntaxCollapse()
                 && this.element.getLParenth() != null && this.element.getRParenth() != null) {
             // TODO: Refactor this mess
-            CompactControlFlowExpression.buildFoldRegions(element,
-                    descriptors.size() > 0 ? descriptors.get(0).getGroup() :
-                            FoldingGroup.newGroup(CompactControlFlowExpression.class.getName()),
-                    descriptors,
-                    TextRange.create(this.element.getLParenth().getTextRange().getStartOffset(),
-                            this.element.getRParenth().getTextRange().getEndOffset()));
+            TextRange textRange = TextRange.create(this.element.getLParenth().getTextRange().getStartOffset(),
+                    this.element.getRParenth().getTextRange().getEndOffset());
+            if (CompactControlFlowExpression.supportsFoldRegions(document, textRange)) {
+                CompactControlFlowExpression.buildFoldRegions(element,
+                        descriptors.size() > 0 ? descriptors.get(0).getGroup() :
+                                FoldingGroup.newGroup(CompactControlFlowExpression.class.getName()), descriptors,
+                        textRange);
+            }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
