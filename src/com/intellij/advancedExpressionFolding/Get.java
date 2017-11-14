@@ -32,7 +32,10 @@ public class Get extends Expression {
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
                                        @Nullable Expression parent) {
-        return true;
+        return style == Style.NORMAL && object.getTextRange().getEndOffset() < key.getTextRange().getStartOffset()
+                && key.getTextRange().getEndOffset() < getTextRange().getEndOffset() ||
+                style != Style.NORMAL && object.getTextRange().getEndOffset() < key.getTextRange().getStartOffset() - 1
+                        && key.getTextRange().getStartOffset() < key.getTextRange().getEndOffset();
     }
 
     @Override
