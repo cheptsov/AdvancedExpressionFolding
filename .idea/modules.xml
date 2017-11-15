@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AdvancedExpressionFolding.iml" filepath="$PROJECT_DIR$/AdvancedExpressionFolding.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AdvancedExpressionFolding.iml" filepath="$PROJECT_DIR$/.idea/modules/AdvancedExpressionFolding.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AdvancedExpressionFolding_main.iml" filepath="$PROJECT_DIR$/.idea/modules/AdvancedExpressionFolding_main.iml" group="AdvancedExpressionFolding" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AdvancedExpressionFolding_test.iml" filepath="$PROJECT_DIR$/.idea/modules/AdvancedExpressionFolding_test.iml" group="AdvancedExpressionFolding" />
     </modules>
   </component>
 </project>
