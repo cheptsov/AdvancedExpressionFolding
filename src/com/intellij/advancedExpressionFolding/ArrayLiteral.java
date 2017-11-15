@@ -23,7 +23,9 @@ public class ArrayLiteral extends Expression {
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
                                        @Nullable Expression parent) {
-        return items.stream().allMatch(i -> true);
+        return !textRange.isEmpty() && items.isEmpty() ||
+                !items.isEmpty() && textRange.getStartOffset() < items.get(0).getTextRange().getStartOffset()
+                && items.get(items.size() - 1).getTextRange().getEndOffset() < textRange.getEndOffset();
     }
 
     @Override
