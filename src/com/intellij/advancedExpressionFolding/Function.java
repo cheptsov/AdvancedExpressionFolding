@@ -13,10 +13,13 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class Function extends Expression {
-    private final @NotNull String name;
-    protected final @NotNull List<Expression> operands;
+    protected final @NotNull
+    List<Expression> operands;
+    private final @NotNull
+    String name;
 
-    public Function(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull String name, @NotNull List<Expression> operands) {
+    public Function(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull String name,
+                    @NotNull List<Expression> operands) {
         super(element, textRange);
         this.name = name;
         this.operands = operands;
@@ -55,11 +58,12 @@ public abstract class Function extends Expression {
         // TODO: check if operands have text in between
         return operands.size() > 0
                 && getTextRange().getStartOffset() < operands.get(0).getTextRange().getStartOffset()
-                && getTextRange().getEndOffset() > operands.get(operands.size() - 1).getTextRange().getStartOffset();
+                && getTextRange().getEndOffset() > operands.get(operands.size() - 1).getTextRange().getEndOffset();
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
+                                                @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(getClass().getName());
         List<FoldingDescriptor> descriptors = new ArrayList<>();
         int offset = getTextRange().getStartOffset();

@@ -49,6 +49,11 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
         editorFactory.getEventMulticaster().addEditorMouseListener(this, project);
     }
 
+    private static EditorEx getEditorEx(FileEditor fileEditor) {
+        Editor editor = fileEditor instanceof TextEditor ? ((TextEditor) fileEditor).getEditor() : null;
+        return editor instanceof EditorEx ? (EditorEx) editor : null;
+    }
+
     @Override
     public void projectOpened() {
         FileEditor[] editors = FileEditorManager.getInstance(myProject).getAllEditors();
@@ -87,34 +92,35 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
         }
     }
 
-    private static EditorEx getEditorEx(FileEditor fileEditor) {
-        Editor editor = fileEditor instanceof TextEditor ? ((TextEditor)fileEditor).getEditor() : null;
-        return editor instanceof EditorEx ? (EditorEx)editor : null;
-    }
-
-    private void processRegion(@NotNull FoldRegion region, @NotNull PsiDocumentManager documentManager, @NotNull EditorEx editorEx) throws IndexNotReadyException {
+    private void processRegion(@NotNull FoldRegion region, @NotNull PsiDocumentManager documentManager,
+                               @NotNull EditorEx editorEx) throws IndexNotReadyException {
         if (isHighlightingRegion(region)) {
             @Nullable PsiFile psiFile = documentManager.getPsiFile(editorEx.getDocument());
             if (psiFile != null) {
                 @Nullable PsiElement element = psiFile.findElementAt(region.getStartOffset());
                 if (element != null) {
-                    @Nullable Expression expression = findHighlightingExpression(psiFile, region.getDocument(), region.getStartOffset());
+                    @Nullable Expression expression = findHighlightingExpression(psiFile, region.getDocument(),
+                            region.getStartOffset());
                     if (expression != null) {
                         Map<Expression, RangeHighlighterEx> m = highlighters.get(editorEx);
-                        if (!region.isExpanded()) {
-                            TextAttributes highlightedTextAttributes = getHighlightedTextAttributes(editorEx);
-                            RangeHighlighterEx highlighter = m.get(expression);
-                            if (highlighter == null) {
-                                TextRange htr = expression.getHighlightedTextRange();
-                                highlighter = (RangeHighlighterEx) editorEx.getMarkupModel().addRangeHighlighter(htr.getStartOffset(),
-                                        htr.getEndOffset(), HighlighterLayer.WARNING - 1, highlightedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
-                                highlighter.setAfterEndOfLine(false);
-                                m.put(expression, highlighter);
-                            }
-                        } else {
-                            RangeHighlighterEx __highlighter = m.remove(expression);
-                            if (__highlighter != null) {
-                                editorEx.getMarkupModel().removeHighlighter(__highlighter);
+                        if (m != null) {
+                            if (!region.isExpanded()) {
+                                TextAttributes highlightedTextAttributes = getHighlightedTextAttributes(editorEx);
+                                RangeHighlighterEx highlighter = m.get(expression);
+                                if (highlighter == null) {
+                                    TextRange htr = expression.getHighlightedTextRange();
+                                    highlighter = (RangeHighlighterEx) editorEx.getMarkupModel()
+                                            .addRangeHighlighter(htr.getStartOffset(),
+                                                    htr.getEndOffset(), HighlighterLayer.WARNING - 1,
+                                                    highlightedTextAttributes, HighlighterTargetArea.EXACT_RANGE);
+                                    highlighter.setAfterEndOfLine(false);
+                                    m.put(expression, highlighter);
+                                }
+                            } else {
+                                RangeHighlighterEx __highlighter = m.remove(expression);
+                                if (__highlighter != null) {
+                                    editorEx.getMarkupModel().removeHighlighter(__highlighter);
+                                }
                             }
                         }
                     }
@@ -126,7 +132,8 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
 
     @NotNull
     private TextAttributes getHighlightedTextAttributes(@NotNull EditorEx editorEx) {
-        TextAttributes foldedTextAttributes = editorEx.getColorsScheme().getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES);
+        TextAttributes foldedTextAttributes = editorEx.getColorsScheme()
+                .getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES);
         if (foldedTextAttributes.getBackgroundColor() != null) {
             foldedTextAttributes.setForegroundColor(null);
         }
@@ -135,7 +142,8 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
     }
 
     private boolean isHighlightingRegion(@NotNull FoldRegion region) {
-        return region.getGroup() != null && region.getGroup().toString().endsWith(Expression.HIGHLIGHTED_GROUP_POSTFIX) && region.isValid();
+        return region.getGroup() != null &&
+                region.getGroup().toString().endsWith(Expression.HIGHLIGHTED_GROUP_POSTFIX) && region.isValid();
     }
 
     private DocumentFragment createDocumentFragment(EditorEx editorEx, FoldRegion fold) {
@@ -150,7 +158,8 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
         return new DocumentFragment(editorEx.getDocument(), foldStart, oldEnd);
     }
 
-    private Expression findHighlightingExpression(@NotNull PsiFile psiFile, @NotNull Document document, int offset) throws IndexNotReadyException {
+    private Expression findHighlightingExpression(@NotNull PsiFile psiFile, @NotNull Document document,
+                                                  int offset) throws IndexNotReadyException {
         @Nullable PsiElement element = psiFile.findElementAt(offset);
         if (element != null) {
             @Nullable Expression expression;
@@ -198,9 +207,11 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                 @NotNull VisualPosition visualPosition = editorEx.xyToVisualPosition(e.getMouseEvent().getPoint());
                 int offset = editorEx.logicalPositionToOffset(editorEx.visualToLogicalPosition(visualPosition));
                 try {
-                    @Nullable PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(editorEx.getDocument());
+                    @Nullable PsiFile psiFile = PsiDocumentManager.getInstance(myProject)
+                            .getPsiFile(editorEx.getDocument());
                     if (psiFile != null) {
-                        @Nullable Expression expression = findHighlightingExpression(psiFile, editorEx.getDocument(), offset);
+                        @Nullable Expression expression = findHighlightingExpression(psiFile, editorEx.getDocument(),
+                                offset);
                         if (expression != null) {
                             TextRange htr = expression.getHighlightedTextRange();
                             if (htr.contains(offset)) {
@@ -245,9 +256,11 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
                 @NotNull VisualPosition visualPosition = editorEx.xyToVisualPosition(e.getMouseEvent().getPoint());
                 int offset = editorEx.logicalPositionToOffset(editorEx.visualToLogicalPosition(visualPosition));
                 try {
-                    @Nullable PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(editorEx.getDocument());
+                    @Nullable PsiFile psiFile = PsiDocumentManager.getInstance(myProject)
+                            .getPsiFile(editorEx.getDocument());
                     if (psiFile != null) {
-                        @Nullable Expression expression = findHighlightingExpression(psiFile, editorEx.getDocument(), offset);
+                        @Nullable Expression expression = findHighlightingExpression(psiFile, editorEx.getDocument(),
+                                offset);
                         if (expression != null) {
                             TextRange htr = expression.getHighlightedTextRange();
                             if (htr.contains(offset)) {

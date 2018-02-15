@@ -12,10 +12,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Collect extends Expression {
-    private final @NotNull Expression qualifier;
-    private final @NotNull TextRange collectorTextRange;
+    private final @NotNull
+    Expression qualifier;
+    private final @NotNull
+    TextRange collectorTextRange;
 
-    public Collect(PsiElement element, TextRange textRange, @NotNull Expression qualifier, @NotNull TextRange collectorTextRange) {
+    public Collect(PsiElement element, TextRange textRange, @NotNull Expression qualifier,
+                   @NotNull TextRange collectorTextRange) {
         super(element, textRange);
         this.qualifier = qualifier;
         this.collectorTextRange = collectorTextRange;
@@ -24,11 +27,14 @@ public class Collect extends Expression {
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
                                        @Nullable Expression parent) {
-        return true;
+        int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getStartOffset(), -1);
+        return textRange.getStartOffset() + offset < collectorTextRange.getStartOffset()
+                && collectorTextRange.getEndOffset() < textRange.getEndOffset();
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
+                                                @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(Collect.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getStartOffset(), -1);

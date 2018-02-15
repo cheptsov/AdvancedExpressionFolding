@@ -6,6 +6,10 @@ intellij {
     version '2016.3'
 }
 
+patchPluginXml {
+    untilBuild = "181.*"
+}
+
 apply plugin: 'java'
 
 sourceSets {

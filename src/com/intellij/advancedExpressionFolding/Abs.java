@@ -20,11 +20,13 @@ public class Abs extends Function implements ArithmeticExpression {
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
                                        @Nullable Expression parent) {
-        return textRange.getStartOffset() < operands.get(0).getTextRange().getStartOffset();
+        return textRange.getStartOffset() < operands.get(0).getTextRange().getStartOffset()
+                && operands.get(0).getTextRange().getEndOffset() < getTextRange().getEndOffset();
     }
 
     @Override
-    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
+    public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
+                                                @Nullable Expression parent) {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(Abs.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),
@@ -46,7 +48,8 @@ public class Abs extends Function implements ArithmeticExpression {
             }
         });
         if (operands.get(0).supportsFoldRegions(document, this)) {
-            Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document, this));
+            Collections.addAll(descriptors,
+                    operands.get(0).buildFoldRegions(operands.get(0).getElement(), document, this));
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
