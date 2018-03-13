@@ -27,7 +27,7 @@ public class Collect extends Expression {
     @Override
     public boolean supportsFoldRegions(@NotNull Document document,
                                        @Nullable Expression parent) {
-        int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getStartOffset(), -1);
+        int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getStartOffset(), -1, false);
         return textRange.getStartOffset() + offset < collectorTextRange.getStartOffset()
                 && collectorTextRange.getEndOffset() < textRange.getEndOffset();
     }
@@ -37,7 +37,7 @@ public class Collect extends Expression {
                                                 @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(Collect.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
-        int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getStartOffset(), -1);
+        int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getStartOffset(), -1, false);
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(textRange.getStartOffset() + offset,
                         collectorTextRange.getStartOffset()), group) {

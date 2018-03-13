@@ -1790,13 +1790,42 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return null;
     }
 
-    static int findDot(@NotNull Document document, int position, int i) {
+    static int findDot(@NotNull Document document, int position, int i, boolean includeNewLines) {
         int offset = 0;
-        while (Math.abs(offset) < 100 && position > 0 && position < document.getText().length() && !document.getText(TextRange.create(position, position + 1)).equals(".")) {
+        while (Math.abs(offset) < 100 &&
+                position > 0 &&
+                position < document.getText().length()) {
             position += i;
             offset += i;
+            if (charAt(document, position).equals(".")) {
+                break;
+            }
+            if (!charAt(document, position).matches("\\s")) {
+                return Integer.MAX_VALUE;
+            }
+        }
+        if (includeNewLines) {
+            int offsetWithNewLine = offset;
+            do {
+                position += i;
+                offsetWithNewLine += i;
+                if (i < 0 && charAt(document, position).equals("\n")) {
+                    offset = offsetWithNewLine;
+                } else if (i > 0 && charAt(document, position).matches("\\s")) {
+                    offset = offsetWithNewLine;
+                }
+            } while (Math.abs(offsetWithNewLine) < 100 && position > 0 &&
+                    position < document.getText().length() &&
+                    charAt(document, position).matches("\\s"));
+        }
+        if (Math.abs(offset) >= 100) {
+            return Integer.MAX_VALUE;
         }
         return offset;
+    }
+
+    private static String charAt(@NotNull Document document, int position) {
+        return document.getText(TextRange.create(position, position + 1));
     }
 
     @NotNull

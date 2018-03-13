@@ -27,7 +27,7 @@ public class ArrayStream extends Expression {
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
-        int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getEndOffset(), 1) + 1;
+        int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getEndOffset(), 1, false) + 1;
         final boolean noSpaces = offset == 1;
         FoldingGroup group = FoldingGroup.newGroup(ArrayStream.class.getName() + (noSpaces ? "" : Expression.HIGHLIGHTED_GROUP_POSTFIX));
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
