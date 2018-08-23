@@ -1,5 +1,5 @@
 plugins {
-    id "org.jetbrains.intellij" version "0.2.17"
+    id "org.jetbrains.intellij" version "0.3.4"
 }
 
 intellij {
@@ -7,7 +7,7 @@ intellij {
 }
 
 patchPluginXml {
-    untilBuild = "181.*"
+    untilBuild = "182.*"
 }
 
 apply plugin: 'java'
