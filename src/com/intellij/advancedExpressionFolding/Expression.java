@@ -151,13 +151,13 @@ public abstract class Expression {
     }
 
     private static String map(String str, Map<Character, Character> subscriptMapping) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(str.length());
         for (int i = 0; i < str.length(); i++) {
             Character c = subscriptMapping.get(str.charAt(i));
             if (c == null) {
                 return null;
             } else if (!c.equals('❤')) {
-                sb.append(c);
+                sb.append((char) c);
             }
         }
         return sb.toString();
