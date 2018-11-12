@@ -105,20 +105,13 @@ public class Range extends Expression {
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(getClass().getName());
-        StringBuilder sb1 = new StringBuilder().append(" ").append(separator).append(" ");
-        if (isStartInclusive()) {
-            sb1.append("[");
-        } else {
-            sb1.append("(");
-        }
-        String p1 = sb1.toString();
-        StringBuilder sb2 = new StringBuilder();
-        if (isEndInclusive()) {
-            sb2.append("]");
-        } else {
-            sb2.append(")");
-        }
-        String p2 = sb2.toString();
+        String p1 = new StringBuilder(separator.length() + 3)
+            .append(' ')
+            .append(separator)
+            .append(' ')
+            .append(isStartInclusive() ? '[' : '(')
+            .toString();
+        String p2 = isEndInclusive() ? "]" : ")";
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(getOperand().getTextRange().getEndOffset(),
