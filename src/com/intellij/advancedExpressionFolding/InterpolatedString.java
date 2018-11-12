@@ -102,12 +102,12 @@ public class InterpolatedString extends Expression {
                     ? operands.get(i + 1).getTextRange().getStartOffset() + 1
                     : operands.get(i + 1).getTextRange().getStartOffset();
             int fI = i;
-            StringBuilder sI = new StringBuilder().append(buf[0]);
+            StringBuilder sI = new StringBuilder(buf[0].length() + 2).append(buf[0]);
             if (!(operands.get(fI + 1) instanceof CharSequenceLiteral)) {
-                sI.append("$");
+                sI.append('$');
             }
             if (!(operands.get(fI + 1) instanceof Variable) && !(operands.get(fI + 1) instanceof CharSequenceLiteral)) {
-                sI.append("{");
+                sI.append('{');
                 buf[0] = "}";
             } else {
                 buf[0] = "";
