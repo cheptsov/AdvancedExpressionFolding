@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
-
     private static final FoldingDescriptor[] NO_DESCRIPTORS = new FoldingDescriptor[0];
+    private static final Pattern GENERICS_PATTERN = Pattern.compile("<[^<>]*>");
 
     private static Set<String> supportedMethods = new HashSet<String>() {
         {
@@ -1297,12 +1297,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @NotNull
     private static String eraseGenerics(@NotNull String signature) {
-        String re = "<[^<>]*>";
-        Pattern p = Pattern.compile(re);
-        Matcher m = p.matcher(signature);
+        Matcher m = GENERICS_PATTERN.matcher(signature);
         while (m.find()) {
             signature = m.replaceAll("");
-            m = p.matcher(signature);
+            m = GENERICS_PATTERN.matcher(signature);
         }
         return signature;
     }
@@ -1928,8 +1926,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         try {
             @Nullable Expression expression = getNonSyntheticExpression(element, document);
             if (expression != null && expression.supportsFoldRegions(document, null)) {
-                allDescriptors = new ArrayList<>();
                 FoldingDescriptor[] descriptors = expression.buildFoldRegions(expression.getElement(), document, null);
+                allDescriptors = new ArrayList<>();
                 Collections.addAll(allDescriptors, descriptors);
             }
             if (expression == null || expression.isNested()) {
@@ -1939,12 +1937,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                         if (allDescriptors == null) {
                             allDescriptors = new ArrayList<>();
                         }
-                        allDescriptors.addAll(Arrays.asList(descriptors));
+                        Collections.addAll(allDescriptors, descriptors);
                     }
                 }
             }
-        } catch (IndexNotReadyException e) {
-            // ignore
+        } catch (IndexNotReadyException ignore) {
         }
         return allDescriptors != null ? allDescriptors.toArray(NO_DESCRIPTORS) : NO_DESCRIPTORS;
     }
@@ -1971,4 +1968,5 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         }
         return false;
     }
+
 }
