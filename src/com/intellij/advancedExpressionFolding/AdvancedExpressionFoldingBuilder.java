@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.intellij.advancedExpressionFolding.PropertyUtil.guessPropertyName;
+
 public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     private static final FoldingDescriptor[] NO_DESCRIPTORS = new FoldingDescriptor[0];
     private static final Pattern GENERICS_PATTERN = Pattern.compile("<[^<>]*>");
@@ -1824,29 +1826,6 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     private static String charAt(@NotNull Document document, int position) {
         return document.getText(TextRange.create(position, position + 1));
-    }
-
-    @NotNull
-    private static String guessPropertyName(@NotNull String text) {
-        StringBuilder sb = new StringBuilder();
-        if (text.startsWith("get")) {
-            sb.append(text.substring(3));
-        } else if (text.startsWith("set")) {
-            sb.append(text.substring(3));
-        } else if (text.startsWith("is")) {
-            sb.append(text.substring(2));
-        } else {
-            sb.append(text);
-        }
-        for (int i = 0; i < sb.length(); i++) {
-            if (Character.isUpperCase(sb.charAt(i)) &&
-                    (i == sb.length() - 1 || Character.isUpperCase(sb.charAt(i + 1)) || i == 0)) {
-                sb.setCharAt(i, Character.toLowerCase(sb.charAt(i)));
-            } else if (Character.isLowerCase(sb.charAt(i))) {
-                break;
-            }
-        }
-        return sb.toString();
     }
 
     @Nullable
