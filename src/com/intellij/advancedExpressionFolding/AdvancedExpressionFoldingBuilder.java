@@ -339,15 +339,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @Contract("_, _, true -> !null")
     private static Expression getExpression(@NotNull PsiElement element, @NotNull Document document, boolean synthetic) {
-        if (synthetic) {
-            return CachedValuesManager.getCachedValue(element,
-                    () -> CachedValueProvider.Result.create(buildExpression(element, document, true),
-                            PsiModificationTracker.MODIFICATION_COUNT));
-        } else {
-            return CachedValuesManager.getCachedValue(element,
-                    () -> CachedValueProvider.Result.create(buildExpression(element, document, false),
-                            PsiModificationTracker.MODIFICATION_COUNT));
-        }
+        return CachedValuesManager.getCachedValue(element,
+                () -> CachedValueProvider.Result.create(buildExpression(element, document, synthetic),
+                        PsiModificationTracker.MODIFICATION_COUNT));
     }
 
     @SuppressWarnings("WeakerAccess")
