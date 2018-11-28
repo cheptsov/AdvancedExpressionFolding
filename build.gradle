@@ -3,11 +3,11 @@ plugins {
 }
 
 intellij {
-    version '2016.3'
+    version '2018.3'
 }
 
 patchPluginXml {
-    untilBuild = "182.*"
+    untilBuild = "183.*"
 }
 
 apply plugin: 'java'
