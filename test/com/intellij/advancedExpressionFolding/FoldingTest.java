@@ -206,6 +206,25 @@ public class FoldingTest extends LightCodeInsightFixtureTestCase {
         doReadOnlyFoldingTest();
     }
 
+    public void testLocalDateTestData() {
+        AdvancedExpressionFoldingSettings.State state = AdvancedExpressionFoldingSettings.getInstance().getState();
+        state.setComparingLocalDatesCollapse(true);
+        doReadOnlyFoldingTest();
+    }
+
+    public void testLocalDateLiteralTestData() {
+        AdvancedExpressionFoldingSettings.State state = AdvancedExpressionFoldingSettings.getInstance().getState();
+        state.setLocalDateLiteralCollapse(true);
+        doReadOnlyFoldingTest();
+    }
+
+    public void testLocalDateLiteralPostfixTestData() {
+        AdvancedExpressionFoldingSettings.State state = AdvancedExpressionFoldingSettings.getInstance().getState();
+        state.setLocalDateLiteralCollapse(true);
+        state.setLocalDateLiteralPostfix(true);
+        doReadOnlyFoldingTest();
+    }
+
     public void testCompactControlFlowTestData() {
         AdvancedExpressionFoldingSettings.getInstance().getState().setCompactControlFlowSyntaxCollapse(true);
         doFoldingTest();
