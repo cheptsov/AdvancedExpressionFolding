@@ -75,13 +75,7 @@ public abstract class Operation extends Expression {
         int offset = getTextRange().getStartOffset();
         if (operands.get(0).getTextRange().getStartOffset() > offset) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(offset, operands.get(0).getTextRange().getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+                    TextRange.create(offset, operands.get(0).getTextRange().getStartOffset()), group, ""));
         }
         offset = operands.get(0).getTextRange().getEndOffset();
         for (int i = 1; i < operands.size(); i++) {
@@ -89,24 +83,13 @@ public abstract class Operation extends Expression {
             String p = " " + character + " ";
             if (!document.getText(r).equals(p)) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
-                        r, group) {
-                    @Override
-                    public String getPlaceholderText() {
-                        return p;
-                    }
-                });
+                        r, group, p));
             }
             offset = operands.get(i).getTextRange().getEndOffset();
         }
         if (offset < getTextRange().getEndOffset()) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(offset, getTextRange().getEndOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+                    TextRange.create(offset, getTextRange().getEndOffset()), group, ""));
         }
         for (Expression operand : operands) {
             if (operand.supportsFoldRegions(document, this)) {

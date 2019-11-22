@@ -20,20 +20,10 @@ public class CompactControlFlowExpression extends Expression {
                                         ArrayList<FoldingDescriptor> descriptors, TextRange textRange) {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(textRange.getStartOffset(),
-                        textRange.getStartOffset() + 1), group) {
-            @Override
-            public String getPlaceholderText() {
-                return "";
-            }
-        });
+                        textRange.getStartOffset() + 1), group, ""));
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(textRange.getEndOffset() - 1,
-                        textRange.getEndOffset()), group) {
-            @Override
-            public String getPlaceholderText() {
-                return "";
-            }
-        });
+                        textRange.getEndOffset()), group, ""));
     }
 
     @Override

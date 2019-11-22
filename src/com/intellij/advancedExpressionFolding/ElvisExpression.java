@@ -32,21 +32,11 @@ public class ElvisExpression extends Expression {
         FoldingGroup group = FoldingGroup.newGroup(ElvisExpression.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(textRange.getStartOffset(), thenExpression.getTextRange().getStartOffset()),
-                group) {
-            @Override
-            public String getPlaceholderText() {
-                return "";
-            }
-        });
+                group, ""));
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(thenExpression.getTextRange().getEndOffset(),
                         elseExpression.getTextRange().getStartOffset()),
-                group) {
-            @Override
-            public String getPlaceholderText() {
-                return " ?: "; // TODO: Eat spaces around
-            }
-        });
+                group, " ?: " /* TODO: Eat spaces around */));
         ShortElvisExpression.nullify(element, document, descriptors, group, elements,
                 !(elements.size() == 1 && elements.get(0).equals(thenExpression.getTextRange())));
         if (thenExpression.supportsFoldRegions(document, this)) {

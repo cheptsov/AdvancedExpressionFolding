@@ -11,7 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class InterpolatedString extends Expression {
-    private final @NotNull List<Expression> operands;
+    private final @NotNull
+    List<Expression> operands;
 
     public InterpolatedString(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull List<Expression> operands) {
         super(element, textRange);
@@ -53,46 +54,27 @@ public class InterpolatedString extends Expression {
             TextRange overflowLeftRange = TextRange.create(first.getTextRange().getStartOffset() - 1, first.getTextRange().getStartOffset());
             String overflowLeftText = document.getText(overflowLeftRange);
             if (OVERFLOW_CHARACTERS.contains(overflowLeftText)) {
-                final String overflowText = overflowLeftPlaceholder != null ? overflowLeftPlaceholder : overflowLeftText;
+                String overflowText = overflowLeftPlaceholder != null ? overflowLeftPlaceholder : overflowLeftText;
                 if (first instanceof Variable) {
-                    descriptors.add(new FoldingDescriptor(element.getNode(), overflowLeftRange, group) {
-                        @Override
-                        public String getPlaceholderText() {
-                            return overflowText + "\"$";
-                        }
-                    });
+                    descriptors.add(new FoldingDescriptor(element.getNode(), overflowLeftRange, group, overflowText + "\"$"));
                 } else {
-                    descriptors.add(new FoldingDescriptor(element.getNode(), overflowLeftRange, group) {
-                        @Override
-                        public String getPlaceholderText() {
-                            return overflowText + "\"${";
-                        }
-                    });
+                    descriptors.add(new FoldingDescriptor(element.getNode(), overflowLeftRange, group, overflowText + "\"${"));
                     buf[0] = "}";
                 }
             } else {
+                String p;
+                if (first instanceof Variable) {
+                    p = "\"$" + first.getElement().getText(); // TODO no-format: not sure
+                } else {
+                    p = "\"${" + first.getElement().getText() + "}"; // TODO no-format: not sure
+                }
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(first.getTextRange().getStartOffset(),
-                                first.getTextRange().getEndOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        if (first instanceof Variable) {
-                            return "\"$" + first.getElement().getText(); // TODO no-format: not sure
-                        } else {
-                            return "\"${" + first.getElement().getText() + "}"; // TODO no-format: not sure
-                        }
-                    }
-                });
+                                first.getTextRange().getEndOffset()), group, p));
             }
         } else if (first instanceof CharacterLiteral) {
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(first.getTextRange().getStartOffset(),
-                    first.getTextRange().getStartOffset() + 1), group) {
-                @Override
-                public String getPlaceholderText() {
-                    return "\"";
-                }
-            });
+                    first.getTextRange().getStartOffset() + 1), group, "\""));
         }
         for (int i = 0; i < operands.size() - 1; i++) {
             int s = operands.get(i) instanceof CharSequenceLiteral
@@ -101,25 +83,18 @@ public class InterpolatedString extends Expression {
             int e = operands.get(i + 1) instanceof CharSequenceLiteral
                     ? operands.get(i + 1).getTextRange().getStartOffset() + 1
                     : operands.get(i + 1).getTextRange().getStartOffset();
-            int fI = i;
             StringBuilder sI = new StringBuilder().append(buf[0]);
-            if (!(operands.get(fI + 1) instanceof CharSequenceLiteral)) {
+            if (!(operands.get(i + 1) instanceof CharSequenceLiteral)) {
                 sI.append("$");
             }
-            if (!(operands.get(fI + 1) instanceof Variable) && !(operands.get(fI + 1) instanceof CharSequenceLiteral)) {
+            if (!(operands.get(i + 1) instanceof Variable) && !(operands.get(i + 1) instanceof CharSequenceLiteral)) {
                 sI.append("{");
                 buf[0] = "}";
             } else {
                 buf[0] = "";
             }
             descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(s, e), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return sI.toString();
-                }
-            });
+                    TextRange.create(s, e), group, sI.toString()));
         }
         if (!(last instanceof CharSequenceLiteral)
                 && document.getTextLength() > last.getTextRange().getEndOffset() + 1) {
@@ -134,52 +109,22 @@ public class InterpolatedString extends Expression {
                 final String overflowText = overflowRightPlaceholder != null ? overflowRightPlaceholder : overflowRightText;
                 if (last instanceof Variable) {
                     descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(s, e), group) {
-                        @Override
-                        public String getPlaceholderText() {
-                            return "$";
-                        }
-                    });
-                    descriptors.add(new FoldingDescriptor(element.getNode(), overflowRightRange, group) {
-                        @Override
-                        public String getPlaceholderText() {
-                            return "\"" + overflowText;
-                        }
-                    });
+                            TextRange.create(s, e), group, "$"));
+                    descriptors.add(new FoldingDescriptor(element.getNode(), overflowRightRange, group, "\"" + overflowText));
                 } else {
                     descriptors.add(new FoldingDescriptor(element.getNode(),
-                            TextRange.create(s, e), group) {
-                        @Override
-                        public String getPlaceholderText() {
-                            return "${";
-                        }
-                    });
-                    descriptors.add(new FoldingDescriptor(element.getNode(), overflowRightRange, group) {
-                        @Override
-                        public String getPlaceholderText() {
-                            return "}\"" + overflowText;
-                        }
-                    });
+                            TextRange.create(s, e), group, "${"));
+                    descriptors.add(new FoldingDescriptor(element.getNode(), overflowRightRange, group, "}\"" + overflowText));
                 }
             } else {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(last.getTextRange().getStartOffset(),
-                                last.getTextRange().getEndOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return last.getElement().getText() + buf[0] + "\""; // TODO no-format: not sure
-                    }
-                });
+                                last.getTextRange().getEndOffset()), group,
+                        last.getElement().getText() + buf[0] + "\"" /* TODO no-format: not sure */));
             }
         } else if (last instanceof CharacterLiteral) {
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(last.getTextRange().getEndOffset() - 1,
-                    last.getTextRange().getEndOffset()), group) {
-                @Override
-                public String getPlaceholderText() {
-                    return "\"";
-                }
-            });
+                    last.getTextRange().getEndOffset()), group, "\""));
         }
         for (Expression operand : operands) {
             if (operand.supportsFoldRegions(document, this)) {

@@ -31,29 +31,18 @@ public class Pow extends Function implements ArithmeticExpression {
         if (getTextRange().getStartOffset() < operands.get(0).getTextRange().getStartOffset()) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(getTextRange().getStartOffset(),
-                            operands.get(0).getTextRange().getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return operands.get(0) instanceof Operation
-                            ? "(" : "";
-                }
-            });
+                            operands.get(0).getTextRange().getStartOffset()), group, operands.get(0) instanceof Operation
+                    ? "(" : ""));
         }
         if (operands.get(0).supportsFoldRegions(document, this)) {
             Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document, this));
         }
+        String b = operands.get(1).getElement().getText();
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(operands.get(0).getTextRange().getEndOffset(),
-                        getTextRange().getEndOffset()), group) {
-            @Nullable
-            @Override
-            public String getPlaceholderText() {
-                String b = operands.get(1).getElement().getText();
-                return operands.get(0) instanceof Operation
-                        ? ")" + superscript(b) : superscript(b);
-            }
-        });
+                        getTextRange().getEndOffset()), group,
+                operands.get(0) instanceof Operation
+                        ? ")" + superscript(b) : superscript(b)));
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 }

@@ -23,26 +23,14 @@ public class Cbrt extends Function implements ArithmeticExpression {
         FoldingGroup group = FoldingGroup.newGroup(Cbrt.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(getTextRange().getStartOffset(),
-                        operands.get(0).getTextRange().getStartOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return operands.get(0) instanceof NumberLiteral ||
-                        operands.get(0) instanceof Variable ?
-                "∛" : "∛(";
-            }
-        });
+                        operands.get(0).getTextRange().getStartOffset()), group, operands.get(0) instanceof NumberLiteral ||
+                operands.get(0) instanceof Variable ?
+                "∛" : "∛("));
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(operands.get(0).getTextRange().getEndOffset(),
-                        getTextRange().getEndOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return operands.get(0) instanceof NumberLiteral ||
-                        operands.get(0) instanceof Variable ?
-                        "" : ")";
-            }
-        });
+                        getTextRange().getEndOffset()), group, operands.get(0) instanceof NumberLiteral ||
+                operands.get(0) instanceof Variable ?
+                "" : ")"));
         if (operands.get(0).supportsFoldRegions(document, this)) {
             Collections.addAll(descriptors, operands.get(0).buildFoldRegions(operands.get(0).getElement(), document, this));
         }

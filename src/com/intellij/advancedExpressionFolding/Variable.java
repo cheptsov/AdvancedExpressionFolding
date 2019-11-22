@@ -61,23 +61,11 @@ public class Variable extends Expression implements ArithmeticExpression {
                     .newGroup(Variable.class.getName() + Expression.HIGHLIGHTED_GROUP_POSTFIX);
             if (textRange.getStartOffset() < variableTextRange.getStartOffset()) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
-                        TextRange.create(textRange.getStartOffset(), variableTextRange.getStartOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
+                        TextRange.create(textRange.getStartOffset(), variableTextRange.getStartOffset()), group, ""));
             }
             if (variableTextRange.getEndOffset() < textRange.getEndOffset()) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
-                        TextRange.create(variableTextRange.getEndOffset(), textRange.getEndOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
+                        TextRange.create(variableTextRange.getEndOffset(), textRange.getEndOffset()), group, ""));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

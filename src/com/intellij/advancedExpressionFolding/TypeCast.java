@@ -40,54 +40,25 @@ public class TypeCast extends Expression {
             if (dotAccess) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(getTextRange().getStartOffset(),
-                                object.getTextRange().getStartOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
+                                object.getTextRange().getStartOffset()), group, ""));
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                                         TextRange.create(object.getTextRange().getEndOffset(),
-                                                getTextRange().getEndOffset() + 1), group) {
-                                    @NotNull
-                                    @Override
-                                    public String getPlaceholderText() {
-                                        return ".";
-                                    }
-                                }
+                                                getTextRange().getEndOffset() + 1), group, ".")
                 );
             } else {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                                         TextRange.create(getTextRange().getStartOffset(),
-                                                object.getTextRange().getStartOffset()), group) {
-                                    @NotNull
-                                    @Override
-                                    public String getPlaceholderText() {
-                                        return ""; // TODO: It used to be  "~"
-                                    }
-                                }
+                                                object.getTextRange().getStartOffset()), group,
+                        "" /* TODO: It used to be  "~" */)
                 );
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(object.getTextRange().getEndOffset(),
-                                getTextRange().getEndOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
+                                getTextRange().getEndOffset()), group, ""));
             }
         } else {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(getTextRange().getStartOffset(),
-                            object.getTextRange().getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return ""; // TODO: It used to be  "~"
-                }
-            });
+                            object.getTextRange().getStartOffset()), group, "" /* TODO: It used to be  "~" */));
         }
         if (object.supportsFoldRegions(document, this)) {
             Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document, this));

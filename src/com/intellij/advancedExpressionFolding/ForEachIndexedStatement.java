@@ -53,58 +53,22 @@ public class ForEachIndexedStatement extends Expression {
                 prefix.equals("(")) {
             prefix = "";
         }
-        String finalPrefix = prefix;
         if (varSyntax) {
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset(),
-                    indexTextRange.getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return finalPrefix + (isFinal ? "val" : "var" ) + " (";
-                }
-            });
+                    indexTextRange.getStartOffset()), group, prefix + (isFinal ? "val" : "var" ) + " ("));
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(indexTextRange.getEndOffset(),
-                    variableTextRange.getStartOffset() - 1), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return ",";
-                }
-            });
+                    variableTextRange.getStartOffset() - 1), group, ","));
         } else {
-            descriptors.add(new FoldingDescriptor(element.getNode(), prefixRange, group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return  finalPrefix + "(";
-                }
-            });
+            descriptors.add(new FoldingDescriptor(element.getNode(), prefixRange, group, prefix + "("));
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(indexTextRange.getEndOffset(),
-                    declarationTextRange.getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return ", ";
-                }
-            });
+                    declarationTextRange.getStartOffset()), group, ", "));
         }
         descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(variableTextRange.getEndOffset(),
-                arrayTextRange.getStartOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return AdvancedExpressionFoldingSettings.getInstance().getState().isCompactControlFlowSyntaxCollapse() ?
-                 " : " : ") : ";
-            }
-        });
+                arrayTextRange.getStartOffset()), group,
+                AdvancedExpressionFoldingSettings.getInstance().getState().isCompactControlFlowSyntaxCollapse() ?
+                        " : " : ") : "));
         descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(arrayTextRange.getEndOffset(),
-                declarationTextRange.getEndOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return ") {\n";
-            }
-        });
+                declarationTextRange.getEndOffset()), group, ") {\n"));
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 }

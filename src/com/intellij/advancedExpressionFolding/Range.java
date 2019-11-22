@@ -17,9 +17,12 @@ public class Range extends Expression {
     public static final String RANGE_COMMA_DELIMITER = ", ";
     public static final String RANGE_IN_SEPARATOR = "in";
 
-    private @NotNull Expression operand;
-    private @NotNull Expression startRange;
-    private @NotNull Expression endRange;
+    private @NotNull
+    Expression operand;
+    private @NotNull
+    Expression startRange;
+    private @NotNull
+    Expression endRange;
     String separator;
     private boolean startInclusive;
     private boolean endInclusive;
@@ -123,44 +126,20 @@ public class Range extends Expression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(getOperand().getTextRange().getEndOffset(),
                         getStart().getTextRange().getStartOffset()),
-                group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return p1;
-            }
-        });
+                group, p1));
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(getStart().getTextRange().getEndOffset(),
                         getEnd().getTextRange().getStartOffset()),
-                group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return RANGE_COMMA_DELIMITER;
-            }
-        });
+                group, RANGE_COMMA_DELIMITER));
         descriptors.add(getTextRange().getEndOffset() > getEnd().getTextRange().getEndOffset() ?
-                        new FoldingDescriptor(element.getNode(),
-                                TextRange.create(getEnd().getTextRange().getEndOffset(),
-                                        getTextRange().getEndOffset()),
-                                group) {
-                            @NotNull
-                            @Override
-                            public String getPlaceholderText() {
-                                return p2;
-                            }
-                        } : new FoldingDescriptor(element.getNode(),
+                new FoldingDescriptor(element.getNode(),
                         TextRange.create(getEnd().getTextRange().getEndOffset(),
-                                getEnd().getTextRange().getEndOffset() + 1),
-                        group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return p2 + document.getText(TextRange
-                                .create(getEnd().getTextRange().getEndOffset(), getEnd().getTextRange().getEndOffset() + 1));
-                    }
-                }
+                                getTextRange().getEndOffset()),
+                        group, p2) : new FoldingDescriptor(element.getNode(),
+                TextRange.create(getEnd().getTextRange().getEndOffset(),
+                        getEnd().getTextRange().getEndOffset() + 1),
+                group, p2 + document.getText(TextRange
+                .create(getEnd().getTextRange().getEndOffset(), getEnd().getTextRange().getEndOffset() + 1)))
         );
         if (startRange.supportsFoldRegions(document, this)) {
             Collections.addAll(descriptors, startRange.buildFoldRegions(startRange.getElement(), document, this));

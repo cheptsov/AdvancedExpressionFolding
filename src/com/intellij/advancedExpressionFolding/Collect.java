@@ -40,22 +40,10 @@ public class Collect extends Expression {
         int offset = AdvancedExpressionFoldingBuilder.findDot(document, textRange.getStartOffset(), -1, false);
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(textRange.getStartOffset() + offset,
-                        collectorTextRange.getStartOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return ".";
-            }
-        });
+                        collectorTextRange.getStartOffset()), group, "."));
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(collectorTextRange.getEndOffset(),
-                        textRange.getEndOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "";
-            }
-        });
+                        textRange.getEndOffset()), group, ""));
         if (qualifier.supportsFoldRegions(document, this)) {
             Collections.addAll(descriptors, qualifier.buildFoldRegions(qualifier.getElement(), document, this));
         }

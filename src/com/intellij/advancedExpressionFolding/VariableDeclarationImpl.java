@@ -29,14 +29,8 @@ public class VariableDeclarationImpl extends Expression {
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(VariableDeclarationImpl.class.getName());
-        return new FoldingDescriptor[] {
-                new FoldingDescriptor(element.getNode(), textRange, group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return isFinal ? "val" : "var";
-                    }
-                }
+        return new FoldingDescriptor[]{
+                new FoldingDescriptor(element.getNode(), textRange, group, isFinal ? "val" : "var")
         };
     }
 }

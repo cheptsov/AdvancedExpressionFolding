@@ -31,22 +31,10 @@ public class Abs extends Function implements ArithmeticExpression {
         FoldingGroup group = FoldingGroup.newGroup(Abs.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(getTextRange().getStartOffset(),
-                        operands.get(0).getTextRange().getStartOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "|";
-            }
-        });
+                        operands.get(0).getTextRange().getStartOffset()), group, "|"));
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(operands.get(0).getTextRange().getEndOffset(),
-                        getTextRange().getEndOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "|";
-            }
-        });
+                        getTextRange().getEndOffset()), group, "|"));
         if (operands.get(0).supportsFoldRegions(document, this)) {
             Collections.addAll(descriptors,
                     operands.get(0).buildFoldRegions(operands.get(0).getElement(), document, this));

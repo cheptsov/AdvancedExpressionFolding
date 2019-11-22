@@ -33,63 +33,34 @@ public class Slice extends Function {
                                 && ((NumberLiteral) operands.get(1)).getNumber().intValue() == 0
                                     ? operands.get(1).getTextRange().getEndOffset()
                                     : operands.get(1).getTextRange().getStartOffset()
-                ), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "[";
-            }
-        });
+                ), group, "["));
         if (operands.get(1) instanceof NumberLiteral
                 && ((NumberLiteral) operands.get(1)).getNumber().intValue() < 0
                 && document.getText(TextRange.create(operands.get(1).getTextRange().getStartOffset() + 1,
                 operands.get(1).getTextRange().getStartOffset() + 2)).equals(" ")) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(operands.get(1).getTextRange().getStartOffset() + 1,
-                            operands.get(1).getTextRange().getStartOffset() + 2), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+                            operands.get(1).getTextRange().getStartOffset() + 2), group, ""));
         }
         if (operands.size() > 2) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(operands.get(1).getTextRange().getEndOffset(),
-                            operands.get(2).getTextRange().getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return ":";
-                }
-            });
+                            operands.get(2).getTextRange().getStartOffset()), group, ":"));
             if (operands.get(2) instanceof NumberLiteral
                     && ((NumberLiteral) operands.get(2)).getNumber().intValue() < 0
                     && document.getText(TextRange.create(operands.get(2).getTextRange().getStartOffset() + 1,
                     operands.get(2).getTextRange().getStartOffset() + 2)).equals(" ")) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(operands.get(2).getTextRange().getStartOffset() + 1,
-                                operands.get(2).getTextRange().getStartOffset() + 2), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
+                                operands.get(2).getTextRange().getStartOffset() + 2), group, ""));
             }
         }
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(
                         operands.size() > 2
                         ? getTextRange().getEndOffset() - 1
-                        : operands.get(1).getTextRange().getEndOffset(), getTextRange().getEndOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return operands.size() == 2 ? ":]" : "]";
-            }
-        });
+                        : operands.get(1).getTextRange().getEndOffset(), getTextRange().getEndOffset()), group,
+                operands.size() == 2 ? ":]" : "]"));
         for (Expression operand : operands) {
             if (operand.supportsFoldRegions(document, this)) {
                 Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document, this));

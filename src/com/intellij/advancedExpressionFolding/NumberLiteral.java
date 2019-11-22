@@ -59,36 +59,19 @@ public class NumberLiteral extends Expression implements ArithmeticExpression {
                     .newGroup(NumberLiteral.class.getName() + Expression.HIGHLIGHTED_GROUP_POSTFIX);
             if (textRange.getStartOffset() < numberTextRange.getStartOffset()) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
-                        TextRange.create(textRange.getStartOffset(), numberTextRange.getStartOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
+                        TextRange.create(textRange.getStartOffset(), numberTextRange.getStartOffset()), group, ""));
             }
             if (convert) {
-                descriptors.add(new FoldingDescriptor(element.getNode(), numberTextRange, group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return number instanceof Float ?
+                descriptors.add(new FoldingDescriptor(element.getNode(), numberTextRange, group,
+                        number instanceof Float ?
                                 toJavaFormatString(number.floatValue()) + "f":
                                 number instanceof Double ?
                                         toJavaFormatString(number.doubleValue()) :
-                                        number.toString();
-                    }
-                });
+                                        number.toString()));
             }
             if (numberTextRange.getEndOffset() < textRange.getEndOffset()) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
-                        TextRange.create(numberTextRange.getEndOffset(), textRange.getEndOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
+                        TextRange.create(numberTextRange.getEndOffset(), textRange.getEndOffset()), group, ""));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

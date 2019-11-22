@@ -27,22 +27,11 @@ public class ShortElvisExpression extends Expression {
         FoldingGroup group = FoldingGroup.newGroup(ShortElvisExpression.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(textRange.getStartOffset(), thenExpression.getTextRange().getStartOffset()),
-                group) {
-            @Override
-            public String getPlaceholderText() {
-                return "";
-            }
-        });
+                group, ""));
         if (thenExpression.getTextRange().getEndOffset() < textRange.getEndOffset()) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(thenExpression.getTextRange().getEndOffset(),
-                            getTextRange().getEndOffset()),
-                    group) {
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+                            getTextRange().getEndOffset()), group, ""));
         }
         nullify(element, document, descriptors, group, elements, true);
         if (thenExpression.supportsFoldRegions(document, this)) {
@@ -68,22 +57,11 @@ public class ShortElvisExpression extends Expression {
             if (supportedPostfixes.contains(postfix)) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(range.getEndOffset(), range.getEndOffset() + 1),
-                        group) {
-                    @Override
-                    public String getPlaceholderText() {
-                        return "?" + postfix;
-                    }
-                });
+                        group, "?" + postfix));
             } else if (replaceSingle) {
                 TextRange r = TextRange.create(range.getStartOffset(), range.getEndOffset());
                 descriptors.add(new FoldingDescriptor(element.getNode(),
-                        r,
-                        group) {
-                    @Override
-                    public String getPlaceholderText() {
-                        return document.getText(r) + "?";
-                    }
-                });
+                        r, group, document.getText(r) + "?"));
             }
         }
     }
