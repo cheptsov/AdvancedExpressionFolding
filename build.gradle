@@ -1,22 +1,21 @@
 plugins {
-    id "org.jetbrains.intellij" version "0.4.5"
+    id "org.jetbrains.intellij" version "0.4.18"
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
     jcenter()
-    maven { url 'https://repository.jetbrains.com/repo/' }
+    maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
 }
 
 intellij {
     type 'IC'
-    version '193.5233.57-EAP-SNAPSHOT'
     plugins 'java'
 }
 
 patchPluginXml {
-    untilBuild = "193.*"
+    untilBuild = "201.*"
 }
 
 apply plugin: 'java'
