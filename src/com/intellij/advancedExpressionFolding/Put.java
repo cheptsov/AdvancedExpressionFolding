@@ -35,32 +35,14 @@ public class Put extends Expression {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(object.getTextRange().getEndOffset(),
-                                key.getTextRange().getStartOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "[";
-                    }
-                });
+                                key.getTextRange().getStartOffset()), group, "["));
         descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(key.getTextRange().getEndOffset(),
-                                value.getTextRange().getStartOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "] = ";
-                    }
-                });
+                                value.getTextRange().getStartOffset()), group, "] = "));
         if (value.getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(value.getTextRange().getEndOffset(),
-                            getTextRange().getEndOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+                            getTextRange().getEndOffset()), group, ""));
         }
         if (object.supportsFoldRegions(document, this)) {
             Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document, this));

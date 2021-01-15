@@ -30,36 +30,17 @@ public class ListLiteral extends Expression {
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(ListLiteral.class.getName());
         if (items.isEmpty()) {
-            return new FoldingDescriptor[] {
-                    new FoldingDescriptor(element.getNode(), textRange,
-                            group) {
-                        @NotNull
-                        @Override
-                        public String getPlaceholderText() {
-                            return "[]";
-                        }
-                    }
+            return new FoldingDescriptor[]{
+                    new FoldingDescriptor(element.getNode(), textRange, group, "[]")
             };
         } else {
             ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset(),
-                    items.get(0).getTextRange().getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "[";
-                }
-            });
+                    items.get(0).getTextRange().getStartOffset()), group, "["));
             if (items.get(items.size() - 1).getTextRange().getEndOffset() < textRange.getEndOffset()) {
                 descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(
                         items.get(items.size() - 1).getTextRange().getEndOffset(),
-                        textRange.getEndOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "]";
-                    }
-                });
+                        textRange.getEndOffset()), group, "]"));
             }
             for (Expression item : items) {
                 Collections.addAll(descriptors, item.buildFoldRegions(item.getElement(), document, this));

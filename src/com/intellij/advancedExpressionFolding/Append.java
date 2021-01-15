@@ -57,13 +57,7 @@ public class Append extends Operation {
             );
             if (!range.isEmpty()) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
-                        range, group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
+                        range, group, ""));
             }
         }
         if (a.supportsFoldRegions(document, this)) {
@@ -86,20 +80,13 @@ public class Append extends Operation {
                         Collections.addAll(descriptors, c.buildFoldRegions(c.getElement(), document, this));
                     }
                 }
-                int finalI = i;
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(
                                 b.getTextRange().getEndOffset() +
                                         (b.isRightOverflow() ? 1 : 0),
                                 c.getTextRange().getStartOffset() -
                                         (c.isLeftOverflow() ? 1 : 0)
-                        ), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return finalI == 0 && assign ? " += " : " + ";
-                    }
-                });
+                        ), group, i == 0 && assign ? " += " : " + "));
             }
         }
         Expression d = operands.get(operands.size() - 1);
@@ -111,13 +98,7 @@ public class Append extends Operation {
             );
             if (!range.isEmpty()) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
-                        range, group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
+                        range, group, ""));
             }
         }
         return descriptors.toArray(FoldingDescriptor.EMPTY);

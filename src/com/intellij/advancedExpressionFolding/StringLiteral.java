@@ -33,13 +33,7 @@ public class StringLiteral extends Expression implements CharSequenceLiteral {
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
         FoldingGroup group = FoldingGroup.newGroup(StringLiteral.class.getName());
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
-        descriptors.add(new FoldingDescriptor(element.getNode(), element.getTextRange(), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "\"" + string  + "\"";
-            }
-        });
+        descriptors.add(new FoldingDescriptor(element.getNode(), element.getTextRange(), group, "\"" + string  + "\""));
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 }

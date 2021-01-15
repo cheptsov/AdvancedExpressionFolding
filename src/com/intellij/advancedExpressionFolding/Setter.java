@@ -40,24 +40,12 @@ public class Setter extends Expression {
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(setterTextRange.getStartOffset(),
                         value.getTextRange().getStartOffset()
-                                - (value.isLeftOverflow() ? 1 : 0)), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return name + " = ";
-            }
-        });
+                                - (value.isLeftOverflow() ? 1 : 0)), group, name + " = "));
         if (!value.isRightOverflow()) {
             if (value.getTextRange().getEndOffset() < getTextRange().getEndOffset()) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
                         TextRange.create(value.getTextRange().getEndOffset(),
-                                getTextRange().getEndOffset()), group) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
+                                getTextRange().getEndOffset()), group, ""));
             }
         }
         if (object != null && object.supportsFoldRegions(document, this)) {

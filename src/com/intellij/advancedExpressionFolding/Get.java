@@ -12,9 +12,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Get extends Expression {
-    private final @NotNull Expression object;
-    private final @NotNull Expression key;
-    private final @NotNull Style style;
+    private final @NotNull
+    Expression object;
+    private final @NotNull
+    Expression key;
+    private final @NotNull
+    Style style;
 
     public enum Style {
         NORMAL,
@@ -45,37 +48,17 @@ public class Get extends Expression {
         if (style == Style.NORMAL) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(object.getTextRange().getEndOffset(),
-                            key.getTextRange().getStartOffset()), group) {
-                @Override
-                public String getPlaceholderText() {
-                    return "[";
-                }
-            });
+                            key.getTextRange().getStartOffset()), group, "["));
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(key.getTextRange().getEndOffset(),
-                            getTextRange().getEndOffset()), group) {
-                @Override
-                public String getPlaceholderText() {
-                    return "]";
-                }
-            });
+                            getTextRange().getEndOffset()), group, "]"));
         } else {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(object.getTextRange().getEndOffset(),
-                            key.getTextRange().getStartOffset() - 1), group) {
-                @Override
-                public String getPlaceholderText() {
-                    return "." + (/*style == Style.FIRST ? "first" : */"last");
-                }
-            });
+                            key.getTextRange().getStartOffset() - 1), group, "." + (/*style == Style.FIRST ? "first" : */"last")));
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(key.getTextRange().getStartOffset(),
-                            key.getTextRange().getEndOffset()), group) {
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+                            key.getTextRange().getEndOffset()), group, ""));
         }
         // TODO: Generalize it
         if (object.supportsFoldRegions(document, this)) {

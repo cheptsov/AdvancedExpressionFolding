@@ -34,14 +34,7 @@ public class Getter extends Expression {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(
                 new FoldingDescriptor(element.getNode(), getterTextRange,
-                        FoldingGroup.newGroup(Getter.class.getName())) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return name;
-                    }
-                }
-        );
+                        FoldingGroup.newGroup(Getter.class.getName()), name));
         if (object != null && object.supportsFoldRegions(document, this)) {
             Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document, this));
         }

@@ -30,13 +30,7 @@ public class StreamExpression extends Expression {
             return new FoldingDescriptor[]{
                     new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset() + startOffsetNoWhitespace,
                             textRange.getEndOffset() + endOffset),
-                            FoldingGroup.newGroup(StreamExpression.class.getName())) {
-                        @NotNull
-                        @Override
-                        public String getPlaceholderText() {
-                            return ".";
-                        }
-                    }
+                            FoldingGroup.newGroup(StreamExpression.class.getName()), ".")
             };
         } else if (startOffset < -1
                 && document.getText(TextRange.create(textRange.getStartOffset() + startOffset, textRange.getStartOffset() + startOffset + 1)).equals(".")) {
@@ -44,26 +38,14 @@ public class StreamExpression extends Expression {
             return new FoldingDescriptor[]{
                     new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset(),
                             textRange.getEndOffset() + endOffsetWithWhitespace),
-                            FoldingGroup.newGroup(StreamExpression.class.getName() + HIGHLIGHTED_GROUP_POSTFIX)) {
-                        @NotNull
-                        @Override
-                        public String getPlaceholderText() {
-                            return "";
-                        }
-                    }
+                            FoldingGroup.newGroup(StreamExpression.class.getName() + HIGHLIGHTED_GROUP_POSTFIX), "")
             };
         } else if (startOffset == -1
                 && endOffset > 1) {
             return new FoldingDescriptor[]{
                     new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset() + startOffset,
                             textRange.getEndOffset()),
-                            FoldingGroup.newGroup(StreamExpression.class.getName() + Expression.HIGHLIGHTED_GROUP_POSTFIX)) {
-                        @NotNull
-                        @Override
-                        public String getPlaceholderText() {
-                            return "";
-                        }
-                    }
+                            FoldingGroup.newGroup(StreamExpression.class.getName() + Expression.HIGHLIGHTED_GROUP_POSTFIX), "")
             };
         } else if (startOffset < -1
                 && document.getText(TextRange.create(textRange.getStartOffset() - 1, textRange.getStartOffset())).equals(".")
@@ -72,26 +54,14 @@ public class StreamExpression extends Expression {
             return new FoldingDescriptor[]{
                     new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset() - 1,
                             textRange.getEndOffset() + endOffsetWithWhitespace),
-                            FoldingGroup.newGroup(StreamExpression.class.getName())) {
-                        @NotNull
-                        @Override
-                        public String getPlaceholderText() {
-                            return ".";
-                        }
-                    }
+                            FoldingGroup.newGroup(StreamExpression.class.getName()), ".")
             };
         } else if (startOffset == -1
                 && endOffset == 1) {
             return new FoldingDescriptor[]{
                     new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset() - 1,
                             textRange.getEndOffset() + 1),
-                            FoldingGroup.newGroup(StreamExpression.class.getName())) {
-                        @NotNull
-                        @Override
-                        public String getPlaceholderText() {
-                            return ".";
-                        }
-                    }
+                            FoldingGroup.newGroup(StreamExpression.class.getName()), ".")
             };
         }
         return FoldingDescriptor.EMPTY;

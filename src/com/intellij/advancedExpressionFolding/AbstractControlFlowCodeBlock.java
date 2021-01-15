@@ -42,12 +42,7 @@ public abstract class AbstractControlFlowCodeBlock extends Expression {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         if (this.element.getLBrace() != null) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
-                    this.element.getLBrace().getTextRange(), group) {
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+                    this.element.getLBrace().getTextRange(), group, ""));
         }
         if (this.element.getRBrace() != null) {
             boolean smart = false;
@@ -96,12 +91,7 @@ public abstract class AbstractControlFlowCodeBlock extends Expression {
                         }
                         if (smart) {
                             descriptors.add(new FoldingDescriptor(element.getNode(),
-                                    TextRange.create(startOffset, endOffset), group) {
-                                @Override
-                                public String getPlaceholderText() {
-                                    return "";
-                                }
-                            });
+                                    TextRange.create(startOffset, endOffset), group, ""));
                         }
                     }
                 }
@@ -126,12 +116,7 @@ public abstract class AbstractControlFlowCodeBlock extends Expression {
                         siblingKeyword != null ?
                                 TextRange.create(this.element.getRBrace().getTextRange().getStartOffset(),
                                         siblingKeyword.getTextRange().getStartOffset()) : this.element.getRBrace()
-                                .getTextRange(), group) {
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                });
+                                .getTextRange(), group, ""));
             }
         }
 

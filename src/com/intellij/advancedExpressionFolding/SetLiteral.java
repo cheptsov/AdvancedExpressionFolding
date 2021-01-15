@@ -31,84 +31,36 @@ public class SetLiteral extends Function {
         List<FoldingDescriptor> descriptors = new ArrayList<>();
         int offset = getTextRange().getStartOffset();
         descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(offset, firstBracesRange.getStartOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "[";
-            }
-        });
+                TextRange.create(offset, firstBracesRange.getStartOffset()), group, "["));
         if (firstBracesRange.getStartOffset() < secondBracesRange.getStartOffset()) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(firstBracesRange.getStartOffset(), secondBracesRange.getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+                    TextRange.create(firstBracesRange.getStartOffset(), secondBracesRange.getStartOffset()), group, ""));
         }
         if (secondBracesRange.getStartOffset() < operands.get(0).getTextRange().getStartOffset()) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
                     TextRange.create(secondBracesRange.getStartOffset(),
-                            operands.get(0).getTextRange().getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+                            operands.get(0).getTextRange().getStartOffset()), group, ""));
         }
         offset = operands.get(0).getTextRange().getEndOffset();
         for (int i = 1; i < operands.size(); i++) {
             TextRange r = TextRange.create(offset, operands.get(i).getTextRange().getStartOffset());
             String p = ", ";
             if (!document.getText(r).equals(p)) {
-                descriptors.add(new FoldingDescriptor(element.getNode(),
-                        r, group) {
-                    @Override
-                    public String getPlaceholderText() {
-                        return p;
-                    }
-                });
+                descriptors.add(new FoldingDescriptor(element.getNode(), r, group, p));
             }
             offset = operands.get(i).getTextRange().getEndOffset();
         }
         descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(offset, secondBracesRange.getEndOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "";
-            }
-        });
+                TextRange.create(offset, secondBracesRange.getEndOffset()), group, ""));
         if (secondBracesRange.getEndOffset() < firstBracesRange.getEndOffset() - 1) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(secondBracesRange.getEndOffset(), firstBracesRange.getEndOffset() - 1), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+                    TextRange.create(secondBracesRange.getEndOffset(), firstBracesRange.getEndOffset() - 1), group, ""));
         }
         descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(firstBracesRange.getEndOffset() - 1, firstBracesRange.getEndOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "]";
-            }
-        });
+                TextRange.create(firstBracesRange.getEndOffset() - 1, firstBracesRange.getEndOffset()), group, "]"));
         if (firstBracesRange.getEndOffset() < getTextRange().getEndOffset()) {
             descriptors.add(new FoldingDescriptor(element.getNode(),
-                    TextRange.create(firstBracesRange.getEndOffset(), getTextRange().getEndOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "";
-                }
-            });
+                    TextRange.create(firstBracesRange.getEndOffset(), getTextRange().getEndOffset()), group, ""));
         }
         for (Expression operand : operands) {
             if (operand.supportsFoldRegions(document, this)) {

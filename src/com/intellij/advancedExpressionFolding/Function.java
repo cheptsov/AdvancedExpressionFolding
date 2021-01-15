@@ -68,13 +68,7 @@ public abstract class Function extends Expression {
         List<FoldingDescriptor> descriptors = new ArrayList<>();
         int offset = getTextRange().getStartOffset();
         descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(offset, operands.get(0).getTextRange().getStartOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return name + "(";
-            }
-        });
+                TextRange.create(offset, operands.get(0).getTextRange().getStartOffset()), group, name + "("));
         offset = operands.get(0).getTextRange().getEndOffset();
         //noinspection Duplicates
         for (int i = 1; i < operands.size(); i++) {
@@ -82,23 +76,12 @@ public abstract class Function extends Expression {
             String p = ", ";
             if (!document.getText(r).equals(p)) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
-                        r, group) {
-                    @Override
-                    public String getPlaceholderText() {
-                        return p;
-                    }
-                });
+                        r, group, p));
             }
             offset = operands.get(i).getTextRange().getEndOffset();
         }
         descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(offset, getTextRange().getEndOffset()), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return ")";
-            }
-        });
+                TextRange.create(offset, getTextRange().getEndOffset()), group, ")"));
         for (Expression operand : operands) {
             if (operand.supportsFoldRegions(document, this)) {
                 Collections.addAll(descriptors, operand.buildFoldRegions(operand.getElement(), document, this));

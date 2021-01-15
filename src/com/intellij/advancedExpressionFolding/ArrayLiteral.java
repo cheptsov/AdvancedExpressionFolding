@@ -34,33 +34,15 @@ public class ArrayLiteral extends Expression {
         if (items.isEmpty()) {
             return new FoldingDescriptor[] {
                     new FoldingDescriptor(element.getNode(), textRange,
-                            group) {
-                        @NotNull
-                        @Override
-                        public String getPlaceholderText() {
-                            return "[]";
-                        }
-                    }
+                            group, "[]")
             };
         } else {
             ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(textRange.getStartOffset(),
-                    items.get(0).getTextRange().getStartOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "[";
-                }
-            });
+                    items.get(0).getTextRange().getStartOffset()), group, "["));
             descriptors.add(new FoldingDescriptor(element.getNode(), TextRange.create(
                     items.get(items.size() - 1).getTextRange().getEndOffset(),
-                    textRange.getEndOffset()), group) {
-                @NotNull
-                @Override
-                public String getPlaceholderText() {
-                    return "]";
-                }
-            });
+                    textRange.getEndOffset()), group, "]"));
             for (Expression item : items) {
                 if (item.supportsFoldRegions(document, this)) {
                     Collections.addAll(descriptors, item.buildFoldRegions(item.getElement(), document, this));

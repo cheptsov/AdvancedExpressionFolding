@@ -27,13 +27,7 @@ public class Exp extends Function implements ArithmeticExpression {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         FoldingGroup group = FoldingGroup.newGroup(Exp.class.getName());
         descriptors.add(new FoldingDescriptor(element.getNode(),
-                TextRange.create(textRange), group) {
-            @NotNull
-            @Override
-            public String getPlaceholderText() {
-                return "\uD835\uDC52" + superscript(operands.get(0).getElement().getText());
-            }
-        });
+                TextRange.create(textRange), group, "\uD835\uDC52" + superscript(operands.get(0).getElement().getText())));
         return descriptors.toArray(FoldingDescriptor.EMPTY);
     }
 }

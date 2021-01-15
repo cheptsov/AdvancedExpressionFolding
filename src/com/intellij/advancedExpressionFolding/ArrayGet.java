@@ -38,12 +38,7 @@ public class ArrayGet extends Expression {
         ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
         descriptors.add(new FoldingDescriptor(element.getNode(),
                 TextRange.create(object.getTextRange().getEndOffset(),
-                        textRange.getEndOffset()), group) {
-            @Override
-            public String getPlaceholderText() {
-                return "." + /*(style == Style.FIRST ? "first()" : */"last()"/*)*/;
-            }
-        });
+                        textRange.getEndOffset()), group, "." + /*(style == Style.FIRST ? "first()" : */"last()"/*)*/));
         // TODO: Generalize it
         if (object.supportsFoldRegions(document, this)) {
             Collections.addAll(descriptors, object.buildFoldRegions(object.getElement(), document, this));

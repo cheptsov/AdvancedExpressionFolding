@@ -21,14 +21,8 @@ public class SemicolonExpression extends Expression {
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document,
                                                 @Nullable Expression parent) {
-        return new FoldingDescriptor[] {
-                new FoldingDescriptor(element.getNode(), textRange, FoldingGroup.newGroup(SemicolonExpression.class.getName())) {
-                    @NotNull
-                    @Override
-                    public String getPlaceholderText() {
-                        return "";
-                    }
-                }
+        return new FoldingDescriptor[]{
+                new FoldingDescriptor(element.getNode(), textRange, FoldingGroup.newGroup(SemicolonExpression.class.getName()), "")
         };
     }
 }

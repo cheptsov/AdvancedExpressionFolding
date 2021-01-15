@@ -1,13 +1,21 @@
 plugins {
-    id "org.jetbrains.intellij" version "0.3.4"
+    id "org.jetbrains.intellij" version "0.4.18"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven { url 'https://www.jetbrains.com/intellij-repository/snapshots' }
 }
 
 intellij {
-    version '2016.3'
+    type 'IC'
+    plugins 'java'
 }
 
 patchPluginXml {
-    untilBuild = "182.*"
+    untilBuild = "201.*"
 }
 
 apply plugin: 'java'
@@ -24,4 +32,6 @@ sourceSets {
 
 repositories {
     mavenCentral()
+    maven { url "https://www.jetbrains.com/intellij-repository/snapshots" }
+    maven { url "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
 }
