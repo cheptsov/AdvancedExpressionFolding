@@ -10,8 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-import static sun.misc.FloatingDecimal.toJavaFormatString;
-
 public class NumberLiteral extends Expression implements ArithmeticExpression {
     private @NotNull Number number;
     private final boolean convert;
@@ -52,7 +50,7 @@ public class NumberLiteral extends Expression implements ArithmeticExpression {
 
     @Override
     public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element, @NotNull Document document, @Nullable Expression parent) {
-        ArrayList<FoldingDescriptor> descriptors = new ArrayList<>();
+        ArrayList<FoldingDescriptor> descriptors = new ArrayList<>(3);
         //noinspection Duplicates
         if (numberTextRange != null) {
             FoldingGroup group = FoldingGroup
@@ -62,12 +60,11 @@ public class NumberLiteral extends Expression implements ArithmeticExpression {
                         TextRange.create(textRange.getStartOffset(), numberTextRange.getStartOffset()), group, ""));
             }
             if (convert) {
-                descriptors.add(new FoldingDescriptor(element.getNode(), numberTextRange, group,
-                        number instanceof Float ?
-                                toJavaFormatString(number.floatValue()) + "f":
-                                number instanceof Double ?
-                                        toJavaFormatString(number.doubleValue()) :
-                                        number.toString()));
+                String numberLiteral = number.toString();
+                if (number instanceof Float) {
+                    numberLiteral = number.toString() + 'f';
+                }
+                descriptors.add(new FoldingDescriptor(element.getNode(), numberTextRange, group, numberLiteral));
             }
             if (numberTextRange.getEndOffset() < textRange.getEndOffset()) {
                 descriptors.add(new FoldingDescriptor(element.getNode(),
