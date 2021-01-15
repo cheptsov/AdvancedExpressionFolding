@@ -2,25 +2,29 @@ package com.intellij.advancedExpressionFolding;
 
 import org.jetbrains.annotations.NotNull;
 
+import static java.lang.Character.isLowerCase;
+import static java.lang.Character.isUpperCase;
+import static java.lang.Character.toLowerCase;
+
 public class PropertyUtil {
 
     @NotNull
     public static String guessPropertyName(@NotNull String text) {
-        StringBuilder sb = new StringBuilder();
-        if (text.startsWith("get")) {
-            sb.append(text.substring(3));
-        } else if (text.startsWith("set")) {
-            sb.append(text.substring(3));
+        StringBuilder sb = new StringBuilder(text.length());
+        int startPos;
+        if (text.startsWith("get") || text.startsWith("set")) {
+            startPos = 3;
         } else if (text.startsWith("is")) {
-            sb.append(text.substring(2));
+            startPos = 2;
         } else {
-            sb.append(text);
+            startPos = 0;
         }
+        sb.append(text, startPos, text.length());
         for (int i = 0; i < sb.length(); i++) {
-            if (Character.isUpperCase(sb.charAt(i)) &&
-                    (i == sb.length() - 1 || Character.isUpperCase(sb.charAt(i + 1)) || i == 0)) {
-                sb.setCharAt(i, Character.toLowerCase(sb.charAt(i)));
-            } else if (Character.isLowerCase(sb.charAt(i))) {
+            if (isUpperCase(sb.charAt(i)) &&
+                    (i == sb.length() - 1 || isUpperCase(sb.charAt(i + 1)) || i == 0)) {
+                sb.setCharAt(i, toLowerCase(sb.charAt(i)));
+            } else if (isLowerCase(sb.charAt(i))) {
                 break;
             }
         }
