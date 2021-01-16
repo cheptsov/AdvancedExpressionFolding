@@ -733,7 +733,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             && ((PsiReferenceExpression) e).isReferenceTo(r.resolve())
                                             || e instanceof PsiMethodCallExpression && ((PsiMethodCallExpression) e).getMethodExpression().isReferenceTo(r.resolve())
                             ).toList();
-                    if (references.size() > 0) {
+                    if (!references.isEmpty()) {
                         return new ElvisExpression(element, element.getTextRange(),
                                 getAnyExpression(element.getThenExpression(), document),
                                 getAnyExpression(element.getElseExpression(), document),
@@ -804,7 +804,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         && ((PsiPostfixExpression) e).getOperand() instanceof PsiReferenceExpression
                                         && ((PsiReferenceExpression) ((PsiPostfixExpression) e).getOperand()).isReferenceTo(element)
                         ).toList();
-                if (references.size() == 0) {
+                if (references.isEmpty()) {
                     isFinal = true;
                 }
             }
@@ -1218,7 +1218,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                 break;
                             }
                         }
-                        if (flag && arguments.size() > 0) {
+                        if (flag && !arguments.isEmpty()) {
                             if (settings.getState().isGetExpressionsCollapse())
                                 return new SetLiteral(element, element.getTextRange(),
                                         TextRange.create(anonymousClass.getLBrace().getTextRange().getStartOffset(),
