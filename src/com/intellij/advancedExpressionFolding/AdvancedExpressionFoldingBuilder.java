@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.intellij.advancedExpressionFolding.PropertyUtil.guessPropertyName;
+import static java.lang.Character.isWhitespace;
 
 public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     private static final FoldingDescriptor[] NO_DESCRIPTORS = new FoldingDescriptor[0];
@@ -1791,10 +1792,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 position < document.getText().length()) {
             position += i;
             offset += i;
-            if (charAt(document, position).equals(".")) {
+            if (charAt(document, position) == '.') {
                 break;
             }
-            if (!charAt(document, position).matches("\\s")) {
+            if (!isWhitespace(charAt(document, position))) {
                 return Integer.MAX_VALUE;
             }
         }
@@ -1803,14 +1804,14 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             do {
                 position += i;
                 offsetWithNewLine += i;
-                if (i < 0 && charAt(document, position).equals("\n")) {
+                if (i < 0 && charAt(document, position) == '\n') {
                     offset = offsetWithNewLine;
-                } else if (i > 0 && charAt(document, position).matches("\\s")) {
+                } else if (i > 0 && isWhitespace(charAt(document, position))) {
                     offset = offsetWithNewLine;
                 }
             } while (Math.abs(offsetWithNewLine) < 100 && position > 0 &&
                     position < document.getText().length() &&
-                    charAt(document, position).matches("\\s"));
+                    isWhitespace(charAt(document, position)));
         }
         if (Math.abs(offset) >= 100) {
             return Integer.MAX_VALUE;
@@ -1818,8 +1819,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return offset;
     }
 
-    private static String charAt(@NotNull Document document, int position) {
-        return document.getText(TextRange.create(position, position + 1));
+    private static char charAt(@NotNull Document document, int position) {
+        return document.getText(TextRange.create(position, position + 1)).charAt(0);
     }
 
     @Nullable
