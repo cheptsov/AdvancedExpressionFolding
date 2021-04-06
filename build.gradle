@@ -12,6 +12,7 @@ repositories {
 intellij {
     type 'IC'
     plugins 'java'
+    version '2019.3'
 }
 
 patchPluginXml {
