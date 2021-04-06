@@ -203,7 +203,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
     public void mouseClicked(EditorMouseEvent e) {
         if (e.getArea() == EditorMouseEventArea.EDITING_AREA) {
             @Nullable EditorEx editorEx = e.getEditor() instanceof EditorEx ? ((EditorEx) e.getEditor()) : null;
-            if (editorEx != null) {
+            if (editorEx != null && editorEx.getProject() == myProject) {
                 @NotNull VisualPosition visualPosition = editorEx.xyToVisualPosition(e.getMouseEvent().getPoint());
                 int offset = editorEx.logicalPositionToOffset(editorEx.visualToLogicalPosition(visualPosition));
                 try {
@@ -252,7 +252,7 @@ public class AdvancedExpressionFoldingHighlightingComponent extends AbstractProj
     public void mouseMoved(EditorMouseEvent e) {
         if (!DumbService.isDumb(myProject) && e.getArea() == EditorMouseEventArea.EDITING_AREA) {
             @Nullable EditorEx editorEx = e.getEditor() instanceof EditorEx ? ((EditorEx) e.getEditor()) : null;
-            if (editorEx != null) {
+            if (editorEx != null && editorEx.getProject() == myProject) {
                 @NotNull VisualPosition visualPosition = editorEx.xyToVisualPosition(e.getMouseEvent().getPoint());
                 int offset = editorEx.logicalPositionToOffset(editorEx.visualToLogicalPosition(visualPosition));
                 try {

@@ -10,8 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-import static sun.misc.FloatingDecimal.toJavaFormatString;
-
 public class NumberLiteral extends Expression implements ArithmeticExpression {
     private @NotNull Number number;
     private final boolean convert;
@@ -64,9 +62,9 @@ public class NumberLiteral extends Expression implements ArithmeticExpression {
             if (convert) {
                 descriptors.add(new FoldingDescriptor(element.getNode(), numberTextRange, group,
                         number instanceof Float ?
-                                toJavaFormatString(number.floatValue()) + "f":
+                                Float.toString(number.floatValue()) + "f":
                                 number instanceof Double ?
-                                        toJavaFormatString(number.doubleValue()) :
+                                        Double.toString(number.doubleValue()) :
                                         number.toString()));
             }
             if (numberTextRange.getEndOffset() < textRange.getEndOffset()) {

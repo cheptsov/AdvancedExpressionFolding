@@ -15,7 +15,7 @@ intellij {
 }
 
 patchPluginXml {
-    untilBuild = "201.*"
+    untilBuild = "212.*"
 }
 
 apply plugin: 'java'
@@ -35,3 +35,5 @@ repositories {
     maven { url "https://www.jetbrains.com/intellij-repository/snapshots" }
     maven { url "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
 }
+
+compileJava.options.encoding = 'UTF-8'
