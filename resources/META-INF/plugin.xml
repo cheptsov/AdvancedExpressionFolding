@@ -11,7 +11,7 @@
 
       <p>This plugin extends the IDE’s folding features to emulate some of these modern languages’ features helping
         fight verbosity.</p>
-      
+
       <p>For more information, read the <a href="https://medium.com/@andrey_cheptsov/making-java-code-easier-to-read-without-changing-it-adeebd5c36de" target="_blank">blog post</a>.</p>
 
       <p>To get access to experimental features, go to <strong>Settings</strong> |
@@ -31,7 +31,7 @@
   <change-notes></change-notes>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="145.0"/>
+  <idea-version since-build="193.0"/>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
