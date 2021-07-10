@@ -1,5 +1,5 @@
 plugins {
-    id "org.jetbrains.intellij" version "0.4.18"
+    id "org.jetbrains.intellij" version "1.1.2"
 }
 
 repositories {
@@ -10,9 +10,9 @@ repositories {
 }
 
 intellij {
-    type 'IC'
-    plugins 'java'
-    version '2019.3'
+    type = 'IC'
+    plugins = ['java']
+    version = '212-EAP-SNAPSHOT'
 }
 
 patchPluginXml {

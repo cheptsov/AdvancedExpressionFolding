@@ -1,12 +1,12 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.codeInsight.folding.JavaCodeFoldingSettings;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.ex.RangeHighlighterEx;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.impl.JavaSdkImpl;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -14,7 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.rt.execution.junit.FileComparisonFailure;
 import com.intellij.testFramework.LightProjectDescriptor;
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,14 +26,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-public class FoldingTest extends LightCodeInsightFixtureTestCase {
+public class FoldingTest extends LightJavaCodeInsightFixtureTestCase {
 
     public static final DefaultLightProjectDescriptor TEST_JDK = new DefaultLightProjectDescriptor() {
         public Sdk getSdk() {
-            return ((JavaSdkImpl) JavaSdk.getInstance())
-                    .createMockJdk("Test JDK", System.getProperty("java.home"), true);
+            return JavaSdk.getInstance()
+                    .createJdk("Test JDK", System.getProperty("java.home"), true);
         }
     };
+
     private static final String FOLD = "fold";
 
     @Override
