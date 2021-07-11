@@ -23,9 +23,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
+import static com.intellij.advancedExpressionFolding.PropertyUtil.guessPropertyName;
+import static java.lang.Character.isWhitespace;
 
+public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     private static final FoldingDescriptor[] NO_DESCRIPTORS = new FoldingDescriptor[0];
+    private static final Pattern GENERICS_PATTERN = Pattern.compile("<[^<>]*>");
 
     private static Set<String> supportedMethods = new HashSet<String>() {
         {
@@ -337,15 +340,9 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @Contract("_, _, true -> !null")
     private static Expression getExpression(@NotNull PsiElement element, @NotNull Document document, boolean synthetic) {
-        if (synthetic) {
-            return CachedValuesManager.getCachedValue(element,
-                    () -> CachedValueProvider.Result.create(buildExpression(element, document, true),
-                            PsiModificationTracker.MODIFICATION_COUNT));
-        } else {
-            return CachedValuesManager.getCachedValue(element,
-                    () -> CachedValueProvider.Result.create(buildExpression(element, document, false),
-                            PsiModificationTracker.MODIFICATION_COUNT));
-        }
+        return CachedValuesManager.getCachedValue(element,
+                () -> CachedValueProvider.Result.create(buildExpression(element, document, synthetic),
+                        PsiModificationTracker.MODIFICATION_COUNT));
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -736,7 +733,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             && ((PsiReferenceExpression) e).isReferenceTo(r.resolve())
                                             || e instanceof PsiMethodCallExpression && ((PsiMethodCallExpression) e).getMethodExpression().isReferenceTo(r.resolve())
                             ).toList();
-                    if (references.size() > 0) {
+                    if (!references.isEmpty()) {
                         return new ElvisExpression(element, element.getTextRange(),
                                 getAnyExpression(element.getThenExpression(), document),
                                 getAnyExpression(element.getElseExpression(), document),
@@ -807,7 +804,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                         && ((PsiPostfixExpression) e).getOperand() instanceof PsiReferenceExpression
                                         && ((PsiReferenceExpression) ((PsiPostfixExpression) e).getOperand()).isReferenceTo(element)
                         ).toList();
-                if (references.size() == 0) {
+                if (references.isEmpty()) {
                     isFinal = true;
                 }
             }
@@ -1221,7 +1218,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                 break;
                             }
                         }
-                        if (flag && arguments.size() > 0) {
+                        if (flag && !arguments.isEmpty()) {
                             if (settings.getState().isGetExpressionsCollapse())
                                 return new SetLiteral(element, element.getTextRange(),
                                         TextRange.create(anonymousClass.getLBrace().getTextRange().getStartOffset(),
@@ -1297,12 +1294,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @NotNull
     private static String eraseGenerics(@NotNull String signature) {
-        String re = "<[^<>]*>";
-        Pattern p = Pattern.compile(re);
-        Matcher m = p.matcher(signature);
+        Matcher m = GENERICS_PATTERN.matcher(signature);
         while (m.find()) {
             signature = m.replaceAll("");
-            m = p.matcher(signature);
+            m = GENERICS_PATTERN.matcher(signature);
         }
         return signature;
     }
@@ -1797,10 +1792,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                 position < document.getText().length()) {
             position += i;
             offset += i;
-            if (charAt(document, position).equals(".")) {
+            if (charAt(document, position) == '.') {
                 break;
             }
-            if (!charAt(document, position).matches("\\s")) {
+            if (!isWhitespace(charAt(document, position))) {
                 return Integer.MAX_VALUE;
             }
         }
@@ -1809,14 +1804,14 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             do {
                 position += i;
                 offsetWithNewLine += i;
-                if (i < 0 && charAt(document, position).equals("\n")) {
+                if (i < 0 && charAt(document, position) == '\n') {
                     offset = offsetWithNewLine;
-                } else if (i > 0 && charAt(document, position).matches("\\s")) {
+                } else if (i > 0 && isWhitespace(charAt(document, position))) {
                     offset = offsetWithNewLine;
                 }
             } while (Math.abs(offsetWithNewLine) < 100 && position > 0 &&
                     position < document.getText().length() &&
-                    charAt(document, position).matches("\\s"));
+                    isWhitespace(charAt(document, position)));
         }
         if (Math.abs(offset) >= 100) {
             return Integer.MAX_VALUE;
@@ -1824,31 +1819,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         return offset;
     }
 
-    private static String charAt(@NotNull Document document, int position) {
-        return document.getText(TextRange.create(position, position + 1));
-    }
-
-    @NotNull
-    private static String guessPropertyName(@NotNull String text) {
-        StringBuilder sb = new StringBuilder();
-        if (text.startsWith("get")) {
-            sb.append(text.substring(3));
-        } else if (text.startsWith("set")) {
-            sb.append(text.substring(3));
-        } else if (text.startsWith("is")) {
-            sb.append(text.substring(2));
-        } else {
-            sb.append(text);
-        }
-        for (int i = 0; i < sb.length(); i++) {
-            if (Character.isUpperCase(sb.charAt(i)) &&
-                    (i == sb.length() - 1 || Character.isUpperCase(sb.charAt(i + 1)) || i == 0)) {
-                sb.setCharAt(i, Character.toLowerCase(sb.charAt(i)));
-            } else if (Character.isLowerCase(sb.charAt(i))) {
-                break;
-            }
-        }
-        return sb.toString();
+    private static char charAt(@NotNull Document document, int position) {
+        return document.getText(TextRange.create(position, position + 1)).charAt(0);
     }
 
     @Nullable
@@ -1928,8 +1900,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         try {
             @Nullable Expression expression = getNonSyntheticExpression(element, document);
             if (expression != null && expression.supportsFoldRegions(document, null)) {
-                allDescriptors = new ArrayList<>();
                 FoldingDescriptor[] descriptors = expression.buildFoldRegions(expression.getElement(), document, null);
+                allDescriptors = new ArrayList<>();
                 Collections.addAll(allDescriptors, descriptors);
             }
             if (expression == null || expression.isNested()) {
@@ -1939,12 +1911,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                         if (allDescriptors == null) {
                             allDescriptors = new ArrayList<>();
                         }
-                        allDescriptors.addAll(Arrays.asList(descriptors));
+                        Collections.addAll(allDescriptors, descriptors);
                     }
                 }
             }
-        } catch (IndexNotReadyException e) {
-            // ignore
+        } catch (IndexNotReadyException ignore) {
         }
         return allDescriptors != null ? allDescriptors.toArray(NO_DESCRIPTORS) : NO_DESCRIPTORS;
     }
@@ -1971,4 +1942,5 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         }
         return false;
     }
+
 }
