@@ -18,6 +18,8 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -101,6 +103,10 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("unmodifiableSet");
             add("unmodifiableList");
             add("toString");
+            add("isBefore");
+            add("isAfter");
+            // LocalDate literal
+            add("of");
         }
     };
 
@@ -130,6 +136,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             add("java.util.Collections");
             add("java.util.Objects");
             add("java.util.stream.Stream");
+            add("java.time.LocalDate");
         }
     };
 
@@ -857,10 +864,33 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
     private static Expression getPrefixExpression(@NotNull PsiPrefixExpression element, @NotNull Document document) {
         AdvancedExpressionFoldingSettings settings = AdvancedExpressionFoldingSettings.getInstance();
         if (element.getOperand() != null) {
-            if (element.getOperationSign().getText().equals("!") && settings.getState().isComparingExpressionsCollapse()) {
-                @NotNull Expression operand = getAnyExpression(element.getOperand(), document);
-                if (operand instanceof Equal) {
-                    return new NotEqual(element, element.getTextRange(), ((Equal) operand).getOperands());
+            if (element.getOperationSign().getText().equals("!")) {
+                if (settings.getState().isComparingLocalDatesCollapse()) {
+                    if (element.getOperand() instanceof PsiMethodCallExpression) {
+                        PsiMethodCallExpression operand = (PsiMethodCallExpression) element.getOperand();
+                        Optional<MethodCallInformation> methodCallInformationOptional = MethodCallInformation.tryGet(operand, document, Arrays.asList("java.time.LocalDate", "java.time.LocalTime", "java.time.LocalDateTime", "java.time.Year", "java.time.YearMonth", "java.time.ChronoLocalDateTime", "java.time.Instant"), "isBefore", "isAfter");
+                        if (methodCallInformationOptional.isPresent()) {
+                            MethodCallInformation callInformation = methodCallInformationOptional.get();
+
+                            if (callInformation.methodName.equals("isBefore")) {
+                                return new GreaterEqual(element, element.getTextRange(), Arrays.asList(callInformation.qualifierExpression, callInformation.getFoldedArgument(0)));
+                            }
+
+                            if (callInformation.methodName.equals("isAfter")) {
+                                return new LessEqual(element, element.getTextRange(), Arrays.asList(callInformation.qualifierExpression, callInformation.getFoldedArgument(0)));
+                            }
+                        }
+
+                    }
+                }
+                if (settings.getState().isComparingExpressionsCollapse()) {
+                    @NotNull Expression operand = getAnyExpression(element.getOperand(), document);
+                    if (operand instanceof Equal) {
+                        return new NotEqual(element, element.getTextRange(), ((Equal) operand).getOperands());
+                    }
+                } else if (element.getOperationSign().getText().equals("-")) {
+                    @NotNull Expression operand = getAnyExpression(element.getOperand(), document);
+                    return new Negate(element, element.getTextRange(), Collections.singletonList(operand));
                 }
             } else if (element.getOperationSign().getText().equals("-")) {
                 @NotNull Expression operand = getAnyExpression(element.getOperand(), document);
@@ -1532,6 +1562,20 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                             break;
                                         }
                                     }
+                                // LocalDate handling
+                                case "isBefore":
+                                    if (settings.getState().isComparingLocalDatesCollapse()) {
+                                        return new Less(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                    } else {
+                                        break;
+                                    }
+
+                                case "isAfter":
+                                    if (settings.getState().isComparingLocalDatesCollapse()) {
+                                        return new Greater(element, element.getTextRange(), Arrays.asList(qualifierExpression, argumentExpression));
+                                    } else {
+                                        break;
+                                    }
                             }
                         } else if (element.getArgumentList().getExpressions().length == 0) {
                             switch (methodName) {
@@ -1645,6 +1689,19 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                                     } else {
                                         break;
                                     }
+                            }
+                        }
+                        else if (element.getArgumentList().getExpressions().length == 3) {
+                            PsiExpression a1 = element.getArgumentList().getExpressions()[0];
+                            PsiExpression a2 = element.getArgumentList().getExpressions()[1];
+                            PsiExpression a3 = element.getArgumentList().getExpressions()[2];
+                            if (methodName.equals("of") && className.equals("java.time.LocalDate") && settings.getState().isLocalDateLiteralCollapse()) {
+                                if (a1 instanceof PsiLiteralExpression && a2 instanceof PsiLiteralExpression && a3 instanceof PsiLiteralExpression) {
+                                    PsiLiteralExpression year = (PsiLiteralExpression) a1;
+                                    PsiLiteralExpression month = (PsiLiteralExpression) a2;
+                                    PsiLiteralExpression day = (PsiLiteralExpression) a3;
+                                    return new LocalDateLiteral(element, element.getTextRange(), year, month, day);
+                                }
                             }
                         }
                         if (element.getArgumentList().getExpressions().length == 1) {
@@ -1970,5 +2027,58 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             return false;
         }
         return false;
+    }
+
+    private static class MethodCallInformation {
+        private final PsiMethodCallExpression element;
+        private final Expression qualifierExpression;
+        private final PsiExpression[] arguments;
+        private final Document document;
+        private final String methodName;
+        private final String className;
+        private final PsiClass psiClass;
+
+        public MethodCallInformation(PsiMethodCallExpression element, Expression qualifierExpression, String methodName, String className, PsiClass psiClass, Document document) {
+            this.element = element;
+            this.qualifierExpression = qualifierExpression;
+            this.methodName = methodName;
+            this.className = className;
+            this.psiClass = psiClass;
+            this.arguments = element.getArgumentList().getExpressions();
+            this.document = document;
+        }
+
+        Expression getFoldedArgument(int index) {
+            return getAnyExpression(element.getArgumentList().getExpressions()[index], document);
+        }
+
+        static Optional<MethodCallInformation> tryGet(PsiMethodCallExpression element, @NotNull Document document, List<String> classNames, String... methodNames) {
+            return tryGet(element, document, Arrays.asList(methodNames)::contains, (actualClassName, methodName) -> classNames.contains(actualClassName));
+        }
+
+        static Optional<MethodCallInformation> tryGet(PsiMethodCallExpression element, @NotNull Document document, Predicate<String> isMethodNameSupported, BiPredicate<String, String> isMethodSupported) {
+            PsiReferenceExpression referenceExpression = element.getMethodExpression();
+            Optional<PsiElement> identifier = Stream.of(referenceExpression.getChildren())
+                    .filter(c -> c instanceof PsiIdentifier).findAny();
+            @Nullable PsiExpression qualifier = element.getMethodExpression().getQualifierExpression();
+
+            if (identifier.isPresent() && isMethodNameSupported.test(identifier.get().getText())) {
+                PsiMethod method = (PsiMethod) referenceExpression.resolve();
+                if (method != null) {
+                    PsiClass psiClass = method.getContainingClass();
+                    if (psiClass != null && psiClass.getQualifiedName() != null) {
+                        String className = eraseGenerics(psiClass.getQualifiedName());
+                        String methodName = identifier.get().getText();
+                        if (isMethodSupported.test(className, methodName)
+                                && qualifier != null) {
+
+                            @NotNull Expression qualifierExpression = getAnyExpression(qualifier, document);
+                            return Optional.of(new MethodCallInformation(element, qualifierExpression, methodName, className, psiClass, document));
+                        }
+                    }
+                }
+            }
+            return Optional.empty();
+        }
     }
 }
