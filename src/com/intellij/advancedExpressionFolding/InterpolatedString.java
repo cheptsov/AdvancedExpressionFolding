@@ -85,10 +85,10 @@ public class InterpolatedString extends Expression {
                     : operands.get(i + 1).getTextRange().getStartOffset();
             StringBuilder sI = new StringBuilder().append(buf[0]);
             if (!(operands.get(i + 1) instanceof CharSequenceLiteral)) {
-                sI.append("$");
+                sI.append('$');
             }
             if (!(operands.get(i + 1) instanceof Variable) && !(operands.get(i + 1) instanceof CharSequenceLiteral)) {
-                sI.append("{");
+                sI.append('{');
                 buf[0] = "}";
             } else {
                 buf[0] = "";
