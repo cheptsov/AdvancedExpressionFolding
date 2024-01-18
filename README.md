@@ -1,34 +1,23 @@
-# Advanced Java Folding
+# advanced-expression-folding2
 
-[![JetBrains team project](http://jb.gg/badges/team.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) [![Plugin version](https://img.shields.io/jetbrains/plugin/d/9320-advanced-java-folding.svg)](https://plugins.jetbrains.com/plugin/9320-advanced-java-folding)
+## ToDo list
+- [ ] Custom plugin repository
 
-Modern JVM languages such as Kotlin, Groovy, Scala and some others offer many language features that let you
-write code in a more concise and expressive manner. These features include type inference, properties,
-interpolated string, range and tuple literals, enhanced operators, clojures, implicits, smart casts and any more.
+<!-- Plugin description -->
+This plugin is a fixed version of the [Advanced Java Folding](https://plugins.jetbrains.com/plugin/9320-advanced-java-folding), leveraging the latest code from its GitHub repository: [https://github.com/cheptsov/AdvancedExpressionFolding](https://github.com/cheptsov/AdvancedExpressionFolding).
 
-This plugin extends the IDE’s folding features to emulate some of these modern languages’ features helping
-fight verbosity.
-      
-For more information, read the [blog post](https://medium.com/@andrey_cheptsov/making-java-code-easier-to-read-without-changing-it-adeebd5c36de).
+<!-- Plugin description end -->
 
-### Experimental Features
+## Installation
 
-To get access to experimental features, go to **Settings** |
-**Plugins** | **Browse Repositories** | **Manage Repositories** and
-add [https://plugins.jetbrains.com/plugins/EAP/com.intellij.bigdecimal-folding]()</a>
-as a custom plugin repository URL.</p>
+- Manually:
 
-### Custom Color Scheme
+  Download the [latest release](https://github.com/AntoniRokitnicki/AdvancedExpressionFolding/releases/latest) and install it manually using
+  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
-For more clarity, you may try to adjust your color scheme: go to **Settings** | **Editor** |
-**Colors &amp; Fonts** | **General**, select **Folded text**, uncheck the **Background** color, and change the
-**Foreground** color to #000091 for the default scheme and #7CA0BB for Darcula.
 
-### Disabling Certain Foldings
+---
+Plugin based on the [IntelliJ Platform Plugin Template][template].
 
-To disable certain types of folding, go to **Settings** | **Editor** |
-**General** | **Code Folding**.
-
-### Sending Feedback 
-
-For feedback, feature requests and bug reports, use the [issue tracker](https://github.com/cheptsov/AdvancedExpressionFolding/issues).
+[template]: https://github.com/JetBrains/intellij-platform-plugin-template
+[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation

@@ -59,7 +59,7 @@ public abstract class AbstractControlFlowCodeBlock extends Expression {
                     thisStatement = null;
                 }
                 if (thisStatement != null) {
-                    int thisStatementIndent = indentHelper.getIndent(element.getProject(), JavaFileType.INSTANCE, thisStatement.getNode());
+                    int thisStatementIndent = indentHelper.getIndent(thisStatement.getContainingFile(), thisStatement.getNode());
                     PsiElement before = PsiTreeUtil.prevLeaf(this.element.getRBrace(), true);
                     PsiElement after = PsiTreeUtil.prevLeaf(this.element.getRBrace(), true);
                     if (before instanceof PsiWhiteSpace && after instanceof PsiWhiteSpace) {

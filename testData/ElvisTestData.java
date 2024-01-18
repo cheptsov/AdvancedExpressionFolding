@@ -7,15 +7,15 @@ public class ElvisTestData {
         System.out.println(<fold text='' expand='false'>e != null ? </fold>e<fold text='?.' expand='false'>.</fold>sayHello()<fold text=' ?: ' expand='false'> : </fold>"");
         System.out.println(e != null && e.get() != null ? e.get() : ""); // Should be System.out.println(e?.get ?: "")
         System.out.println(e != null && e.get() != null ? e.get().sayHello() : ""); // Should be System.out.println(e?.get?.sayHello() ?: "")
-        <fold text='' expand='false'>if (e != null) {
-            </fold>e<fold text='?.' expand='false'>.</fold>get().sayHello();<fold text='' expand='false'>
+        if (e != null) <fold text='{...}' expand='true'>{
+                e<fold text='?.' expand='false'>.</fold>get().sayHello();<fold text='' expand='false'>
+        }</fold></fold>
+        if (e.get() != null) <fold text='{...}' expand='true'>{
+                e.get()<fold text='?.' expand='false'>.</fold>sayHello();<fold text='' expand='false'>
+        }</fold></fold>
+        if (e != null && e.get() != null) <fold text='{...}' expand='true'>{
+                e.get().sayHello();
         }</fold>
-        <fold text='' expand='false'>if (e.get() != null) {
-            </fold>e.get()<fold text='?.' expand='false'>.</fold>sayHello();<fold text='' expand='false'>
-        }</fold>
-        if (e != null && e.get() != null) {
-            e.get().sayHello();
-        }
     }</fold>
 
     private String sayHello()<fold text=' { ' expand='false'> {
@@ -23,11 +23,11 @@ public class ElvisTestData {
     }</fold>
 
     private static ElvisTestData create() <fold text='{...}' expand='true'>{
-        if (Math.random() > 0.5) {
-            return new ElvisTestData();
-        } else {
-            return null;
-        }
+        if (Math.random() > 0.5) <fold text='{...}' expand='true'>{
+        return new ElvisTestData();
+        }</fold> else <fold text='{...}' expand='true'>{
+        return null;
+        }</fold>
     }</fold>
 
     private ElvisTestData get()<fold text=' { ' expand='false'> {
