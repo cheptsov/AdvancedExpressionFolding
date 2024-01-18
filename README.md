@@ -1,8 +1,5 @@
 # advanced-expression-folding2
 
-## ToDo list
-- [X] Custom plugin repository
-
 <!-- Plugin description -->
 This plugin is a fixed version of the [Advanced Java Folding](https://plugins.jetbrains.com/plugin/9320-advanced-java-folding), leveraging the latest code from its GitHub repository: [https://github.com/cheptsov/AdvancedExpressionFolding](https://github.com/cheptsov/AdvancedExpressionFolding).
 

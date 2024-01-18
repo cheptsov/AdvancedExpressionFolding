@@ -5,7 +5,7 @@
   <vendor email="android.rokitnicki@gmail.com" url="https://github.com/AntoniRokitnicki/AdvancedExpressionFolding">Antoni</vendor>
 
   <description><![CDATA[
-      <p>Project migrated to IntelliJ template plugin to support new version of IntelliJ</p>
+      <p>Project migrated to IntelliJ template plugin to support new version of IntelliJ.</p>
 
       <p>Modern JVM languages such as Kotlin, Groovy, Scala and some others offer many language features that let you
         write code in a more concise and expressive manner. These features include type inference, properties,
