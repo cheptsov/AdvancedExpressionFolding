@@ -44,6 +44,11 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         private boolean CONCATENATION_EXPRESSIONS = true;
         private boolean SLICING_EXPRESSIONS = true;
         private boolean COMPARING_EXPRESSIONS = true;
+
+        private boolean COMPARING_LOCAL_DATES = true;
+        private boolean LOCAL_DATE_LITERAL = true;
+        private boolean LOCAL_DATE_LITERAL_POSTFIX = true;
+
         private boolean GET_EXPRESSIONS = true;
         private boolean RANGE_EXPRESSIONS = true;
         private boolean CHECK_EXPRESSIONS = true;
@@ -74,6 +79,18 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
 
         public boolean isGetExpressionsCollapse() {
             return GET_EXPRESSIONS;
+        }
+
+        public boolean isComparingLocalDatesCollapse() {
+            return COMPARING_LOCAL_DATES;
+        }
+
+        public boolean isLocalDateLiteralCollapse() {
+            return LOCAL_DATE_LITERAL;
+        }
+
+        public boolean isLocalDateLiteralPostfix() {
+            return LOCAL_DATE_LITERAL_POSTFIX;
         }
 
         public boolean isRangeExpressionsCollapse() {
@@ -131,6 +148,19 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
         public void setComparingExpressionsCollapse(boolean value) {
             COMPARING_EXPRESSIONS = value;
         }
+
+        public void setComparingLocalDatesCollapse(boolean value) {
+            this.COMPARING_LOCAL_DATES = value;
+        }
+
+        public void setLocalDateLiteralCollapse(boolean value) {
+            this.LOCAL_DATE_LITERAL = value;
+        }
+
+        public void setLocalDateLiteralPostfix(boolean value) {
+            this.LOCAL_DATE_LITERAL_POSTFIX = value;
+        }
+
 
         public void setGetExpressionsCollapse(boolean value) {
             GET_EXPRESSIONS = value;
@@ -192,6 +222,9 @@ public class AdvancedExpressionFoldingSettings implements PersistentStateCompone
             this.setRangeExpressionsCollapse(false);
             this.setSemicolonsCollapse(false);
             this.setSlicingExpressionsCollapse(false);
+            this.setComparingLocalDatesCollapse(false);
+            this.setLocalDateLiteralCollapse(false);
+            this.setLocalDateLiteralPostfix(false);
         }
     }
 }
