@@ -2,9 +2,11 @@
   <id>com.intellij.bigdecimal-folding2</id>
   <name>Advanced Java Folding2</name>
   <version>0.9.9.8.7</version>
-  <vendor email="andrey.cheptsov@jetbrains.com" url="http://www.jetbrains.com">JetBrains</vendor>
+  <vendor email="android.rokitnicki@gmail.com" url="https://github.com/AntoniRokitnicki/AdvancedExpressionFolding">Antoni</vendor>
 
   <description><![CDATA[
+      <p>Project migrated to IntelliJ template plugin to support new version of IntelliJ</p>
+
       <p>Modern JVM languages such as Kotlin, Groovy, Scala and some others offer many language features that let you
         write code in a more concise and expressive manner. These features include type inference, properties,
         interpolated string, range and tuple literals, enhanced operators, clojures, implicits, smart casts and many more.</p>
