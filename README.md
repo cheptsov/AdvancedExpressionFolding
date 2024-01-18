@@ -1,7 +1,7 @@
 # advanced-expression-folding2
 
 ## ToDo list
-- [ ] Custom plugin repository
+- [X] Custom plugin repository
 
 <!-- Plugin description -->
 This plugin is a fixed version of the [Advanced Java Folding](https://plugins.jetbrains.com/plugin/9320-advanced-java-folding), leveraging the latest code from its GitHub repository: [https://github.com/cheptsov/AdvancedExpressionFolding](https://github.com/cheptsov/AdvancedExpressionFolding).
@@ -9,6 +9,15 @@ This plugin is a fixed version of the [Advanced Java Folding](https://plugins.je
 <!-- Plugin description end -->
 
 ## Installation
+
+- Using the Custom plugin repository:
+
+  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Manager Plugin Repositories</kbd>
+
+  - add
+  https://raw.githubusercontent.com/AntoniRokitnicki/AdvancedExpressionFolding/master/plugin-repository.xml
+  - goto <kbd>Marketplace</kbd>
+  - search for <kbd>Advanced Java Folding2</kbd>
 
 - Manually:
 

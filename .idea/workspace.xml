@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e50f712-22d1-4b5b-bc22-41496d36ecd7" name="Changes" comment="Project migrated to IntelliJ template plugin">
-      <change afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/plugin-repository.xml" afterDir="false" />
+    <list default="true" id="3e50f712-22d1-4b5b-bc22-41496d36ecd7" name="Changes" comment="Custom plugin repository">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/resources/META-INF/plugin.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plugin-repository.xml" beforeDir="false" afterPath="$PROJECT_DIR$/plugin-repository.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -249,7 +248,15 @@
       <option name="project" value="LOCAL" />
       <updated>1705608321182</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Custom plugin repository">
+      <option name="closed" value="true" />
+      <created>1705609276350</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1705609276350</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -265,6 +272,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Project migrated to IntelliJ template plugin" />
-    <option name="LAST_COMMIT_MESSAGE" value="Project migrated to IntelliJ template plugin" />
+    <MESSAGE value="Custom plugin repository" />
+    <option name="LAST_COMMIT_MESSAGE" value="Custom plugin repository" />
   </component>
 </project>
