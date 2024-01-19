@@ -1004,9 +1004,11 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
             @Nullable PsiExpression literalExpression = isLiteralOrNegatedLiteral(element.getLOperand())
                     ? element.getLOperand() : element.getROperand();
+
             if (literalExpression != null && literalExpression.getText().equals("0")
                     || literalExpression != null && literalExpression.getText().equals("-1")
                     || literalExpression != null && literalExpression.getText().equals("1")) {
+
                 @NotNull Optional<PsiElement> identifier = Stream.of(methodCallExpression.getMethodExpression().getChildren())
                         .filter(c -> c instanceof PsiIdentifier).findAny();
                 if (identifier.isPresent() && identifier.get().getText().equals("compareTo") && methodCallExpression.getArgumentList().getExpressions().length == 1) {
@@ -1021,49 +1023,68 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                             if (qualifier != null) {
                                 @NotNull Expression argument = getAnyExpression(methodCallExpression.getArgumentList()
                                         .getExpressions()[0], document);
-                                switch (element.getOperationSign().getText()) {
-                                    case "==":
-                                        switch (literalExpression.getText()) {
-                                            case "-1":
-                                                return new Less(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                            case "0":
-                                                return new Equal(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                            case "1":
-                                                return new Greater(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                        }
-                                    case "!=":
-                                        switch (literalExpression.getText()) {
-                                            case "1":
-                                                return new LessEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                            case "0":
-                                                return new NotEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                            case "-1":
-                                                return new GreaterEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                        }
-                                    case "<":
-                                        switch (literalExpression.getText()) {
-                                            case "1":
-                                                return new LessEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                            case "0":
-                                                return new Less(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                        }
-                                    case ">":
-                                        switch (literalExpression.getText()) {
-                                            case "-1":
-                                                return new GreaterEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                            case "0":
-                                                return new Greater(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                        }
-                                    case "<=":
-                                        switch (literalExpression.getText()) {
-                                            case "0":
-                                                return new LessEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                        }
-                                    case ">=":
-                                        switch (literalExpression.getText()) {
-                                            case "0":
-                                                return new GreaterEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
-                                        }
+
+                                String operationSign = element.getOperationSign().getText();
+
+                                int expression = Integer.parseInt(literalExpression.getText());
+                                String lessOperation = "<";
+                                String greaterOperation = ">";
+                                if (literalExpression == element.getLOperand()) {
+                                    lessOperation = ">";
+                                    greaterOperation = "<";
+                                }
+
+                                if (operationSign.equals("==")) {
+                                    switch (expression) {
+                                        case -1:
+                                            return new Less(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        case 0:
+                                            return new Equal(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        case 1:
+                                            return new Greater(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                    }
+                                } else if (operationSign.equals("!=")) {
+                                    switch (expression) {
+                                        case 1:
+                                            return new LessEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        case 0:
+                                            return new NotEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        case -1:
+                                            return new GreaterEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                    }
+
+                                }
+                                else if(operationSign.equals(lessOperation)) {
+                                    switch (expression) {
+                                        case 1:
+                                            return new LessEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        case 0:
+                                            return new Less(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                    }
+                                }
+                                else if(operationSign.equals(greaterOperation)) {
+                                    switch (expression) {
+                                        case -1:
+                                            return new GreaterEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        case 0:
+                                            return new Greater(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                    }
+                                }
+                                else if(operationSign.equals(lessOperation + "=")) {
+                                    switch (expression) {
+                                        case -1:
+                                            return new Less(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        case 0:
+                                            return new LessEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                    }
+                                }
+                                else if(operationSign.equals(greaterOperation + "=")) {
+                                    switch (expression) {
+                                        case 1:
+                                            return new Greater(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                        case 0:
+                                            return new GreaterEqual(element, element.getTextRange(), Arrays.asList(qualifier, argument));
+                                    }
                                 }
                             }
                         }
