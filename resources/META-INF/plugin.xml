@@ -1,11 +1,16 @@
 <idea-plugin>
   <id>com.intellij.bigdecimal-folding2</id>
   <name>Advanced Java Folding2</name>
-  <version>0.9.9.8.7</version>
+  <version>1.0.3</version>
   <vendor email="android.rokitnicki@gmail.com" url="https://github.com/AntoniRokitnicki/AdvancedExpressionFolding">Antoni</vendor>
-
   <description><![CDATA[
-      <p>Project migrated to IntelliJ template plugin to support new version of IntelliJ.</p>
+
+      <h2><font color="brown">Project migrated to IntelliJ template plugin to support new version of IntelliJ.</font></h2>
+      <h4>Merged Pull Requests:</h4>
+      <ul>
+          <li><a href="https://github.com/cheptsov/AdvancedExpressionFolding/pull/132">java.time.* isBefore/isAfter folding and LocalDate literals</a></li>
+          <li><a href="https://github.com/cheptsov/AdvancedExpressionFolding/pull/128">Optimizations</a></li>
+      </ul>
 
       <p>Modern JVM languages such as Kotlin, Groovy, Scala and some others offer many language features that let you
         write code in a more concise and expressive manner. These features include type inference, properties,
