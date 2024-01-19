@@ -737,8 +737,8 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
                             .filter(e ->
                                     e instanceof PsiReferenceExpression
                                             && !(e.getParent() instanceof PsiMethodCallExpression)
-                                            && ((PsiReferenceExpression) e).isReferenceTo(r.resolve())
-                                            || e instanceof PsiMethodCallExpression && ((PsiMethodCallExpression) e).getMethodExpression().isReferenceTo(r.resolve())
+                                            && isReferenceToReference((PsiReferenceExpression) e, r)
+                                            || e instanceof PsiMethodCallExpression && isReferenceToReference(((PsiMethodCallExpression) e).getMethodExpression(), r)
                             ).toList();
                     if (!references.isEmpty()) {
                         return new ElvisExpression(element, element.getTextRange(),
@@ -760,7 +760,7 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
         // TODO: Use a cache for the resolved instance
         if (e2 instanceof PsiReferenceExpression && e1 instanceof PsiReferenceExpression) {
             return Objects.equals(((PsiReferenceExpression) e2).getReferenceName(), ((PsiReferenceExpression) e1).getReferenceName())
-                    && ((PsiReferenceExpression) e2).isReferenceTo(((PsiReferenceExpression) e1).resolve());
+                    && isReferenceToReference((PsiReferenceExpression) e2, (PsiReferenceExpression) e1);
         } else if (e2 instanceof PsiMethodCallExpression && e1 instanceof PsiMethodCallExpression) {
             return equal(((PsiMethodCallExpression) e2).getMethodExpression(),
                     ((PsiMethodCallExpression) e1).getMethodExpression())
