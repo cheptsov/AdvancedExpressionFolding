@@ -1,6 +1,28 @@
 <plugin-repository>
     <ff>"Formatting"</ff>
     <category name="Formatting">
+        <idea-plugin downloads="201783" size="194112" date="1625903057004" updatedDate="1625903057004" url="">
+            <name>Advanced Java Folding2</name>
+            <id>com.intellij.bigdecimal-folding2</id>
+            <description>
+                <![CDATA[
+                <h2><font color="#C0C0C0">Project migrated to IntelliJ template plugin to support new version of IntelliJ.</font></h2>
+                <h4>Merged Pull Requests:</h4>
+                <ul>
+                        <li><a href="https://github.com/cheptsov/AdvancedExpressionFolding/pull/132">java.time.* isBefore/isAfter folding and LocalDate literals</a></li>
+                        <li><a href="https://github.com/AntoniRokitnicki/AdvancedExpressionFolding/pulls?q=is%3Apr+is%3Aclosed">Optimizations and bugfixes</a></li>
+                </ul>
+                <p>Project migrated to IntelliJ template plugin to support new version of IntelliJ</p> <p>Modern JVM languages such as Kotlin, Groovy, Scala and some others offer many language features that let you write code in a more concise and expressive manner. These features include type inference, properties, interpolated string, range and tuple literals, enhanced operators, clojures, implicits, smart casts and many more.</p> <p>This plugin extends the IDE’s folding features to emulate some of these modern languages’ features helping fight verbosity.</p> <p>For more information, read the <a href="https://medium.com/@andrey_cheptsov/making-java-code-easier-to-read-without-changing-it-adeebd5c36de">blog post</a>.</p> <p>To get access to experimental features, go to <strong>Settings</strong> | <strong>Plugins</strong> | <strong>Browse Repositories</strong> | <strong>Manage Repositories</strong> and add <a href="https://plugins.jetbrains.com/plugins/EAP/com.intellij.bigdecimal-folding">https://plugins.jetbrains.com/plugins/EAP/com.intellij.bigdecimal-folding</a> as a custom plugin repository URL.</p> <p>For more clarity, you may try to adjust your color scheme: go to <strong>Settings</strong> | <strong>Editor</strong> | <strong>Colors &amp; Fonts</strong> | <strong>General</strong>, select <strong>Folded text</strong>, uncheck the <strong>Background</strong> color, and change the <strong>Foreground</strong> color to #000091 for the default scheme and #7CA0BB for Darcula.</p> To disable certain types of folding, go to <strong>Settings</strong> | <strong>Editor</strong> | <strong>General</strong> | <strong>Code Folding</strong>. ]]>
+            </description>
+            <version>1.0.4</version>
+            <vendor email="android.rokitnicki@gmail.com" url="https://github.com/AntoniRokitnicki/AdvancedExpressionFolding">Antoni</vendor>
+            <rating>4.6</rating>
+            <change-notes>
+                <![CDATA[ ]]>
+            </change-notes>
+            <download-url>https://github.com/AntoniRokitnicki/AdvancedExpressionFolding/releases/download/1.0.4/advanced-expression-folding-1.0.4.jar</download-url>
+            <idea-version min="n/a" max="n/a" since-build="212.4638"/>
+        </idea-plugin>
         <idea-plugin downloads="201783" size="194112" date="1625903057003" updatedDate="1625903057003" url="">
             <name>Advanced Java Folding2</name>
             <id>com.intellij.bigdecimal-folding2</id>
@@ -10,7 +32,7 @@
                 <h4>Merged Pull Requests:</h4>
                 <ul>
                         <li><a href="https://github.com/cheptsov/AdvancedExpressionFolding/pull/132">java.time.* isBefore/isAfter folding and LocalDate literals</a></li>
-                        <li><a href="https://github.com/cheptsov/AdvancedExpressionFolding/pull/128">Optimizations</a></li>
+                        <li><a href="https://github.com/AntoniRokitnicki/AdvancedExpressionFolding/pulls?q=is%3Apr+is%3Aclosed">Optimizations and bugfixes</a></li>
                 </ul>
                 <p>Project migrated to IntelliJ template plugin to support new version of IntelliJ</p> <p>Modern JVM languages such as Kotlin, Groovy, Scala and some others offer many language features that let you write code in a more concise and expressive manner. These features include type inference, properties, interpolated string, range and tuple literals, enhanced operators, clojures, implicits, smart casts and many more.</p> <p>This plugin extends the IDE’s folding features to emulate some of these modern languages’ features helping fight verbosity.</p> <p>For more information, read the <a href="https://medium.com/@andrey_cheptsov/making-java-code-easier-to-read-without-changing-it-adeebd5c36de">blog post</a>.</p> <p>To get access to experimental features, go to <strong>Settings</strong> | <strong>Plugins</strong> | <strong>Browse Repositories</strong> | <strong>Manage Repositories</strong> and add <a href="https://plugins.jetbrains.com/plugins/EAP/com.intellij.bigdecimal-folding">https://plugins.jetbrains.com/plugins/EAP/com.intellij.bigdecimal-folding</a> as a custom plugin repository URL.</p> <p>For more clarity, you may try to adjust your color scheme: go to <strong>Settings</strong> | <strong>Editor</strong> | <strong>Colors &amp; Fonts</strong> | <strong>General</strong>, select <strong>Folded text</strong>, uncheck the <strong>Background</strong> color, and change the <strong>Foreground</strong> color to #000091 for the default scheme and #7CA0BB for Darcula.</p> To disable certain types of folding, go to <strong>Settings</strong> | <strong>Editor</strong> | <strong>General</strong> | <strong>Code Folding</strong>. ]]>
             </description>
@@ -32,7 +54,7 @@
                 <h4>Merged Pull Requests:</h4>
                 <ul>
                         <li><a href="https://github.com/cheptsov/AdvancedExpressionFolding/pull/132">java.time.* isBefore/isAfter folding and LocalDate literals</a></li>
-                        <li><a href="https://github.com/cheptsov/AdvancedExpressionFolding/pull/128">Optimizations</a></li>
+                        <li><a href="https://github.com/AntoniRokitnicki/AdvancedExpressionFolding/pulls?q=is%3Apr+is%3Aclosed">Optimizations and bugfixes</a></li>
                 </ul>
                 <p>Project migrated to IntelliJ template plugin to support new version of IntelliJ</p> <p>Modern JVM languages such as Kotlin, Groovy, Scala and some others offer many language features that let you write code in a more concise and expressive manner. These features include type inference, properties, interpolated string, range and tuple literals, enhanced operators, clojures, implicits, smart casts and many more.</p> <p>This plugin extends the IDE’s folding features to emulate some of these modern languages’ features helping fight verbosity.</p> <p>For more information, read the <a href="https://medium.com/@andrey_cheptsov/making-java-code-easier-to-read-without-changing-it-adeebd5c36de">blog post</a>.</p> <p>To get access to experimental features, go to <strong>Settings</strong> | <strong>Plugins</strong> | <strong>Browse Repositories</strong> | <strong>Manage Repositories</strong> and add <a href="https://plugins.jetbrains.com/plugins/EAP/com.intellij.bigdecimal-folding">https://plugins.jetbrains.com/plugins/EAP/com.intellij.bigdecimal-folding</a> as a custom plugin repository URL.</p> <p>For more clarity, you may try to adjust your color scheme: go to <strong>Settings</strong> | <strong>Editor</strong> | <strong>Colors &amp; Fonts</strong> | <strong>General</strong>, select <strong>Folded text</strong>, uncheck the <strong>Background</strong> color, and change the <strong>Foreground</strong> color to #000091 for the default scheme and #7CA0BB for Darcula.</p> To disable certain types of folding, go to <strong>Settings</strong> | <strong>Editor</strong> | <strong>General</strong> | <strong>Code Folding</strong>. ]]>
             </description>

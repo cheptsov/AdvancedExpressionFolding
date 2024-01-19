@@ -5,7 +5,7 @@
 <h4>Merged Pull Requests:</h4>
 <ul>
     <li><a href="https://github.com/cheptsov/AdvancedExpressionFolding/pull/132">java.time.* isBefore/isAfter folding and LocalDate literals</a></li>
-    <li><a href="https://github.com/cheptsov/AdvancedExpressionFolding/pull/128">Optimizations</a></li>
+    <li><a href="https://github.com/AntoniRokitnicki/AdvancedExpressionFolding/pulls?q=is%3Apr+is%3Aclosed">Optimizations and bugfixes</a></li>
 </ul>
 
 <p>Modern JVM languages such as Kotlin, Groovy, Scala and some others offer many language features that let you
