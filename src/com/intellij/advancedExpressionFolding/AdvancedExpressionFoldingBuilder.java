@@ -1834,18 +1834,15 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             }
 
         }
-        if (settings.getState().isGetSetExpressionsCollapse()) {
-            if (identifier.isPresent() && ((startsWith(identifier.get().getText(), "get") && identifier.get().getText().length() > 3)
-                    || (identifier.get().getText().startsWith("is") && identifier.get().getText().length() > 2))
-                    && element.getArgumentList().getExpressions().length == 0) {
+        if (settings.getState().isGetSetExpressionsCollapse() && identifier.isPresent()) {
+            if (isGetter(identifier.get(), element)) {
                 return new Getter(element, element.getTextRange(), TextRange.create(identifier.get().getTextRange().getStartOffset(),
                         element.getTextRange().getEndOffset()),
                         qualifier != null
                                 ? getAnyExpression(qualifier, document)
                                 : null,
                         guessPropertyName(identifier.get().getText()));
-            } else if (identifier.isPresent()
-                    && identifier.get().getText().startsWith("set")
+            } else if (identifier.get().getText().startsWith("set")
                     && identifier.get().getText().length() > 3
                     && Character.isUpperCase(identifier.get().getText().charAt(3))
                     && element.getArgumentList().getExpressions().length == 1
@@ -1861,6 +1858,17 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
             }
         }
         return null;
+    }
+
+    private static boolean isGetter(@NotNull PsiElement element, @NotNull PsiMethodCallExpression expression) {
+        return expression.getArgumentList().getExpressions().length == 0
+                && (isGetterAux(element.getText(), "get") || isGetterAux(element.getText(), "is"));
+    }
+
+    private static boolean isGetterAux(@Nullable String name, @NotNull String prefix) {
+        return startsWith(name, prefix)
+                && name.length() > prefix.length()
+                && Character.isUpperCase(name.charAt(prefix.length()));
     }
 
     static int findDot(@NotNull Document document, int position, int i, boolean includeNewLines) {
