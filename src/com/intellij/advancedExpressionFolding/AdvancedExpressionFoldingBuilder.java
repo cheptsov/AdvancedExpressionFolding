@@ -1,5 +1,6 @@
 package com.intellij.advancedExpressionFolding;
 
+import com.intellij.diagnostic.PluginException;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.folding.FoldingBuilderEx;
 import com.intellij.lang.folding.FoldingDescriptor;
@@ -20,6 +21,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -347,9 +349,13 @@ public class AdvancedExpressionFoldingBuilder extends FoldingBuilderEx {
 
     @Contract("_, _, true -> !null")
     private static Expression getExpression(@NotNull PsiElement element, @NotNull Document document, boolean synthetic) {
-        return CachedValuesManager.getCachedValue(element,
-                () -> CachedValueProvider.Result.create(buildExpression(element, document, synthetic),
-                        PsiModificationTracker.MODIFICATION_COUNT));
+        Supplier<Expression> supplier = () -> buildExpression(element, document, synthetic);
+        try {
+            return CachedValuesManager.getCachedValue(element, () -> CachedValueProvider.Result.create(supplier.get(),
+                    PsiModificationTracker.MODIFICATION_COUNT));
+        } catch (PluginException e) {
+            return supplier.get();
+        }
     }
 
     @SuppressWarnings("WeakerAccess")
